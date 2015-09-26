@@ -1,0 +1,59 @@
+# Template
+
+Shrubbery = 
+Rainbow Block = 
+Cement = 
+Evil Block = 
+Obsidian = 
+Basalt = 
+Pumice = 
+Pavement = 
+Oerkki Block = 
+Mossy Stone Brick = 
+Mossy Stone = 
+Cobblestone Road Bed = 
+Mossy Cobblestone Road Bed = 
+Wooden Scaffold = 
+##stairs_plus
+White Wool = 
+Grey Wool = 
+Black Wool = 
+Red Wool = 
+Yellow Wool = 
+Green Wool = 
+Cyan Wool = 
+Blue Wool = 
+Magenta Wool = 
+Orange Wool = 
+Violet Wool = 
+Brown Wool = 
+Pink Wool = 
+Dark Grey Wool = 
+Dark Green Wool = 
+
+Mossy Stone Stair = 
+Mossy Cobble Stair = 
+Mossy Stone Brick Stair = 
+Cobble Roadbed Stair = 
+Mossy Cobble Roadbed Stair = 
+Cement Stair = 
+Pavement Stair = 
+Mossy Stone Slab = 
+Mossy Cobble Slab = 
+Mossy Stone Brick Slab = 
+Cobble Roadbed Slab = 
+Mossy Cobble Roadbed Slab = 
+Cement Slab = 
+Pavement Slab = 
+
+Cement Pickaxe Wool = 
+Cement Shovel Wool = 
+Cement Axe Wool = 
+Cement Sword Wool = 
+Evil Pickaxe Wool = 
+Evil Shovel Wool = 
+Evil Axe Wool = 
+Evil Sword Wool = 
+Wet Cement Wool = 
+Evil Stick Wool = 
+Gloopblocks Loaded! =

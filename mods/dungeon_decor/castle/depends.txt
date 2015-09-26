@@ -1,0 +1,8 @@
+default
+stairs
+doors
+farming
+building_blocks?
+asphalt?
+streets?
+moreblocks?
