@@ -8,14 +8,14 @@ This game will generate an infinite underground dungeon maze based on a simple b
 
 This means the whole underground is a dungeon, and exploring it is the only way to gather resources. Even though you will start up in the surface of the world (along the vegetation and stuff) You do not start up with any tools that would allow you to obtain a renewable source of food (other than what you find scattered in the wilderness), so you may have to enter the dungeon from the start.
 
+The dungeon starts generating at y = -35 and the room next to 0,0 will show a ladder to the surface.
 
-
+The ladders going up from the first level (the one closer to the surface) will spawn in the surface entrances that you can use to access the Dungeon. This is the only way to actually enter the Dungeon, since the walls are indestructible.
 
 ![Dungeon Entrance Screenshot](menu/background.png)
 
 
-Guidelines
-----------
+#### Guidelines
 
 * What this game is not:
 
@@ -30,8 +30,7 @@ Guidelines
   * __It's based on Roguelike elements__. I will always try to draw elements from modern roguelike games like [Stone Soup Dungeon Crawl](https://crawl.develz.org/) and so.
 
 
-Being a Dungeon Maker
-=====================
+#### Being a Dungeon Maker
 
 Currently, to start Dungeon Making you need to run the game in creative mode.
 
@@ -41,35 +40,30 @@ This currently gives you a 15x10x15 space. This should be enough for most purpos
 
 You can however make the rooms smaller simply by added additional layers of wall, which will get saved along the room schematic.
 
-
 To save and load the current room (the one your player is currently standing on) you can respectively enter the following commands in the Minetest console (F10):
 
-    /rsave <NAME_OF_THE_ROOM_FILE>
+    /save <NAME_OF_THE_ROOM_FILE>
 
-    /rload <NAME_OF_THE_ROOM_FILE>
+    /load <NAME_OF_THE_ROOM_FILE>
 
-This will save/load the whole room to/from a  file that will sit in  "worlds/<WORLDNAME>/rooms/<NAME_OF_THE_ROOM_FILE>.mts" directory.
+This will save/load the whole room from/to the  "game/dungeontest/dungeon_rooms/roomdata/" directory. There will be at least an ".mts" file, but if there's additional metadata required (like inventory of chests, etc) a ".meta" file might also be created.
 
-The room will also be added to the pool of rooms that will be randomly selected during dungeon generation.
+I'm looking forward to you guys making cool rooms that you can share so that they can be included in the game by default! Just let me know and send me your files.
 
-I'm looking forward to you guys making cool rooms that you can share so that they can be included in the game by default! Just let me know.
+There are some additional commands that you can use as well:
 
+* "/reset" will re-generate the current room using the same parameters aas the ones used during the generation of the room.
 
-Future Plans
-============
+    /reset
 
-At the moment this game is mostly an experiment. I want to see in which ways I can improve the gameplay and towards which directions it could head to.
+* "/rotate" will rotate the room around the Y axis. This might be useful if you are creating a room that is designed only for a particular set of entrances.
 
-Possible ideas:
+ Note that the rotation algorithm is not very developed at this point and it might not do things optimally (it could break the room)
 
-* Instead of having an infinite dungeon with interconnected up and down stairs, divide the dungeons in areas and use a more interesting maze algorithm (like a backtracker). This would allow for perhaps more interesting dungeons and a few more possibilities (keep reading).
-* Make "creative mode" a per-player and per-dungeon-area status. This way we could have an item ("Dungeon Master rulebook"?) at a really deep level of the dungeon that gives the player that picks it "ownership" of the particular dungeon area, allowing him to set up his own traps and rooms (requires a system in place to make sure they are solvable). If another player manages to go through the rooms too he could take ownership of the dungeon instead.
-* Display some sort of "hall of fame" for each dungeon area indicating which players have reached the highest level in each dungeon.
-* ... please suggest your own ideas in the forum thread :)
+    /rotate <number multiple of 90>
 
 
-Compatibility
---------------
+#### Compatibility
 
 In theory this game would be compatible with most mods based on minetest_game,
 however due to its particular nature many of them might be unsuitable for it
@@ -80,9 +74,8 @@ mod should be compatible with Dungeontest, though you might have to adapt them t
 register
 
 
+#### License of source code
 
-License of source code
-----------------------
 Copyright (C) 2015 Fernando Carmona Varo <ferkiwi@gmail.com>
 See README file in each mod directory for information about other authors.
 
@@ -100,13 +93,10 @@ You should have received a copy of the GNU Lesser General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-License of media (textures and sounds)
---------------------------------------
+#### License of media (textures and sounds)
+
 Copyright (C) 2010-2015 Fernando Carmona Varo <ferkiwi@gmail.com>, celeron55, Perttu Ahola <celeron55@gmail.com>
 See README.txt in each mod directory for information about other authors.
 
 Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
 http://creativecommons.org/licenses/by-sa/3.0/
-
-License of menu/header.png
-Copyright (C) 2013 BlockMen CC BY-3.0

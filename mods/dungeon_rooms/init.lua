@@ -9,6 +9,7 @@ local modpath = minetest.get_modpath(minetest.get_current_modname())
 dungeon_rooms.rooms = {}
 dungeon_rooms.rooms[0] = {
 	"0/treasure",
+	"0/deadend",
 }
 dungeon_rooms.rooms[1] = {
 	"1/corridor",
@@ -46,7 +47,8 @@ dungeon_rooms.stairsdown = {
 }
 
 dungeon_rooms.stairsup = {
-	"up/stairsup",
+	--"up/stairsup",
+	"up/ladderup",
 }
 
 dungeon_rooms.stairs_distance = 5
@@ -116,7 +118,7 @@ function dungeon_rooms.get_room_details(room)
 	else
 		if not mXdoor and not mZdoor then
 			roomtype=0
-			rotation=90
+			rotation=270
 		elseif mXdoor and not mZdoor then
 			roomtype=2
 			rotation=180
@@ -179,9 +181,11 @@ function dungeon_rooms.spawn_room(center)
 	local isStairs = dungeon_rooms.is_room_stairs(room)
 	if isStairs == 1
 	then
+		rotation = 0
 		roompool = dungeon_rooms.stairsup
 	elseif isStairs == 2
 	then
+		rotation = 0
 		roompool = dungeon_rooms.stairsdown
 
 	elseif math.random(0, 5) == 0 then
@@ -253,13 +257,13 @@ end
 
 function save_room(pos, name)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
-	dungeon_rooms.save_region(minp, maxp, nil, modpath .. "/roomdata/" .. name)
+	return dungeon_rooms.save_region(minp, maxp, nil, modpath .. "/roomdata/" .. name)
 end
 
 function load_room(pos, name, rotation)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	minetest.log("action","loading " .. name);
-	dungeon_rooms.load_region(minp, modpath .. "/roomdata/" .. name, rotation, nil, true)
+	return dungeon_rooms.load_region(minp, modpath .. "/roomdata/" .. name, rotation, nil, true)
 end
 
 
@@ -293,8 +297,11 @@ minetest.register_chatcommand("load", {
 		local roomname = param or "draft"
 		local player = minetest.get_player_by_name(name)
 		local pos = player:getpos()
-		load_room(pos, roomname)
-		minetest.chat_send_player(name, "room loaded: " .. roomname)
+		if load_room(pos, roomname) then
+			minetest.chat_send_player(name, "room loaded: " .. roomname)
+		else
+			minetest.chat_send_player(name, "room couldn't be loaded")
+		end
 	end,
 })
 

@@ -13,7 +13,11 @@
 -- @return The number of nodes with metadata.
 function dungeon_rooms.save_region(minp, maxp, probability_list, filename, slice_prob_list)
 
-	minetest.create_schematic(minp, maxp, probability_list, filename .. ".mts", slice_prob_list)
+	local success = minetest.create_schematic(minp, maxp, probability_list, filename .. ".mts", slice_prob_list)
+	if not success then
+		minetest.log("error", "Problem loading schematic: " .. filename)
+		return false
+	end
 
 	dungeon_rooms.keep_loaded(minp, maxp)
 	local pos = {x=minp.x, y=0, z=0}
@@ -79,7 +83,7 @@ function dungeon_rooms.save_region(minp, maxp, probability_list, filename, slice
 		file:flush()
 		file:close()
 	end
-	return count
+	return success, count
 end
 
 

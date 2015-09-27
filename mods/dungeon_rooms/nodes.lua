@@ -1,69 +1,19 @@
 
-
-function onlyCreative(var)
-    if minetest.setting_getbool("creative_mode") then
-        return var
-    else
-        return nil
-    end
-end
-
-
 minetest.register_node("dungeon_rooms:wall", {
 	description = "Dungeon Wall",
 	tiles = {"dungeon_rooms_wall.png"},
-	groups = onlyCreative({cracky=2, stone=1}),
-  on_blast = function() end,
-  is_ground_content = false,
+	groups = {creative_breakable=1},
+	on_blast = function() end,
+	is_ground_content = false,
 	light_source = 5,
 })
-
-
-minetest.register_node("dungeon_rooms:room_spawner", {
-	description = "Room Spawner",
-	tiles = {"dungeontest_wall_decor.png"},
-	is_ground_content = true,
-	groups = onlyCreative({cracky=2, stone=1}),
-	sounds = default.node_sound_stone_defaults(),
-})
-
-minetest.register_abm( {
-	nodenames = {"dungeon_rooms:room_spawner"},
-	interval = 1,
-	chance = 1,
-	action = function(pos, node, active_object_count, active_object_count_wider)
-        minetest.set_node(pos, {name="air"})
-		dungeon_rooms.spawn_room(pos)
-        local node = minetest.get_node(pos)
-	end,
-})
-
-
-
-minetest.register_node("dungeon_rooms:entrance_spawner", {
-	description = "Entrance Spawner",
-	tiles = {"dungeontest_wall_decor.png"},
-	is_ground_content = true,
-	groups = onlyCreative({cracky=2, stone=1}),
-	sounds = default.node_sound_stone_defaults(),
-})
-
-minetest.register_abm( {
-	nodenames = {"dungeon_rooms:entrance_spawner"},
-	interval = 1,
-	chance = 1,
-	action = function(pos, node, active_object_count, active_object_count_wider)
-		dungeon_rooms.spawn_entrance(pos)
-	end,
-})
-
 
 
 minetest.register_node("dungeon_rooms:wall_decoration", {
 	description = "Dungeon Wall decoration",
 	tiles = {"dungeontest_wall_decor.png"},
 	is_ground_content = true,
-	groups = onlyCreative({cracky=2, stone=1}),
+	groups = {creative_breakable=1},
 	sounds = default.node_sound_stone_defaults(),
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
         local room = dungeon_rooms.room_at(pos)
@@ -81,7 +31,7 @@ minetest.register_node("dungeon_rooms:wall_decoration", {
 doors.register_door("dungeon_rooms:door", {
 	description = "Dungeon Door",
 	inventory_image = "dungeon_rooms_door.png",
-	groups = onlyCreative({oddly_breakable_by_hand=1,door=1}) or {immortal=1,door=1},
+	groups = {creative_breakable=1, door=1},
     light_source = 4,
 	tiles_bottom = {"dungeon_rooms_door_b.png", "doors_brown.png"},
 	tiles_top = {"dungeon_rooms_door_t.png", "doors_brown.png"},
@@ -95,8 +45,7 @@ doors.register_trapdoor("dungeon_rooms:trapdoor", {
 	wield_image = "doors_trapdoor.png",
 	tile_front = "doors_trapdoor.png",
 	tile_side = "doors_trapdoor_side.png",
-	--groups = {immortal=1, door=1},
-    groups = onlyCreative({oddly_breakable_by_hand=1, door=1}) or {door=1},
+	groups = {creative_breakable=1, door=1},
 	sounds = default.node_sound_wood_defaults(),
 	sound_open = "doors_door_open",
 	sound_close = "doors_door_close",
@@ -108,5 +57,45 @@ doors.register_trapdoor("dungeon_rooms:trapdoor", {
 castle.register_pillar("dungeon_rooms:pillar", {
     description = "Dungeon Pillar",
     tile = "dungeon_rooms_wall.png",
-    groups = onlyCreative({cracky=1}) or {immortal=1},
+    groups = {creative_breakable=1},
+})
+
+
+-- spawner nodes
+
+
+minetest.register_node("dungeon_rooms:room_spawner", {
+	description = "Room Spawner",
+	tiles = {"dungeontest_wall_decor.png"},
+	is_ground_content = false,
+    groups = {not_in_creative_inventory=1},
+	sounds = default.node_sound_stone_defaults(),
+})
+
+minetest.register_abm( {
+	nodenames = {"dungeon_rooms:room_spawner"},
+	interval = 1,
+	chance = 1,
+	action = function(pos, node, active_object_count, active_object_count_wider)
+        minetest.set_node(pos, {name="air"})
+		dungeon_rooms.spawn_room(pos)
+        local node = minetest.get_node(pos)
+	end,
+})
+
+minetest.register_node("dungeon_rooms:entrance_spawner", {
+	description = "Entrance Spawner",
+	tiles = {"dungeontest_wall_decor.png"},
+    is_ground_content = false,
+    groups = {not_in_creative_inventory=1},
+	sounds = default.node_sound_stone_defaults(),
+})
+
+minetest.register_abm( {
+	nodenames = {"dungeon_rooms:entrance_spawner"},
+	interval = 1,
+	chance = 1,
+	action = function(pos, node, active_object_count, active_object_count_wider)
+		dungeon_rooms.spawn_entrance(pos)
+	end,
 })
