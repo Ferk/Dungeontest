@@ -4,14 +4,18 @@ dungeon_rooms = {}
 
 dungeon_rooms.seed = 1
 
-local path = minetest.get_modpath(minetest.get_current_modname())
+local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 dungeon_rooms.rooms = {}
 dungeon_rooms.rooms[0] = {
-	"test"
+	"0/treasure",
 }
 dungeon_rooms.rooms[1] = {
-	"1/corridor1"
+	"1/corridor1",
+	"1/corridor1a",
+	"1/corridorb",
+	"1/parkour_lava",
+	"1/blockmess",
 }
 dungeon_rooms.rooms[2] = {
 	"2/corridor2"
@@ -86,13 +90,13 @@ function dungeon_rooms.get_room_details(room)
 	local mXdoor = (math.random() < 0.5)
 	-- Is there a door on -Z?
 	math.randomseed(dungeon_rooms.seed_for_room({x=room.x, level=room.level, z=room.z-1}))
-	local mZdoor = (math.random() < 0.5)
+	local mZdoor = not (math.random() < 0.5)
 	-- My door, should it be on X or Z?
 	math.randomseed(dungeon_rooms.seed_for_room(room))
 	local Xdoor = (math.random() < 0.5)
 
 	if Xdoor then
-		rotation="0"
+		rotation=0
 		if not mXdoor and not mZdoor then
 			roomtype=0
 		elseif mXdoor and not mZdoor then
@@ -105,20 +109,16 @@ function dungeon_rooms.get_room_details(room)
 	else
 		if not mXdoor and not mZdoor then
 			roomtype=0
-			rotation="90"
-			--rotation="270"
+			rotation=90
 		elseif mXdoor and not mZdoor then
 			roomtype=2
-			rotation="90"
-			--rotation="270"
+			rotation=180
 		elseif not mXdoor and mZdoor then
 			roomtype=1
-			rotation="90"
-			--rotation="270"
+			rotation=90
 		elseif mXdoor and mZdoor then
 			roomtype=3
-			rotation="270"
-			--rotation="90"
+			rotation=90
 		end
 	end
 
@@ -178,11 +178,11 @@ function dungeon_rooms.spawn_room(center)
 		roompool = dungeon_rooms.stairsdown
 	else
 		-- only if not stairs will rotation be random
-		rotation="random"
+		--rotation="random"
 
 		-- TODO: schematics based on roomtype
-		--roompool = dungeon_rooms.rooms[roomtype]
-		roompool = dungeon_rooms.rooms[4]
+		roompool = dungeon_rooms.rooms[roomtype]
+		--roompool = dungeon_rooms.rooms[4]
 	end
 
 	load_room(center, roompool[math.random(1, #roompool)], rotation)
@@ -192,18 +192,18 @@ end
 
 function dungeon_rooms.spawn_entrance(pos)
 	minetest.log("action","spawning dungeon entrance at "..pos.x..","..pos.y..","..pos.z)
-	local filename = path .. "/schems/dungeon_entrance.mts"
+	local filename = modpath .. "/schems/dungeon_entrance.mts"
 	minetest.place_schematic({
 			x = pos.x - 3,
 			y = pos.y,
 			z = pos.z - 3,
 		}, filename, nil, nil, true)
-	local node = {}
-	while  node.name ~= "default:ladder" do
+
+	while  pos.y > dungeon_rooms.origin.y do
 		minetest.set_node(pos, {name="default:ladder", param2=minetest.dir_to_wallmounted({x=1,y=0,z=0})})
 		pos.y = pos.y - 1
-		node = minetest.get_node(pos)
 	end
+	minetest.set_node(pos, {name="default:ladder", param2=minetest.dir_to_wallmounted({x=1,y=0,z=0})})
 end
 
 function dungeon_rooms.spawn_ladder(pos, node)
@@ -220,12 +220,12 @@ end
 function dungeon_rooms.room_at(pos)
 	local room = {
 		level = math.floor((dungeon_rooms.origin.y - pos.y) / dungeon_rooms.room_area.y),
-		x = math.floor((dungeon_rooms.origin.x - pos.x) / dungeon_rooms.room_area.x),
-		z = math.floor((dungeon_rooms.origin.z - pos.z) / dungeon_rooms.room_area.z)
+		x = math.floor((pos.x - dungeon_rooms.origin.x) / dungeon_rooms.room_area.x),
+		z = math.floor((pos.z - dungeon_rooms.origin.z) / dungeon_rooms.room_area.z)
 	}
 	room.maxp = {
-		x = dungeon_rooms.origin.x - (dungeon_rooms.room_area.x*room.x),
-		z = dungeon_rooms.origin.z - (dungeon_rooms.room_area.z*room.z),
+		x = dungeon_rooms.origin.x + (dungeon_rooms.room_area.x*(room.x+1)),
+		z = dungeon_rooms.origin.z + (dungeon_rooms.room_area.z*(room.z+1)),
 		y = dungeon_rooms.origin.y - (dungeon_rooms.room_area.y*room.level)
 	}
 	return room
@@ -244,56 +244,14 @@ function dungeon_rooms.internal_room_at(pos)
 end
 
 function save_room(pos, name)
-
 	local minp, maxp = dungeon_rooms.internal_room_at(pos)
-	--local filename = path .. "/roomdata/" .. name .. ".we"
-	local filename = path .. "/roomdata/" .. name
-
-
-	dungeon_rooms.save_region(minp, maxp, nil, filename)
-
-	-- TODO: save metadata
-
-	--[[
-	local result, count = worldedit.serialize(minp, maxp)
-	local file, err = io.open(filename, "wb")
-	if err ~= nil then
-		error("Could not save file to \"" .. filename .. "\"")
-	end
-	file:write(minetest.compress(result, "deflate" ))
-	file:flush()
-	file:close()
-	minetest.log("action", "[dungeon_rooms] " .. (count or 0) .. " nodes saved from "
-		.. minp.x .. "," .. minp.y .. "," .. minp.z
-		.. " to " .. maxp.x .. "," .. maxp.y .. "," .. maxp.z)
-	return count
-	]]
+	dungeon_rooms.save_region(minp, maxp, nil, modpath .. "/roomdata/" .. name)
 end
 
 function load_room(pos, name, rotation)
 	local minp, maxp = dungeon_rooms.internal_room_at(pos)
-
-	dungeon_rooms.load_region(minp, path .. "/roomdata/" .. name, rotation, nil, true)
-
-	-- TODO: load metadata
-
-	--[[
-	local f, err = io.open(filename, "rb")
-	if not f then
-		error("Could not open " .. filename)
-	end
-	local value_compressed = f:read("*a")
-	local value = minetest.decompress(value_compressed, "deflate");
-	f:close()
-
-	if value == nil then
-		error("File is invalid: " .. filename)
-		return
-	end
-
-	local count = worldedit.deserialize(minp, value)
-	minetest.log("action", "[dungeon_rooms] '" .. name .."' room (" .. (count or 0) .. " nodes) loaded at " .. minp.x .. "," .. minp.y .. "," .. minp.z)
-	]]
+	minetest.log("action","loading " .. name);
+	dungeon_rooms.load_region(minp, modpath .. "/roomdata/" .. name, rotation, nil, true)
 end
 
 
@@ -363,6 +321,7 @@ minetest.register_chatcommand("reset", {
 
 
 
-dofile(minetest.get_modpath("dungeon_rooms").."/nodes.lua")
-dofile(minetest.get_modpath("dungeon_rooms").."/serialization.lua")
-dofile(minetest.get_modpath("dungeon_rooms").."/mapgen.lua")
+dofile(modpath.."/nodes.lua")
+dofile(modpath.."/serialization.lua")
+dofile(modpath.."/mapgen.lua")
+--dofile(modpath.."/hud.lua")

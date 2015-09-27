@@ -92,7 +92,12 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 		rotation = rotation[math.random(1,4)]
 	end
 
-	minetest.place_schematic(minp, filename..".mts", tostring(rotation), replacements, force_placement)
+	local success = minetest.place_schematic(minp, filename .. ".mts", tostring(rotation), replacements, force_placement)
+
+	if not success then
+		minetest.log("error", "Problem loading schematic!!!")
+		return
+	end
 
 	local f, err = io.open(filename..".meta", "rb")
 	if not f then
@@ -127,7 +132,7 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
 			end
 		else
-			error("Invalid rotation value")
+			error("Invalid rotation value: " ..  (rotation or "nil"))
 		end
 	end
 	return

@@ -32,7 +32,12 @@ minetest.register_abm( {
 	interval = 1,
 	chance = 1,
 	action = function(pos, node, active_object_count, active_object_count_wider)
+        minetest.set_node(pos, {name="air"})
 		dungeon_rooms.spawn_room(pos)
+        local node = minetest.get_node(pos)
+        if node.name == "dungeon_rooms:room_spawner" then
+            minetest.log("action", "ERROR!!! NODE STILL HERE!?");
+        end
 	end,
 })
 

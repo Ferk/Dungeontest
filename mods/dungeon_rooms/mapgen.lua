@@ -29,8 +29,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
         }
 
         local next_entrance = {
-            x = maxp.x - (maxp.x % cell_size.x) - (dungeon_rooms.room_area.x/2),
-            z = maxp.z - (maxp.z % cell_size.z) - (dungeon_rooms.room_area.z/2),
+            x = maxp.x - (maxp.x % cell_size.x) + (dungeon_rooms.room_area.x/2),
+            z = maxp.z - (maxp.z % cell_size.z) + (dungeon_rooms.room_area.z/2),
         }
 
         if (minp.x < next_entrance.x) and (minp.z < next_entrance.z) then
@@ -56,9 +56,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     	local c_air = minetest.get_content_id("air")
     	local c_wall = minetest.get_content_id("dungeon_rooms:wall")
+        local c_door = minetest.get_content_id("dungeon_rooms:door")
         local c_deco = minetest.get_content_id("dungeon_rooms:wall_decoration")
-
-    	local rooms_to_generate = {}
 
     	for x = minp.x, maxp.x do
     		for y = minp.y, math.min(maxp.y,dungeon_rooms.origin.y) do
@@ -90,20 +89,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     					-- Center of the room will trigger special generation
     					if (roomp.y == halfarea.y) and (roomp.x == halfarea.x) and (roomp.z == halfarea.z) then
-                            -- first level close to origin will be pregenerated
-    						if level == 0 and
-                                math.abs(x - dungeon_rooms.origin.x) < dungeon_rooms.room_area.x and
-    						    math.abs(z - dungeon_rooms.origin.x) < dungeon_rooms.room_area.z
-    							then
-    							minetest.log("action","[dungeon_rooms] pre-spawning room "..x..","..z.." at level "..level);
-    							table.insert(rooms_to_generate, {x=x,y=y,z=z})
-    						else
-    								data[pos] = minetest.get_content_id("dungeon_rooms:room_spawner")
-    						end
-                        elseif (roomp.z == halfarea.z) and (roomp.x == halfarea.x) and (roomp.y == dungeon_rooms.room_area.y -1) then
-                            -- center of the ceiling has a wall_decor
-                            data[pos] = c_deco
-    					else
+							data[pos] = minetest.get_content_id("dungeon_rooms:room_spawner")
+                        else
     						data[pos] = c_wall
     					end
     				end
@@ -115,10 +102,5 @@ minetest.register_on_generated(function(minp, maxp, seed)
     	vm:write_to_map(data)
         vm:calc_lighting()
     	vm:update_liquids()
-
-    	-- Add metadata
-    	for k,r in pairs(rooms_to_generate) do
-            dungeon_rooms.spawn_room(r)
-    	end
     end
 end)
