@@ -90,7 +90,7 @@ ddecor.register("cardboard_box", {
 	description = "Cardboard Box",
 	inventory = {size=8},
 	infotext = "Cardboard Box",
-	groups = {snappy=3, flammable=3},
+	groups = {flammable=3},
 	tiles = {"ddecor_cardbox_top.png", "ddecor_cardbox_top.png",
 		"ddecor_cardbox_sides.png"},
 	node_box = {
@@ -100,7 +100,6 @@ ddecor.register("cardboard_box", {
 
 ddecor.register("cauldron", {
 	description = "Cauldron",
-	groups = {cracky=2},
 	tiles = {
 		{ name = "ddecor_cauldron_top_anim.png",
 			animation = {type="vertical_frames", length=3.0} },
@@ -137,7 +136,7 @@ xpanes.register_pane("chainlink", {
 	textures = {"ddecor_chainlink.png", "ddecor_chainlink.png", "xpanes_space.png"},
 	inventory_image = "ddecor_chainlink.png",
 	wield_image = "ddecor_chainlink.png",
-	groups = {snappy=3, pane=1},
+	groups = {pane=1},
 	recipe = {
 		{"default:steel_ingot", "", "default:steel_ingot"},
 		{"", "default:steel_ingot", ""},
@@ -162,7 +161,7 @@ ddecor.register("chair", {
 })
 
 ddecor.register("stone_chair", {
-	description = "Chair",
+	description = "Stone Chair",
 	tiles = {"default_stone.png"},
 	sounds = default.node_sound_stone_defaults(),
 	groups = {cracky=3},
@@ -170,7 +169,7 @@ ddecor.register("stone_chair", {
 		type = "fixed",
 		fixed = {{-0.3125, -0.5, 0.1875, -0.1875, 0.5, 0.3125},
 			{0.1875, -0.5, 0.1875, 0.3125, 0.5, 0.3125},
-			{-0.1875, 0.025, 0.22, 0.1875, 0.45, 0.28},
+			{-0.1875,  -0.125, 0.22, 0.1875, 0.45, 0.28},
 			{-0.3125, -0.5, -0.3125, -0.1875, -0.125, -0.1875},
 			{0.1875, -0.5, -0.3125, 0.3125, -0.125, -0.1875},
 			{-0.3125, -0.125, -0.3125, 0.3125, 0, 0.1875}}
@@ -192,9 +191,8 @@ ddecor.register("table", {
 
 ddecor.register("stone_table", {
 	description = "Stone Table",
-	tiles = {"ddecor_wood.png"},
-	groups = {flammable=3},
-	sounds = default.node_sound_wood_defaults(),
+	tiles = {"default_stone.png"},
+	sounds = default.node_sound_stone_defaults(),
 	node_box = {
 		type = "fixed",
 		fixed = {{-0.5, 0.4, -0.5, 0.5, 0.5, 0.5},
@@ -241,7 +239,7 @@ for _, c in pairs(colors) do
 		wield_image = "wool_white.png^[colorize:"..c..":170",
 		drawtype = "signlike",
 		paramtype2 = "wallmounted",
-		groups = {dig_immediate=3, flammable=3},
+		groups = {flammable=3},
 		selection_box = {type="wallmounted"},
 		on_rightclick = function(pos, node, _, _)
 			minetest.set_node(pos, {name="ddecor:curtain_open_"..c, param2=node.param2})
@@ -253,7 +251,7 @@ for _, c in pairs(colors) do
 		drawtype = "signlike",
 		paramtype2 = "wallmounted",
 		walkable = false,
-		groups = {dig_immediate=3, flammable=3, not_in_creative_inventory=1},
+		groups = {flammable=3, not_in_creative_inventory=1},
 		selection_box = {type="wallmounted"},
 		drop = "ddecor:curtain_"..c,
 		on_rightclick = function(pos, node, _, _)
@@ -316,7 +314,7 @@ ddecor.register("ivy", {
 	drawtype = "signlike",
 	walkable = false,
 	climbable = true,
-	groups = {dig_immediate=3, flammable=3, plant=1},
+	groups = {flammable=3, plant=1},
 	paramtype2 = "wallmounted",
 	selection_box = {type="wallmounted"},
 	legacy_wallmounted = true,
@@ -335,7 +333,7 @@ ddecor.register("lantern", {
 	paramtype2 = "wallmounted",
 	legacy_wallmounted = true,
 	walkable = false,
-	groups = {dig_immediate=3, attached_node=1},
+	groups = {attached_node=1},
 	tiles = {"ddecor_lantern_floor.png", "ddecor_lantern_ceiling.png",
 			"ddecor_lantern.png"},
 	selection_box = {
@@ -362,34 +360,15 @@ ddecor.register("packed_ice", {
 	sounds = default.node_sound_glass_defaults()
 })
 
-local flowers = {"dandelion_white", "dandelion_yellow", "geranium",
-		"rose", "tulip", "viola"}
-
-for _, f in pairs(flowers) do
-	ddecor.register("potted_"..f, {
-		description = string.gsub("Potted Flowers ("..f..")", "_", " "),
-		walkable = false,
-		groups = {dig_immediate=3, flammable=3, plant=1, flower=1},
-		tiles = {"ddecor_"..f.."_pot.png"},
-		inventory_image = "ddecor_"..f.."_pot.png",
-		drawtype = "plantlike",
-		sounds = default.node_sound_leaves_defaults(),
-		selection_box = ddecor.nodebox.slab_y(0.3)
-	})
-
-	minetest.register_craft({
-		output = "ddecor:potted_"..f,
-		recipe = {
-			{"default:clay_brick", "flowers:"..f, "default:clay_brick"},
-			{"", "default:clay_brick", ""}
-		}
-	})
-end
 
 ddecor.register("painting", {
 	description = "Painting",
 	drawtype = "signlike",
 	tiles = {"ddecor_painting.png"},
+	extra_tiles = {
+		{"ddecor_painting2.png"}, {"ddecor_painting3.png"},
+		{"ddecor_painting4.png"}
+	},
 	inventory_image = "ddecor_painting.png",
 	paramtype2 = "wallmounted",
 	legacy_wallmounted = true,
@@ -403,13 +382,18 @@ ddecor.register("blood_splat", {
 	description = "Blood Splat",
 	drawtype = "signlike",
 	tiles = {"ddecor_blood_splat.png"},
+	extra_tiles = {
+		{"ddecor_blood_splat1.png"}, {"ddecor_blood_splat2.png"},
+		{"ddecor_blood_splat3.png"}, {"ddecor_blood_splat4.png"},
+		{"ddecor_blood_splat5.png"}
+	},
+	wield_image = "ddecor_blood_splat.png",
 	inventory_image = "ddecor_blood_splat.png",
 	paramtype2 = "wallmounted",
 	legacy_wallmounted = true,
 	walkable = false,
-	wield_image = "ddecor_blood_splat.png",
 	selection_box = {type="wallmounted"},
-	groups = {dig_immediate=3, flammable=3, attached_node=1}
+	groups = {attached_node=1}
 })
 
 ddecor.register("skull", {
@@ -435,16 +419,6 @@ ddecor.register("skull", {
 	wield_image = "ddecor_skull_front.png",
 	selection_box = {type="fixed", fixed = {-0.2375, -0.475, -0.25, 0.185, 0, 0.205}},
 	groups = {dig_immediate=3}
-})
-
-ddecor.register("plant_pot", {
-	description = "Plant Pot",
-	drawtype = "plantlike",
-	inventory_image = "ddecor_plant_pot.png",
-	wield_image = "ddecor_plant_pot.png",
-	groups = {snappy=3},
-	tiles = {"ddecor_plant_pot.png"},
-	sounds = default.node_sound_stone_defaults()
 })
 
 
@@ -522,7 +496,7 @@ ddecor.register("tatami", {
 	description = "Tatami",
 	tiles = {"ddecor_tatami.png"},
 	wield_image = "ddecor_tatami.png",
-	groups = {snappy=3, flammable=3},
+	groups = {flammable=3},
 	node_box = {
 		type = "fixed", fixed = {{-0.5, -0.5, -0.5, 0.5, -0.4375, 0.5}}
 	}
@@ -533,7 +507,6 @@ ddecor.register("woodframed_glass", {
 	description = "Wood Framed Glass",
 	drawtype = "glasslike_framed",
 	tiles = {"ddecor_woodframed_glass.png", "ddecor_woodframed_glass_detail.png"},
-	groups = {cracky=3},
 	sounds = default.node_sound_glass_defaults()
 })
 
@@ -541,6 +514,6 @@ ddecor.register("wood_tile", {
 	description = "Wood Tile",
 	tiles = {"ddecor_wood_tile.png"},
 	drawtype = "normal",
-	groups = {choppy=2, wood=1, flammable=2},
+	groups = {wood=1, flammable=2},
 	sounds = default.node_sound_wood_defaults()
 })

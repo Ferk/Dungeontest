@@ -33,6 +33,14 @@ local function get_formspec_by_size(size)
 	return formspec or default_inventory_formspecs
 end
 
+local function shallow_copy(t)
+  local t2 = {}
+  for k,v in pairs(t) do
+    t2[k] = v
+  end
+  return t2
+end
+
 function ddecor.register(name, def)
 	def.drawtype = def.drawtype or (def.node_box and "nodebox")
 	def.paramtype = def.paramtype or "light"
@@ -75,5 +83,37 @@ function ddecor.register(name, def)
 		end
 	end
 
-	minetest.register_node("ddecor:".. name, def)
+	-- This will register multiple decoration nodes that only differ in its tiles
+	-- they won't be available in creative, but randomly replace this node
+	if def.extra_tiles and #def.extra_tiles ~= 0 then
+		local tileset = def.extra_tiles
+		def.extra_tiles = nil
+
+		local old_callback = def.after_place_node
+		def.after_place_node = function(pos, placer, itemstack, pointed_thing)
+			local variant = math.random(0,#tileset)
+			if variant > 0 then
+				local node = minetest.get_node(pos)
+				node.name = "ddecor:".. name .. "_" .. variant
+				minetest.log("action", "swapping with: " .. node.name)
+				minetest.swap_node(pos, node)
+			end
+			if old_callback then
+				old_callback(pos, placer, itemstack, pointed_thing)
+			end
+		end
+
+		minetest.register_node("ddecor:".. name, def)
+
+		def = shallow_copy(def)
+		def.groups = shallow_copy(def.groups)
+		def.groups.not_in_creative_inventory = 1
+		for i, tiles in pairs(tileset) do
+			def.tiles = tiles
+			minetest.log("action", "creating new tile "..i.." with skin: "  ..def.tiles[1])
+			minetest.register_node("ddecor:".. name .. "_" .. i, def)
+		end
+	else
+		minetest.register_node("ddecor:".. name, def)
+	end
 end
