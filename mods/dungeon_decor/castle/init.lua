@@ -14,7 +14,6 @@ minetest.register_node("castle:stonewall", {
 	description = "Castle Wall",
 	drawtype = "normal",
 	tiles = {"castle_stonewall.png"},
-	paramtype = light,
 	drop = "castle:stonewall",
 	groups = {cracky=3},
 
@@ -24,7 +23,6 @@ minetest.register_node("castle:rubble", {
 	description = "Castle Rubble",
 	drawtype = "normal",
 	tiles = {"castle_rubble.png"},
-	paramtype = light,
 	groups = {crumbly=3,falling_node=1},
 })
 
@@ -53,7 +51,6 @@ minetest.register_craft({
 
 minetest.register_node("castle:stonewall_corner", {
 	drawtype = "normal",
-	paramtype = light,
 	paramtype2 = "facedir",
 	description = "Castle Corner",
 	tiles = {"castle_stonewall.png",
@@ -77,7 +74,6 @@ minetest.register_node("castle:roofslate", {
 	drawtype = "raillike",
 	description = "Roof Slates",
 	inventory_image = "castle_slate.png",
-	paramtype = "light",
 	walkable = false,
 	tiles = {'castle_slate.png'},
 	climbable = true,
@@ -92,7 +88,6 @@ minetest.register_node("castle:hides", {
 	drawtype = "signlike",
 	description = "Hides",
 	inventory_image = "castle_hide.png",
-	paramtype = "light",
 	walkable = false,
 	tiles = {'castle_hide.png'},
 	climbable = true,
@@ -264,7 +259,6 @@ minetest.register_node("castle:ironbound_chest",{
 			"castle_ironbound_chest_side.png",
 			"castle_ironbound_chest_back.png",
 			"castle_ironbound_chest_front.png"},
-	paramtype = "light",
 	paramtype2 = "facedir",
 	groups = {cracky=2},
 	node_box = {
