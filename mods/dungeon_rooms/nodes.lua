@@ -35,9 +35,6 @@ minetest.register_abm( {
         minetest.set_node(pos, {name="air"})
 		dungeon_rooms.spawn_room(pos)
         local node = minetest.get_node(pos)
-        if node.name == "dungeon_rooms:room_spawner" then
-            minetest.log("action", "ERROR!!! NODE STILL HERE!?");
-        end
 	end,
 })
 
@@ -69,28 +66,13 @@ minetest.register_node("dungeon_rooms:wall_decoration", {
 	groups = onlyCreative({cracky=2, stone=1}),
 	sounds = default.node_sound_stone_defaults(),
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-		--minetest.set_timeofday(0)
-		--minetest.set_node(pos, {name="tutorial:night"})
         local room = dungeon_rooms.room_at(pos)
         local roomseed = dungeon_rooms.seed_for_room(room)
         local roomtype, rotation, Xdoor = dungeon_rooms.get_room_details(room)
 
-        local infostring = string.format("Level: %d Room: %d,%d (seed:%d type:%d door:%s)", room.level, room.x, room.z, roomseed, roomtype, Xdoor and "X" or "Z")
+        local infostring = string.format("Level: %d Room: %d,%d (type:%d rot:%d door:%s seed:%d)", room.level, room.x, room.z, roomtype, rotation, Xdoor and "X" or "Z", roomseed)
         local meta = minetest.get_meta(pos)
         meta:set_string("infotext", infostring)
-
-        --[[
-        local formspec = ""..
-        "size[12,6]"..
-        "label[-0.15,-0.4;"..minetest.formspec_escape("hey").."]"..
-        "tablecolumns[text]"..
-        "tableoptions[background=#000000;highlight=#000000;border=false]"..
-        "table[0,0.25;12,5.2;infosign_text;"..
-        minetest.formspec_escape(infostring)..
-        "]"..
-        "button_exit[4.5,5.5;3,1;close;"..minetest.formspec_escape("Close").."]"
-        meta:set_string("formspec", formspec)
-        ]]
 	end
 })
 

@@ -11,25 +11,31 @@ dungeon_rooms.rooms[0] = {
 	"0/treasure",
 }
 dungeon_rooms.rooms[1] = {
-	"1/corridor1",
-	"1/corridor1a",
+	"1/corridor",
+	"1/corridora",
 	"1/corridorb",
 	"1/parkour_lava",
 	"1/blockmess",
 }
 dungeon_rooms.rooms[2] = {
-	"2/corridor2"
+	"2/corridor",
+	"2/corridora",
+	"2/corridorb",
+	"2/traveler",
+	"2/jail1",
 }
 dungeon_rooms.rooms[3] = {
-	"3/corridor3"
+	"3/corridor",
+	"3/corridora",
+	"3/corridorb",
+	"3/treasure",
 }
 dungeon_rooms.rooms[4] = {
-	"test",
+	"corridor",
 	"standard",
 	"treasure",
 	"parkour_lava",
 	"blockmess",
-	"corridor",
 	"aquarium",
 	"battle",
 	"kitchen"
@@ -45,7 +51,8 @@ dungeon_rooms.stairsup = {
 
 dungeon_rooms.stairs_distance = 5
 
-
+-- Inverted chance for any room to be taken from the type4 pool
+dungeon_rooms.generic_room_chance = 5
 
 
 -- Return the global coordinates of a relative position on a room
@@ -176,13 +183,14 @@ function dungeon_rooms.spawn_room(center)
 	elseif isStairs == 2
 	then
 		roompool = dungeon_rooms.stairsdown
-	else
-		-- only if not stairs will rotation be random
-		--rotation="random"
 
-		-- TODO: schematics based on roomtype
+	elseif math.random(0, 5) == 0 then
+		-- We may use any of the type 4 rooms randomly
+		rotation="random"
+		roompool = dungeon_rooms.rooms[4]
+
+	else
 		roompool = dungeon_rooms.rooms[roomtype]
-		--roompool = dungeon_rooms.rooms[4]
 	end
 
 	load_room(center, roompool[math.random(1, #roompool)], rotation)
@@ -232,7 +240,7 @@ function dungeon_rooms.room_at(pos)
 end
 
 
-function dungeon_rooms.internal_room_at(pos)
+function dungeon_rooms.get_room_limits(pos)
 	local room = dungeon_rooms.room_at(pos)
 	local maxp = { x = room.maxp.x-1, y = room.maxp.y-1, z = room.maxp.z-1 }
 	local minp = {
@@ -244,19 +252,19 @@ function dungeon_rooms.internal_room_at(pos)
 end
 
 function save_room(pos, name)
-	local minp, maxp = dungeon_rooms.internal_room_at(pos)
+	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	dungeon_rooms.save_region(minp, maxp, nil, modpath .. "/roomdata/" .. name)
 end
 
 function load_room(pos, name, rotation)
-	local minp, maxp = dungeon_rooms.internal_room_at(pos)
+	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	minetest.log("action","loading " .. name);
 	dungeon_rooms.load_region(minp, modpath .. "/roomdata/" .. name, rotation, nil, true)
 end
 
 
 function clear_room(pos)
-	local minp, maxp = dungeon_rooms.internal_room_at(pos)
+	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	for x = minp.x, maxp.x do
 		for y = minp.y, maxp.y do
 			for z = minp.z, maxp.z do
@@ -271,9 +279,10 @@ minetest.register_chatcommand("save", {
 	params = "<text>",
 	description = "Saves the room",
 	func = function(name, param)
+		local roomname = param or "draft"
 		local player = minetest.get_player_by_name(name)
-		save_room(player:getpos(), param)
-		minetest.chat_send_player(name, "room saved")
+		save_room(player:getpos(), roomname)
+		minetest.chat_send_player(name, "room saved: " .. roomname)
 	end,
 })
 
@@ -281,10 +290,11 @@ minetest.register_chatcommand("load", {
 	params = "<text>",
 	description = "Loads the room",
 	func = function(name, param)
+		local roomname = param or "draft"
 		local player = minetest.get_player_by_name(name)
 		local pos = player:getpos()
-		load_room(pos, param or "test")
-		minetest.chat_send_player(name, "room loaded")
+		load_room(pos, roomname)
+		minetest.chat_send_player(name, "room loaded: " .. roomname)
 	end,
 })
 
@@ -316,6 +326,24 @@ minetest.register_chatcommand("reset", {
 	end,
 })
 
+
+minetest.register_chatcommand("rotate", {
+	params = "<angle>",
+	description = "Rotate the current Dungeon room around the Y axis by angle <angle> (90 degree increment)",
+	func = function(name, param)
+		local angle = tonumber(param) % 360
+		if angle % 90 ~= 0 then
+			minetest.chat_send_player(name, "invalid usage: angle must be multiple of 90")
+			return nil
+		end
+		if angle < 0 then
+			angle = angle + 360
+		end
+		local player = minetest.get_player_by_name(name)
+		local minp, maxp = dungeon_rooms.get_room_limits(player:getpos())
+		dungeon_rooms.rotate(minp, maxp, "y", angle)
+	end
+})
 
 --------------
 
