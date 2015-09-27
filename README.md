@@ -52,16 +52,56 @@ I'm looking forward to you guys making cool rooms that you can share so that the
 
 There are some additional commands that you can use as well:
 
-* "/reset" will re-generate the current room using the same parameters aas the ones used during the generation of the room.
+* ``/reset`` will re-generate the current room using the same parameters as the ones used during the generation of the room.
 
-    /reset
+        /reset
 
-* "/rotate" will rotate the room around the Y axis. This might be useful if you are creating a room that is designed only for a particular set of entrances.
+
+* ``/rotate`` will rotate the room around the Y axis. This might be useful if you are creating a room that is designed only for a particular set of entrances.
 
  Note that the rotation algorithm is not very developed at this point and it might not do things optimally (it could break the room)
 
-    /rotate <number multiple of 90>
+        /rotate <number multiple of 90>
 
+##### Room layouts
+
+With the current algorithm, there are 3 possible layout types:
+
+* Layout type 0 - Only one door, located in the positive X side
+
+        ---#---
+        |     |
+        |     |
+        |     |
+        -------
+
+* Layout type 1 - One door in the X and another in the -X coordinates
+
+        ---#---
+        |     |
+        |     |
+        |     |
+        ---#---
+
+* Layout type 2 - One door in the X and another in the -Z coordinates
+
+        ---#---
+        |     |
+        #     |
+        |     |
+        -------
+
+* Layout type 3 - One door in the X, another in -X and a third one in the -Z coordinates
+
+        ---#---
+        |     |
+        #     |
+        |     |
+        ---#---
+
+Every room in the dungeon is a rotation or permutation of any of these 3 layouts. There are no rooms with more than 3 doors.
+
+However, in the random pool of roomdata there's a 4th set of schematics that are layout-agnostic. Every room generated has a possibility of being replaced by one of these generic schematics. This means they have to offer openings for all of the 4 doors, even if when they are used one or more of the openings won't have a door. These schematics are placed always with a random rotation.
 
 #### Compatibility
 
