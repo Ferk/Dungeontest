@@ -30,7 +30,13 @@ dungeon_mobs.register_spawn("mobs:spider", {
 	maxlevel=8
 });
 
-dungeon_mobs.register_spawn("mobs:stonemonster", {
+dungeon_mobs.register_spawn("mobs:stone_monster", {
+    minlevel=3,
+	maxlevel=10
+});
+
+
+dungeon_mobs.register_spawn("mobs:mese_monster", {
     minlevel=3,
 	maxlevel=10
 });
