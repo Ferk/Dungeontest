@@ -65,7 +65,7 @@ There are some additional commands that you can use as well:
 
 ##### Room layouts
 
-With the current algorithm, there are 3 possible layout types:
+With the current algorithm, there are 4 possible layout types:
 
 * Layout type 0 - Only one door, located in the positive X side
 
@@ -99,7 +99,7 @@ With the current algorithm, there are 3 possible layout types:
         |     |
         ---#---
 
-Every room in the dungeon is a rotation or permutation of any of these 3 layouts. There are no rooms with more than 3 doors.
+Every room in the dungeon is a rotation or permutation of any of these 4 layouts. There are no rooms with more than 3 doors.
 
 However, in the random pool of roomdata there's a 4th set of schematics that are layout-agnostic. Every room generated has a possibility of being replaced by one of these generic schematics. This means they have to offer openings for all of the 4 doors, even if when they are used one or more of the openings won't have a door. These schematics are placed always with a random rotation.
 
