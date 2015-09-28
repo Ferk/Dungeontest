@@ -24,8 +24,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
         if (maxp.y > 80) then return end
 
         local cell_size = {
-            x = dungeon_rooms.stairs_distance * dungeon_rooms.room_area.x,
-            z = dungeon_rooms.stairs_distance * dungeon_rooms.room_area.z,
+            x = 2*dungeon_rooms.stairs_distance * dungeon_rooms.room_area.x,
+            z = 2*dungeon_rooms.stairs_distance * dungeon_rooms.room_area.z,
         }
 
         local next_entrance = {
