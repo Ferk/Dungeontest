@@ -1,0 +1,43 @@
+
+
+
+* Store/Restore metadata along the schematics DONE
+
+* Could we extend playereffects to be applied to other entities? could they be used for statuses like "hungry", "starving", "food poisoning", etc?
+  + See:  , https://github.com/Bremaweb/adventuretest/blob/master/mods/sickness/init.lua
+  	      https://github.com/Bremaweb/adventuretest/tree/master/mods/affects
+  + Ideas:
+  	- Dizzy/confusion (change the player eye_yaw randomly)
+	- Minified (change eye_offset to be on ground level, try and resize the player model as well)
+	- Poisoned
+	- Food poisoning (in addition to being poisoned, you throw up everything you eat)
+
+* Develop dungeon_chests:
+  - add chests with loot chosen at random
+  - trap chests (poison cloud chest, tnt chest, mimic?) DONE
+  - chests that require a key to open
+  - glass chests? (perhaps for dungeon shops)
+
+* Finish cleaning up dungeon_decor:
+  - Remove stuff we don't want from xdecor (maybe dissect in separate mods?) DONE
+
+* Add scrolls and more spells/effects.
+  The idea is that scrolls will be the mod that uses all the spells, there will always be a scroll per spell the player can do (there won't be craft recipes to prevent abuse of strong spells), even though we might later introduce things like rods that may allow forsome of the spells so that they can be casted using mana. In this case, the rods will depend on scrolls.
+  + Ideas
+    - Teleport: teleports to a random location what you point to, or teleports you on right clik
+  	- Blinking: teleports you to the pointed place on dig, does nothing? on use
+	- Fireflame: Creates fire where pointed.
+	- Fireball: Throws a fireball
+	- Freeze:  Freezes the entity (or node?) pointed.
+	- Fertility: Sprout some plants and maybe some node conversion if it makes sense (stone->mossy, dirt->grass, etc)
+	- Summoning: summons some mob that follows and protects you for a certain duration
+	- Shielding: makes target invulnerable for a set amount of time
+	
+
+* Add statues / altars.
+  - Eresh, goddess of life and death: used as a checkpoint, instead of respawning randomly after death you appear on the last goddess altar you prayed at
+  - Xom, god of chaos: unpredictable events happen when you pray on this God's altar (random effects set to the player or random spell happening, some bad some good)
+  - Trog, god of rage: might give some sort of "bloodlust" status effect.. I guess basically increase attack damage for a while and decrease defense
+
+
+
