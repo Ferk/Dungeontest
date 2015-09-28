@@ -2,10 +2,10 @@
 -- Definitions made by this mod that other mods can use too
 dungeon_rooms = {}
 
+-- Will be set to the world's seed on mapgen init
 dungeon_rooms.seed = 1
 
-local modpath = minetest.get_modpath(minetest.get_current_modname())
-
+-- Table containing the pools of room schematics for each layout
 dungeon_rooms.rooms = {}
 dungeon_rooms.rooms[0] = {
 	"0/treasure",
@@ -57,6 +57,11 @@ dungeon_rooms.stairs_distance = 5
 dungeon_rooms.generic_room_chance = 5
 
 
+--------------
+
+local modpath = minetest.get_modpath(minetest.get_current_modname())
+
+
 -- Return the global coordinates of a relative position on a room
 local function roomp2pos(roomp, room)
 	return {
@@ -76,6 +81,10 @@ local function pos2roomp(pos)
 	return roomp
 end
 
+
+--------------
+
+-- Get the current Dungeon level at the given position
 function dungeon_rooms.get_level(pos)
 	return math.floor((dungeon_rooms.origin.y - pos.y) / dungeon_rooms.room_area.y /2)
 end
@@ -91,6 +100,7 @@ function dungeon_rooms.seed_for_room(room)
 	return hash
 end
 
+-- Collect room details that are used to determine what type of room to spawn
 function dungeon_rooms.get_room_details(room)
 	local rotation, roomtype, doorp
 
@@ -134,7 +144,7 @@ function dungeon_rooms.get_room_details(room)
 	return roomtype, rotation, Xdoor
 end
 
--- Returns nil if room is not a stairs
+-- Returns nil if room is not a stairs room
 -- 1 for stairs up
 -- 2 for stairs down
 function dungeon_rooms.is_room_stairs(room)
@@ -152,6 +162,7 @@ function dungeon_rooms.is_room_stairs(room)
 	end
 end
 
+-- Given the position of the center of a room, place doors and appropiate schematics to generate the room
 function dungeon_rooms.spawn_room(center)
 
 	local doorp = {
@@ -201,7 +212,7 @@ function dungeon_rooms.spawn_room(center)
 end
 
 
-
+-- Places a dungeon entrance in the given position of the world
 function dungeon_rooms.spawn_entrance(pos)
 	minetest.log("action","spawning dungeon entrance at "..pos.x..","..pos.y..","..pos.z)
 	local filename = modpath .. "/schems/dungeon_entrance.mts"
@@ -218,6 +229,7 @@ function dungeon_rooms.spawn_entrance(pos)
 	minetest.set_node(pos, {name="default:ladder", param2=minetest.dir_to_wallmounted({x=1,y=0,z=0})})
 end
 
+-- Places a ladder going down to the next dungeon level
 function dungeon_rooms.spawn_ladder(pos, node)
 	local ladderLength = 1 + dungeon_rooms.room_area.y + (pos.y - dungeon_rooms.origin.y) % dungeon_rooms.room_area.y
 	minetest.log("action","spawning ladder down ".. pos.y .. " to " .. pos.y-ladderLength)
@@ -227,8 +239,7 @@ function dungeon_rooms.spawn_ladder(pos, node)
 end
 
 
-
-
+-- Obtain the room that contains the given position in the world
 function dungeon_rooms.room_at(pos)
 	local room = {
 		level = math.floor((dungeon_rooms.origin.y - pos.y) / dungeon_rooms.room_area.y),
@@ -243,7 +254,8 @@ function dungeon_rooms.room_at(pos)
 	return room
 end
 
-
+-- Obtain the minp and maxp coordinates of the inside of a room that contains the given position
+-- these are the limits used for save and loading the schematics
 function dungeon_rooms.get_room_limits(pos)
 	local room = dungeon_rooms.room_at(pos)
 	local maxp = { x = room.maxp.x-1, y = room.maxp.y-1, z = room.maxp.z-1 }
@@ -255,18 +267,20 @@ function dungeon_rooms.get_room_limits(pos)
 	return minp, maxp
 end
 
+-- Save the schematic of the room in the given position, with the given name
 function save_room(pos, name)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	return dungeon_rooms.save_region(minp, maxp, nil, modpath .. "/roomdata/" .. name)
 end
 
+-- Load the given schematic name in the room of the given position, with the given rotation
 function load_room(pos, name, rotation)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	minetest.log("action","loading " .. name);
 	return dungeon_rooms.load_region(minp, modpath .. "/roomdata/" .. name, rotation, nil, true)
 end
 
-
+-- Empties the schematic area (filling it with air)
 function clear_room(pos)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	for x = minp.x, maxp.x do
@@ -278,6 +292,9 @@ function clear_room(pos)
 	end
 end
 
+
+--------------
+-- Chat commands
 
 minetest.register_chatcommand("save", {
 	params = "<text>",
@@ -353,7 +370,6 @@ minetest.register_chatcommand("rotate", {
 })
 
 --------------
-
 
 
 dofile(modpath.."/nodes.lua")
