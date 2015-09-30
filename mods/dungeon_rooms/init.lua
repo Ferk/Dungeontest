@@ -39,6 +39,7 @@ dungeon_rooms.rooms[3] = {
 	"3/darker",
 	"3/evendarker",
 	"3/secretrod",
+	"3/hiddendoor",
 }
 dungeon_rooms.rooms[4] = {
 	"corridor",
