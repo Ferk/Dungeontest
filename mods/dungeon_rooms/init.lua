@@ -10,6 +10,7 @@ dungeon_rooms.rooms = {}
 dungeon_rooms.rooms[0] = {
 	"0/treasure",
 	"0/deadend",
+	"0/xom",
 }
 dungeon_rooms.rooms[1] = {
 	"1/corridor",
@@ -17,6 +18,8 @@ dungeon_rooms.rooms[1] = {
 	"1/corridorb",
 	"1/parkour_lava",
 	"1/blockmess",
+	"1/spikes",
+	"1/spikesb",
 }
 dungeon_rooms.rooms[2] = {
 	"2/corridor",
@@ -24,6 +27,7 @@ dungeon_rooms.rooms[2] = {
 	"2/corridorb",
 	"2/traveler",
 	"2/jail1",
+	"2/stone",
 }
 dungeon_rooms.rooms[3] = {
 	"3/corridor",

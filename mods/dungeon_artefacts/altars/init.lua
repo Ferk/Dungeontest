@@ -1,64 +1,24 @@
 local tmp = {}
 
+local modpath = minetest.get_modpath("altars")
 
-local favors_file = minetest.get_worldpath() .. "/godfavors"
-local favors = {
-   eresh = {}
-}
+gods = {}
 
-local gods = {
-   {
-	  title = "Eresh, goddess of Life and Death",
-	  texture = "altar_eresh.png",
-	  particle = "altars_eresh_particle.png",
-	  on_pray = function(pos, node, player, itemstack)
-		 local name = player:get_player_name()
-		 favors.eresh[name] = {pos= player:getpos()}
-		 minetest.chat_send_player(name, "Eresh listened to your prayers")
-	  end
-   },
+dofile(modpath.."/eresh.lua")
 
-   {
-	  title = "Xom, god of chaos",
-	  texture = "altars_xom.png",
-	  particle = "altars_xom_particle.png",
-   },
-   {
-	  title = "Trog, god of rage",
-	  texture = "altars_trog.png",
-	  particle = "mobs_blood.png",
-   }
-}
+table.insert(gods, {
+	title = "Xom, god of chaos",
+	texture = "altars_xom.png",
+	particle = "altars_xom_particle.png",
+})
 
-local function loadfavors()
-    local input = io.open(homes_file, "r")
-    if input then
-		repeat
-            local x = input:read("*n")
-            if x == nil then
-            	break
-            end
-            local y = input:read("*n")
-            local z = input:read("*n")
-            local name = input:read("*l")
-            homepos[name:sub(2)] = {x = x, y = y, z = z}
-        until input:read(0) == nil
-        io.close(input)
-    else
-        homepos = {}
-    end
-end
+table.insert(gods, {
+	title = "Trog, god of rage",
+	texture = "altars_trog.png",
+	particle = "mobs_blood.png",
+})
 
-minetest.register_on_respawnplayer(function(player)
-	if not favors.eresh then return false end
-	local name = player:get_player_name()
-	local fav = favors.eresh[name]
-	if fav and fav.pos then
-	   player:setpos(fav.pos)
-	   minetest.chat_send_player(name, "Eresh favors you!")
-	   return true
-	end
-end)
+
 
 minetest.register_entity("altars:altar_top", {
 	hp_max = 1,
@@ -119,7 +79,7 @@ local remove_top = function(pos)
    local objs = nil
    objs = minetest.get_objects_inside_radius({x=pos.x,y=pos.y+1,z=pos.z}, .5)
    if not objs then return end
-   
+
    for _, obj in pairs(objs) do
 	  if obj and obj:get_luaentity() and
 		 obj:get_luaentity().name == "altars:altar_top" then
@@ -137,17 +97,18 @@ local update_top = function(pos, node)
 
 	if not godi or not gods[godi] then
 	   -- assign a god at random
-	   godi = math.random(1, #gods)
+	   --godi = math.random(1, #gods)
+       godi = 1 -- for now just use eresh always since the other ones do nothing
 	   meta:set_int("god", godi)
 	   meta:set_string("infotext", "Altar of " .. gods[godi].title)
 	end
-	
+
 	pos.y = pos.y + 1
 	tmp.nodename = node.name
 	tmp.texture = gods[godi].texture
 
 	particle_effect(pos,godi)
-	
+
 	local e = minetest.add_entity(pos, "altars:altar_top")
 	local yaw = math.pi*2 - node.param2 * math.pi/2
 	e:setyaw(yaw)
@@ -181,20 +142,17 @@ minetest.register_node("altars:altar_base", {
 	   update_top(pos, node)
 	end,
 	on_rightclick = function(pos, node, player, itemstack)
-
-	   if minetest.setting_getbool("creative_mode") then
-		  update_top(pos, node)
-	   else
-		  local meta = minetest.get_meta(pos)
-		  local god = gods[meta:get_int("god")]
-		  minetest.log("action","is there a god?")
-		  if god then
-			 minetest.log("action","yes!")
-			 if god.on_pray then
-				minetest.log("action","and prayable!")
-				god.on_pray(pos, node, player, itemstack)
-			 end
-		  end
+        local meta = minetest.get_meta(pos)
+        if minetest.setting_getbool("creative_mode") then
+            meta:set_int("god", nil)
+		    update_top(pos, node)
+	    else
+		    local god = gods[meta:get_int("god")]
+		    if god then
+			    if god.on_pray then
+				    god.on_pray(pos, node, player, itemstack)
+			    end
+		    end
 	   end
 	end,
 	on_destruct = function(pos)
@@ -217,6 +175,6 @@ minetest.register_abm({
 		local num = #minetest.get_objects_inside_radius(pos, 0.5)
 		if num > 0 then return end
 		update_top(pos, node)
-		
+
 	end
 })

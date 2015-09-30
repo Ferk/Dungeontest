@@ -438,6 +438,32 @@ for _, b in pairs({{"cactus", "cactus"}, {"moon", "stone"}}) do
 })
 end
 
+ddecor.register("spikes", {
+	description = "Short Spikes",
+	tiles = {"ddecor_spikes_small.png"},
+	inventory_image = "ddecor_spikes_small.png",
+	walkable = false,
+	drawtype = "plantlike",
+	damage_per_second = 1,
+	collision_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.5, 0.5, 0.1, 0.5}
+	},
+	selection_box = {
+		type = "fixed",
+		fixed = {-0.5, -0.5, -0.5, 0.5, 0.1, 0.5}
+	}
+})
+
+ddecor.register("spikes_large", {
+	description = "Long spikes",
+	tiles = {"ddecor_spikes_large.png"},
+	inventory_image = "ddecor_spikes_large.png",
+	walkable = false,
+	drawtype = "plantlike",
+	damage_per_second = 2
+})
+
 ddecor.register("multishelf", {
 	description = "Multi Shelf",
 	inventory = {size=24},
