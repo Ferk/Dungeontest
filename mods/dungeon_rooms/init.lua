@@ -20,6 +20,7 @@ dungeon_rooms.rooms[1] = {
 	"1/blockmess",
 	"1/spikes",
 	"1/spikesb",
+	"1/bumpyholes",
 }
 dungeon_rooms.rooms[2] = {
 	"2/corridor",
@@ -28,12 +29,16 @@ dungeon_rooms.rooms[2] = {
 	"2/traveler",
 	"2/jail1",
 	"2/stone",
+	"2/webs",
 }
 dungeon_rooms.rooms[3] = {
 	"3/corridor",
 	"3/corridora",
 	"3/corridorb",
 	"3/treasure",
+	"3/darker",
+	"3/evendarker",
+	"3/secretrod",
 }
 dungeon_rooms.rooms[4] = {
 	"corridor",
@@ -212,7 +217,10 @@ function dungeon_rooms.spawn_room(center)
 		roompool = dungeon_rooms.rooms[roomtype]
 	end
 
-	load_room(center, roompool[math.random(1, #roompool)], rotation)
+	local chosen = roompool[math.random(1, #roompool)]
+	load_room(center, chosen, rotation)
+	
+	return chosen, rotation
 end
 
 
@@ -318,7 +326,7 @@ minetest.register_chatcommand("load", {
 		local roomname = param or "draft"
 		local player = minetest.get_player_by_name(name)
 		local pos = player:getpos()
-		if load_room(pos, roomname) then
+		if load_room(pos, roomname, 0) then
 			minetest.chat_send_player(name, "room loaded: " .. roomname)
 		else
 			minetest.chat_send_player(name, "room couldn't be loaded")
@@ -349,8 +357,9 @@ minetest.register_chatcommand("reset", {
 			y = room.maxp.y - math.floor(dungeon_rooms.room_area.y/2),
 			z = room.maxp.z - math.floor(dungeon_rooms.room_area.z/2),
 		}
-		dungeon_rooms.spawn_room(center)
-		minetest.chat_send_player(name, "room regenerated")
+		local chosen, rotation = dungeon_rooms.spawn_room(center)
+		minetest.chat_send_player(name, "room regenerated: " .. chosen ..
+								  " (angle:" .. rotation .. ")")
 	end,
 })
 
@@ -369,7 +378,7 @@ minetest.register_chatcommand("rotate", {
 		end
 		local player = minetest.get_player_by_name(name)
 		local minp, maxp = dungeon_rooms.get_room_limits(player:getpos())
-		dungeon_rooms.rotate(minp, maxp, "y", angle)
+		dungeon_rooms.rotate(minp, maxp, angle)
 	end
 })
 

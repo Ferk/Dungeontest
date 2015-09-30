@@ -111,7 +111,7 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 
 	local f, err = io.open(filename..".meta", "rb")
 	if not f then
-		minetest.log("action", "Schematic without metadata loaded: " .. filename)
+		--minetest.log("action", "Schematic without metadata loaded: " .. filename)
 		return {}
 	end
 	local data = minetest.deserialize(minetest.decompress(f:read("*a")))
@@ -130,15 +130,15 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 			if entry.meta then get_meta(entry):from_table(entry.meta) end
 		end
 	else
-		local maxp_x, maxp_y, maxp_z = minp.x + data.size.x, minp.y + data.size.y, minp.z + data.size.z
+		local maxp_x, maxp_z = minp.x + data.size.x, minp.z + data.size.z
 		if rotation == 180 then
 			for i, entry in ipairs(data.nodes) do
-				entry.x, entry.y, entry.z = maxp_x - entry.x, maxp_y - entry.y, maxp_z - entry.z
+				entry.x, entry.y, entry.z = maxp_x - entry.x, minp.y + entry.y, maxp_z - entry.z
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
 			end
 		elseif rotation == 270 then
 			for i, entry in ipairs(data.nodes) do
-				entry.x, entry.y, entry.z = maxp_x - entry.z, maxp_y - entry.y, maxp_z - entry.x
+				entry.x, entry.y, entry.z = maxp_x - entry.z, minp.y + entry.y, maxp_z - entry.x
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
 			end
 		else
@@ -153,146 +153,65 @@ end
 --- Rotates a region clockwise around an axis.
 -- @param pos1
 -- @param pos2
--- @param axis Axis ("x", "y", or "z").
--- @param angle Angle in degrees (90 degree increments only).
--- @return The number of nodes rotated.
--- @return The new first position.
--- @return The new second position.
-function dungeon_rooms.rotate(pos1, pos2, axis, angle)
+-- @param rotation Angle in degrees (90 degree increments only).
+-- @return true if successful, false on error
+function dungeon_rooms.rotate(minp, maxp, rotation)
 
-	local other1, other2 = dungeon_rooms.get_axis_others(axis)
+   rotation = rotation % 360
+   if not rotation or rotation == 0 then return true end
 
-	local count
-	if angle == 90 then
-		dungeon_rooms.flip(pos1, pos2, other1)
-		pos1, pos2 = dungeon_rooms.transpose(pos1, pos2, other1, other2)
-	elseif angle == 180 then
-		dungeon_rooms.flip(pos1, pos2, other1)
-		dungeon_rooms.flip(pos1, pos2, other2)
-	elseif angle == 270 then
-		dungeon_rooms.flip(pos1, pos2, other2)
-		pos1, pos2 = dungeon_rooms.transpose(pos1, pos2, other1, other2)
-	else
-		error("Unsupported rotation angle: " .. (angle or "nil"))
+   -- First load the schematic in a table
+   local nodes = {}
+   local pos = { x = minp.x }
+   while pos.x <= maxp.x do
+	  pos.y = minp.y
+	  while pos.y <= maxp.y do
+		 pos.z = minp.z
+		 while pos.z <= maxp.z do
+			-- Calculate coordinates relative to minp
+			table.insert(nodes, {
+				rx = pos.x - minp.x, 
+				rz = pos.z - minp.z,
+				y = pos.y, -- this one will be fixed
+				node = minetest.get_node(pos),
+				meta = minetest.get_meta(pos):to_table(),
+			})
+			pos.z = pos.z + 1
+		 end
+		 pos.y = pos.y + 1
+	  end
+	  pos.x = pos.x + 1
 	end
-	return pos1, pos2
+
+   -- Now apply the table rotated to the map
+   if rotation == 90 then
+		for i, entry in ipairs(nodes) do
+		   entry.x, entry.z = minp.x + entry.rz, minp.z + entry.rx
+		   minetest.set_node(entry, entry.node)
+		   minetest.get_meta(entry):from_table(entry.meta)
+		end
+   else
+	  if rotation == 180 then
+		 for i, entry in ipairs(nodes) do
+			entry.x, entry.z = maxp.x - entry.rx, maxp.z - entry.rz
+			minetest.set_node(entry, entry.node)
+			minetest.get_meta(entry):from_table(entry.meta)
+		 end
+	  elseif rotation == 270 then
+		 for i, entry in ipairs(nodes) do
+			entry.x, entry.z = maxp.x - entry.rz, maxp.z - entry.rx
+			minetest.set_node(entry, entry.node)
+			minetest.get_meta(entry):from_table(entry.meta)
+		 end
+	  else
+		 minetest.log("error", "Unsupported rotation angle: " ..  (rotation or "nil"))
+		 return false
+	  end
+   end
+   return true
 end
 
 
-
-
---- Transposes a region between two axes.
--- @return The number of nodes transposed.
--- @return The new transposed position 1.
--- @return The new transposed position 2.
-function dungeon_rooms.transpose(pos1, pos2, axis1, axis2)
-
-	local compare
-	local extent1, extent2 = pos2[axis1] - pos1[axis1], pos2[axis2] - pos1[axis2]
-
-	if extent1 > extent2 then
-		compare = function(extent1, extent2)
-			return extent1 > extent2
-		end
-	else
-		compare = function(extent1, extent2)
-			return extent1 < extent2
-		end
-	end
-
-	-- Calculate the new position 2 after transposition
-	local new_pos2 = {x=pos2.x, y=pos2.y, z=pos2.z}
-	new_pos2[axis1] = pos1[axis1] + extent2
-	new_pos2[axis2] = pos1[axis2] + extent1
-
-	local upper_bound = {x=pos2.x, y=pos2.y, z=pos2.z}
-	if upper_bound[axis1] < new_pos2[axis1] then upper_bound[axis1] = new_pos2[axis1] end
-	if upper_bound[axis2] < new_pos2[axis2] then upper_bound[axis2] = new_pos2[axis2] end
-	dungeon_rooms.keep_loaded(pos1, upper_bound)
-
-	local pos = {x=pos1.x, y=0, z=0}
-	local get_node, get_meta, set_node = minetest.get_node,
-			minetest.get_meta, minetest.set_node
-	while pos.x <= pos2.x do
-		pos.y = pos1.y
-		while pos.y <= pos2.y do
-			pos.z = pos1.z
-			while pos.z <= pos2.z do
-				local extent1, extent2 = pos[axis1] - pos1[axis1], pos[axis2] - pos1[axis2]
-				if compare(extent1, extent2) then -- Transpose only if below the diagonal
-					local node1 = get_node(pos)
-					local meta1 = get_meta(pos):to_table()
-					local value1, value2 = pos[axis1], pos[axis2] -- Save position values
-					pos[axis1], pos[axis2] = pos1[axis1] + extent2, pos1[axis2] + extent1 -- Swap axis extents
-					local node2 = get_node(pos)
-					local meta2 = get_meta(pos):to_table()
-					set_node(pos, node1)
-					get_meta(pos):from_table(meta1)
-					pos[axis1], pos[axis2] = value1, value2 -- Restore position values
-					set_node(pos, node2)
-					get_meta(pos):from_table(meta2)
-				end
-				pos.z = pos.z + 1
-			end
-			pos.y = pos.y + 1
-		end
-		pos.x = pos.x + 1
-	end
-	return pos1, new_pos2
-end
-
-
---- Flips a region along `axis`.
--- @return The number of nodes flipped.
-function dungeon_rooms.flip(pos1, pos2, axis)
-
-	dungeon_rooms.keep_loaded(pos1, pos2)
-
-	--- TODO: Flip the region slice by slice along the flip axis using schematic method.
-	local pos = {x=pos1.x, y=0, z=0}
-	local start = pos1[axis] + pos2[axis]
-	pos2[axis] = pos1[axis] + math.floor((pos2[axis] - pos1[axis]) / 2)
-	local get_node, get_meta, set_node = minetest.get_node,
-			minetest.get_meta, minetest.set_node
-	while pos.x <= pos2.x do
-		pos.y = pos1.y
-		while pos.y <= pos2.y do
-			pos.z = pos1.z
-			while pos.z <= pos2.z do
-				local node1 = get_node(pos)
-				local meta1 = get_meta(pos):to_table()
-				local value = pos[axis] -- Save position
-				pos[axis] = start - value -- Shift position
-				local node2 = get_node(pos)
-				local meta2 = get_meta(pos):to_table()
-				set_node(pos, node1)
-				get_meta(pos):from_table(meta1)
-				pos[axis] = value -- Restore position
-				set_node(pos, node2)
-				get_meta(pos):from_table(meta2)
-				pos.z = pos.z + 1
-			end
-			pos.y = pos.y + 1
-		end
-		pos.x = pos.x + 1
-	end
-	return
-end
-
-
---- Gets other axes given an axis.
--- @raise Axis must be x, y, or z!
-function dungeon_rooms.get_axis_others(axis)
-	if axis == "x" then
-		return "y", "z"
-	elseif axis == "y" then
-		return "x", "z"
-	elseif axis == "z" then
-		return "x", "y"
-	else
-		error("Axis must be x, y, or z!")
-	end
-end
 
 function dungeon_rooms.keep_loaded(pos1, pos2)
 	local manip = minetest.get_voxel_manip()

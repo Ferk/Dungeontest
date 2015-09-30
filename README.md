@@ -59,7 +59,7 @@ There are some additional commands that you can use as well:
 
 * ``/rotate`` will rotate the room around the Y axis. This might be useful if you are creating a room that is designed only for a particular set of entrances.
 
- Note that the rotation algorithm is not very developed at this point and it might not do things optimally (it could break the room)
+ Note that rotating a room can result in the player getting stuck inside a wall, so I'd recomend having noclip enabled during such manipulation
 
         /rotate <number multiple of 90>
 

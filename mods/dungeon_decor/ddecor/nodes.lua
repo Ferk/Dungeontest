@@ -438,6 +438,13 @@ for _, b in pairs({{"cactus", "cactus"}, {"moon", "stone"}}) do
 })
 end
 
+
+ddecor.register("phantom_stonebrick", {
+	description = "Phantom Stone Brick",
+	tiles = {"default_stone_brick.png"},
+	walkable = false,
+})
+
 ddecor.register("spikes", {
 	description = "Short Spikes",
 	tiles = {"ddecor_spikes_small.png"},
