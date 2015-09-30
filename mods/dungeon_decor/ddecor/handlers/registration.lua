@@ -95,7 +95,6 @@ function ddecor.register(name, def)
 			if variant > 0 then
 				local node = minetest.get_node(pos)
 				node.name = "ddecor:".. name .. "_" .. variant
-				minetest.log("action", "swapping with: " .. node.name)
 				minetest.swap_node(pos, node)
 			end
 			if old_callback then
@@ -110,7 +109,6 @@ function ddecor.register(name, def)
 		def.groups.not_in_creative_inventory = 1
 		for i, tiles in pairs(tileset) do
 			def.tiles = tiles
-			minetest.log("action", "creating new tile "..i.." with skin: "  ..def.tiles[1])
 			minetest.register_node("ddecor:".. name .. "_" .. i, def)
 		end
 	else
