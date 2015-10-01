@@ -16,13 +16,13 @@ minetest.register_node("dungeon_rooms:wall_decoration", {
 	groups = {creative_breakable=1},
 	sounds = default.node_sound_stone_defaults(),
 	on_rightclick = function(pos, node, clicker, itemstack, pointed_thing)
-        local room = dungeon_rooms.room_at(pos)
-        local roomseed = dungeon_rooms.seed_for_room(room)
-        local roomtype, rotation, Xdoor = dungeon_rooms.get_room_details(room)
-
-        local infostring = string.format("Level: %d Room: %d,%d (type:%d rot:%d door:%s seed:%d)", room.level, room.x, room.z, roomtype, rotation, Xdoor and "X" or "Z", roomseed)
-        local meta = minetest.get_meta(pos)
-        meta:set_string("infotext", infostring)
+	    local room = dungeon_rooms.room_at(pos)
+	    local roomseed = dungeon_rooms.seed_for_room(room)
+	    local roomtype, rotation, Xdoor = dungeon_rooms.get_room_details(room)
+	
+	    local infostring = string.format("Level: %d Room: %d,%d (type:%d rot:%d door:%s seed:%d)", room.level, room.x, room.z, roomtype, rotation, Xdoor and "X" or "Z", roomseed)
+	    local meta = minetest.get_meta(pos)
+	    meta:set_string("infotext", infostring)
 	end
 })
 
@@ -32,7 +32,7 @@ doors.register_door("dungeon_rooms:door", {
 	description = "Dungeon Door",
 	inventory_image = "dungeon_rooms_door.png",
 	groups = {creative_breakable=1, door=1},
-    light_source = 4,
+    	light_source = 4,
 	tiles_bottom = {"dungeon_rooms_door_b.png", "doors_brown.png"},
 	tiles_top = {"dungeon_rooms_door_t.png", "doors_brown.png"},
 	sounds = default.node_sound_wood_defaults(),
@@ -49,7 +49,7 @@ doors.register_trapdoor("dungeon_rooms:trapdoor", {
 	sounds = default.node_sound_wood_defaults(),
 	sound_open = "doors_door_open",
 	sound_close = "doors_door_close",
-    on_open = dungeon_rooms.spawn_ladder
+    	on_open = dungeon_rooms.spawn_ladder
 })
 
 -- pillars
@@ -68,7 +68,7 @@ minetest.register_node("dungeon_rooms:room_spawner", {
 	description = "Room Spawner",
 	tiles = {"dungeontest_wall_decor.png"},
 	is_ground_content = false,
-    groups = {not_in_creative_inventory=1},
+    	groups = {not_in_creative_inventory=1},
 	sounds = default.node_sound_stone_defaults(),
 })
 
@@ -79,15 +79,14 @@ minetest.register_abm( {
 	action = function(pos, node, active_object_count, active_object_count_wider)
         minetest.set_node(pos, {name="air"})
 		dungeon_rooms.spawn_room(pos)
-        local node = minetest.get_node(pos)
 	end,
 })
 
 minetest.register_node("dungeon_rooms:entrance_spawner", {
 	description = "Entrance Spawner",
 	tiles = {"dungeontest_wall_decor.png"},
-    is_ground_content = false,
-    groups = {not_in_creative_inventory=1},
+    	is_ground_content = false,
+    	groups = {not_in_creative_inventory=1},
 	sounds = default.node_sound_stone_defaults(),
 })
 
