@@ -161,7 +161,7 @@ function dungeon_rooms.is_room_stairs(room)
 	if room.x % dungeon_rooms.stairs_distance == 0 and
 		room.z % dungeon_rooms.stairs_distance == 0
 	then
-		if room.x % 2 == 0 and (room.z + room.level/2) % 2 == 0
+		if room.x % 2 == (room.z + room.level/2) % 2
 		then
 			return 1 -- stairsup
 		else
