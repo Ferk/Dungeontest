@@ -100,7 +100,7 @@ function dungeon_rooms.save_region(minp, maxp, probability_list, filename, slice
 							inventory[index] = stack.to_string and stack:to_string() or stack
 						end
 					end
-					if meta.fields and #meta.fields ~= 0 then
+					if meta.fields and next(meta.fields) ~= nil then
 						meta_empty = false
 					end
 
@@ -141,6 +141,9 @@ function dungeon_rooms.save_region(minp, maxp, probability_list, filename, slice
 		file:write(minetest.compress(result))
 		file:flush()
 		file:close()
+		minetest.log("action", "schematic + metadata saved: " .. filename)
+	else
+	   minetest.log("action", "schematic (no metadata) saved: " .. filename)
 	end
 	return success, count
 end
@@ -178,6 +181,7 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 	if not data then return end
 
 	local get_meta = minetest.get_meta
+
 	if not rotation or rotation == 0 then
 		for i, entry in ipairs(data.nodes) do
 			entry.x, entry.y, entry.z = minp.x + entry.x, minp.y + entry.y, minp.z + entry.z
