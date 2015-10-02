@@ -1,18 +1,25 @@
-local tmp = {}
 
 local modpath = minetest.get_modpath("altars")
 
-gods = {}
+local altars_context = {}
+
+altars = {}
+
+altars.gods = {}
+
+function altars.register_god(name, def)
+	altars.gods[name] = def
+end
 
 dofile(modpath.."/eresh.lua")
 
-table.insert(gods, {
+altars.register_god("xom", {
 	title = "Xom, god of chaos",
 	texture = "altars_xom.png",
 	particle = "altars_xom_particle.png",
 })
 
-table.insert(gods, {
+altars.register_god("trog", {
 	title = "Trog, god of rage",
 	texture = "altars_trog.png",
 	particle = "mobs_blood.png",
@@ -28,33 +35,24 @@ minetest.register_entity("altars:altar_top", {
 	physical = true,
 	textures = {"air"},
 	on_activate = function(self, staticdata)
-		if tmp.nodename ~= nil and tmp.texture ~= nil then
-			self.nodename = tmp.nodename
-			tmp.nodename = nil
-			self.texture = tmp.texture
-			tmp.texture = nil
-		elseif staticdata ~= nil and staticdata ~= "" then
-			local data = staticdata:split(";")
-			if data and data[1] and data[2] then
-				self.nodename = data[1]
-				self.texture = data[2]
-			end
+		if staticdata and staticdata ~= "" then
+			self.texture = staticdata
 		end
 		if self.texture ~= nil then
 			self.object:set_properties({textures={self.texture}})
 		end
 	end,
 	get_staticdata = function(self)
-		if self.nodename ~= nil and self.texture ~= nil then
-			return self.nodename..";"..self.texture
+		if self.texture ~= nil then
+			return self.texture
 		end
 		return ""
 	end
 })
 
 
-local particle_effect = function(pos, godi, duration)
-   if not godi or not gods[godi] then return end
+local particle_effect = function(pos, godname, duration)
+   if not godname or not altars.gods[godname] then return end
    minetest.add_particlespawner(
 	  {
 		 amount = 50,
@@ -71,7 +69,7 @@ local particle_effect = function(pos, godi, duration)
 		 maxsize = 1.25,
 		 collisiondetection = true,
 		 vertical = false,
-		 texture = gods[godi].particle or "altars_particle.png",
+		 texture = altars.gods[godname].particle or "altars_particle.png",
 	  })
 end
 
@@ -90,28 +88,26 @@ end
 
 
 local update_top = function(pos, node)
-	remove_top(pos, node)
+	remove_top(pos)
 	local meta = minetest.get_meta(pos)
 
-	local godi = meta:get_int("god")
+	local godname = meta:get_string("god")
 
-	if not godi or not gods[godi] then
-	   -- assign a god at random
-	   --godi = math.random(1, #gods)
-       godi = 1 -- for now just use eresh always since the other ones do nothing
-	   meta:set_int("god", godi)
-	   meta:set_string("infotext", "Altar of " .. gods[godi].title)
+	if not godname or not altars.gods[godname] then
+		minetest.log("action","unknown god " .. godname)
+		-- Just take the first god registered
+		godname = next(altars.gods)
+		meta:set_string("god", godname)
+		meta:set_string("infotext", "Altar of " .. altars.gods[godname].title)
 	end
 
 	pos.y = pos.y + 1
-	tmp.nodename = node.name
-	tmp.texture = gods[godi].texture
-
-	particle_effect(pos,godi)
+	local texture = altars.gods[godname].texture
 
 	local e = minetest.add_entity(pos, "altars:altar_top")
-	local yaw = math.pi*2 - node.param2 * math.pi/2
-	e:setyaw(yaw)
+	e:get_luaentity():on_activate(texture)
+
+	particle_effect(pos,godname)
 end
 
 
@@ -137,23 +133,23 @@ minetest.register_node("altars:altar_base", {
 	inventory_image = "altars_altar_base.png",
 	groups = {creative_breakable=1},
 	light_source = default.LIGHT_MAX - 2,
-	after_place_node = function(pos, placer, itemstack)
-	   local node = minetest.get_node(pos)
-	   update_top(pos, node)
+	after_place_node = function(pos, player, itemstack)
+		local name = player:get_player_name()
+		altars_context[name] = {pos = pos}
+		minetest.show_formspec(name,
+							   "altars:godname", "size[4,3]" ..
+								   "field[1,0.5;3,1;godname;God for the altar;]" ..
+								   "button_exit[1,1;2,1;exit;Save]")
+
 	end,
 	on_rightclick = function(pos, node, player, itemstack)
         local meta = minetest.get_meta(pos)
-        if minetest.setting_getbool("creative_mode") then
-            meta:set_int("god", nil)
-		    update_top(pos, node)
-	    else
-		    local god = gods[meta:get_int("god")]
-		    if god then
-			    if god.on_pray then
-				    god.on_pray(pos, node, player, itemstack)
-			    end
-		    end
-	   end
+		local god = altars.gods[meta:get_string("god")]
+		if god then
+			if god.on_pray then
+				god.on_pray(pos, node, player, itemstack)
+			end
+		end
 	end,
 	on_destruct = function(pos)
 	   remove_top(pos)
@@ -163,18 +159,36 @@ minetest.register_node("altars:altar_base", {
 })
 
 
+minetest.register_on_player_receive_fields(function(player, formname, fields)
+	if formname == "altars:godname" and fields.godname then
+		local name = player:get_player_name()
+		local god = altars.gods[fields.godname]
+		if god then
+			local context = altars_context[name]
+			local meta = context.meta or minetest.get_meta(context.pos)
+			meta:set_string("god", fields.godname)
+			local title = god.title
+			meta:set_string("infotext", "Altar of " .. title)
+			local name = player:get_player_name()
+			minetest.chat_send_player(name, "You raised an altar to " .. title)
+		else
+			minetest.chat_send_player(name, "Unknown god")
+		end
+		altars_context[name] = nil
+	end
+end)
+
 
 minetest.register_abm({
 	nodenames = {"altars:altar_base"},
 	interval = 15, chance = 1,
 	action = function(pos, node, _, _)
 		local meta = minetest.get_meta(pos)
-		local godi = meta:get_int("god")
-		particle_effect(pos,godi)
+		local godname = meta:get_string("god")
+		particle_effect(pos,godname)
 
 		local num = #minetest.get_objects_inside_radius(pos, 0.5)
 		if num > 0 then return end
 		update_top(pos, node)
-
 	end
 })

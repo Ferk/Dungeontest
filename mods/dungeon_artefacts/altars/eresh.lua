@@ -58,7 +58,7 @@ minetest.register_on_shutdown(function()
     save_spawns()
 end)
 
-table.insert(gods, {
+altars.register_god("eresh", {
        title = "Eresh, goddess of Life and Death",
        texture = "altars_eresh.png",
        particle = "altars_eresh_particle.png",
