@@ -379,7 +379,11 @@ minetest.register_chatcommand("rotate", {
 		end
 		local player = minetest.get_player_by_name(name)
 		local minp, maxp = dungeon_rooms.get_room_limits(player:getpos())
-		dungeon_rooms.rotate(minp, maxp, angle)
+		if dungeon_rooms.rotate(minp, maxp, angle) then
+		   minetest.chat_send_player(name, "room successfully rotated " .. angle .. " degrees")
+		else
+		   minetest.chat_send_player(name, "an error occurred rotating the room " .. angle .. " degrees")
+		end
 	end
 })
 

@@ -2,6 +2,65 @@
 -- @module dungeon_rooms.serialization
 
 
+minetest.wallmounted_to_dir = minetest.wallmounted_to_dir or function(wallmounted)
+   return ({[0]={x=0, y=1, z=0},
+			{x=0, y=1, z=0},
+			{x=1, y=0, z=0},
+			{x=-1, y=0, z=0},
+			{x=0, y=0, z=1},
+			{x=0, y=0, z=-1}})[wallmounted]
+end
+
+local function rotate_node_facedir(node, rotation)   
+   local def = minetest.registered_nodes[node.name]
+
+   local param_to_dir, dir_to_param
+   if def.paramtype2 == "facedir" then
+	  param_to_dir, dir_to_param = minetest.facedir_to_dir, minetest.dir_to_facedir
+   elseif def.paramtype2 == "wallmounted" then
+	  param_to_dir, dir_to_param = minetest.wallmounted_to_dir, minetest.dir_to_wallmounted
+   else
+	  return node
+   end
+
+   local dir = param_to_dir(node.param2)
+   local rot = { y = dir.y }
+   if rotation == 90 then
+	  rot.x, rot.z = dir.z, dir.x
+   elseif rotation == 180 then
+	  rot.x, rot.z = -dir.x, -dir.z
+   elseif rotation == 270 then
+	  rot.x, rot.z = -dir.z, -dir.x
+   end
+   
+   node.param2 = dir_to_param(rot)
+
+   return node
+end
+
+
+
+function core.dir_to_wallmounted(dir)
+	if math.abs(dir.y) > math.max(math.abs(dir.x), math.abs(dir.z)) then
+		if dir.y < 0 then
+			return 1
+		else
+			return 0
+		end
+	elseif math.abs(dir.x) > math.abs(dir.z) then
+		if dir.x < 0 then
+			return 3
+		else
+			return 2
+		end
+	else
+		if dir.z < 0 then
+			return 5
+		else
+			return 4
+		end
+	end
+end
 
 -- Saves schematic in the Minetest Schematic (and metadata) to disk.
 -- Takes the same arguments as minetest.create_schematic
@@ -182,23 +241,26 @@ function dungeon_rooms.rotate(minp, maxp, rotation)
 	  end
 	  pos.x = pos.x + 1
 	end
-
+   
    -- Now apply the table rotated to the map
    if rotation == 90 then
-		for i, entry in ipairs(nodes) do
-		   entry.x, entry.z = minp.x + entry.rz, minp.z + entry.rx
-		   minetest.set_node(entry, entry.node)
-		   minetest.get_meta(entry):from_table(entry.meta)
-		end
+	  for i, entry in ipairs(nodes) do
+		 entry.node = rotate_node_facedir(entry.node, rotation)
+		 entry.x, entry.z = minp.x + entry.rz, minp.z + entry.rx
+		 minetest.set_node(entry, entry.node)
+		 minetest.get_meta(entry):from_table(entry.meta)
+	  end
    else
 	  if rotation == 180 then
 		 for i, entry in ipairs(nodes) do
+			entry.node = rotate_node_facedir(entry.node, rotation)
 			entry.x, entry.z = maxp.x - entry.rx, maxp.z - entry.rz
 			minetest.set_node(entry, entry.node)
 			minetest.get_meta(entry):from_table(entry.meta)
 		 end
 	  elseif rotation == 270 then
 		 for i, entry in ipairs(nodes) do
+			entry.node = rotate_node_facedir(entry.node, rotation)
 			entry.x, entry.z = maxp.x - entry.rz, maxp.z - entry.rx
 			minetest.set_node(entry, entry.node)
 			minetest.get_meta(entry):from_table(entry.meta)
@@ -217,3 +279,5 @@ function dungeon_rooms.keep_loaded(pos1, pos2)
 	local manip = minetest.get_voxel_manip()
 	manip:read_from_map(pos1, pos2)
 end
+
+
