@@ -390,9 +390,13 @@ ddecor.register("blood_splat", {
 	wield_image = "ddecor_blood_splat.png",
 	inventory_image = "ddecor_blood_splat.png",
 	paramtype2 = "wallmounted",
-	legacy_wallmounted = true,
 	walkable = false,
-	selection_box = {type="wallmounted"},
+	selection_box = {
+		type="wallmounted",
+		wall_top = {-0.5, 0.49, -0.5, 0.5, 0.5, 0.5},
+		wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.49, 0.5},
+		wall_side = {-0.5, -0.5, -0.5, -0.49, 0.5, 0.5},
+	},
 	groups = {attached_node=1}
 })
 

@@ -21,6 +21,7 @@ dungeon_rooms.rooms[1] = {
 	"1/spikes",
 	"1/spikesb",
 	"1/bumpyholes",
+	"1/phantompit"
 }
 dungeon_rooms.rooms[2] = {
 	"2/corridor",

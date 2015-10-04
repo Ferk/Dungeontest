@@ -46,3 +46,14 @@ dofile(minetest.get_modpath("default").."/player.lua")
 dofile(minetest.get_modpath("default").."/trees.lua")
 dofile(minetest.get_modpath("default").."/aliases.lua")
 dofile(minetest.get_modpath("default").."/legacy.lua")
+
+
+-- COMPATIBILITY WRAPPER (engine 0.4.13 and earlier doesn't support wallmounted_to_dir)
+minetest.wallmounted_to_dir = minetest.wallmounted_to_dir or function(wallmounted)
+   return ({[0]={x=0, y=1, z=0},
+			{x=0, y=-1, z=0},
+			{x=1, y=0, z=0},
+			{x=-1, y=0, z=0},
+			{x=0, y=0, z=1},
+			{x=0, y=0, z=-1}})[wallmounted]
+end

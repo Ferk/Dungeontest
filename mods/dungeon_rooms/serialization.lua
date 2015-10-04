@@ -4,14 +4,14 @@
 
 minetest.wallmounted_to_dir = minetest.wallmounted_to_dir or function(wallmounted)
    return ({[0]={x=0, y=1, z=0},
-			{x=0, y=1, z=0},
+			{x=0, y=-1, z=0},
 			{x=1, y=0, z=0},
 			{x=-1, y=0, z=0},
 			{x=0, y=0, z=1},
 			{x=0, y=0, z=-1}})[wallmounted]
 end
 
-local function rotate_node_facedir(node, rotation)   
+local function rotate_node_facedir(node, rotation)
    local def = minetest.registered_nodes[node.name]
 
    local param_to_dir, dir_to_param
@@ -32,7 +32,7 @@ local function rotate_node_facedir(node, rotation)
    elseif rotation == 270 then
 	  rot.x, rot.z = -dir.z, -dir.x
    end
-   
+
    node.param2 = dir_to_param(rot)
 
    return node
@@ -233,7 +233,7 @@ function dungeon_rooms.rotate(minp, maxp, rotation)
 		 while pos.z <= maxp.z do
 			-- Calculate coordinates relative to minp
 			table.insert(nodes, {
-				rx = pos.x - minp.x, 
+				rx = pos.x - minp.x,
 				rz = pos.z - minp.z,
 				y = pos.y, -- this one will be fixed
 				node = minetest.get_node(pos),
@@ -245,7 +245,7 @@ function dungeon_rooms.rotate(minp, maxp, rotation)
 	  end
 	  pos.x = pos.x + 1
 	end
-   
+
    -- Now apply the table rotated to the map
    if rotation == 90 then
 	  for i, entry in ipairs(nodes) do
@@ -283,5 +283,3 @@ function dungeon_rooms.keep_loaded(pos1, pos2)
 	local manip = minetest.get_voxel_manip()
 	manip:read_from_map(pos1, pos2)
 end
-
-
