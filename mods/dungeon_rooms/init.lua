@@ -104,8 +104,8 @@ end
 -- calculates a seed for each room based on the world seed,
 -- tries to do it without causing obvious patterns to form
 function dungeon_rooms.seed_for_room(room)
-	math.randomseed(room.level)
-	return math.random(1, 1000) * room.x + math.random(1, 1000) * room.z
+	local rnd = PseudoRandom(room.level * room.x / room.z + dungeon_rooms.seed)
+	return (rnd:next() * room.x - rnd:next() * room.z + rnd:next() * room.level)
 end
 
 -- Collect room details that are used to determine what type of room to spawn
