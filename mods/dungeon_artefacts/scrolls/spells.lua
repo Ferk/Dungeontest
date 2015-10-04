@@ -130,7 +130,7 @@ scrolls.register_spell("scrolls:confusion", {
 	scroll_image = "scroll_of_confusion.png",
 	particle_image =  "scroll_status_confusion.png",
 
-	status_duration = 1,
+	status_duration = 15,
     status = {
         description = "Confusion",
         on_start = function(status, target)

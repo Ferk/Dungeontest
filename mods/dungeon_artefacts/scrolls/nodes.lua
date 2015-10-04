@@ -53,16 +53,12 @@ minetest.register_node("scrolls:temporary_water", {
             minetest.swap_node(pos, node)
         end
         minetest.get_node_timer(pos):start(3)
-        minetest.log("action", "placed temporaty water with param2: " .. node.param2)
     end,
 
     on_timer = function(pos, elapsed)
-        minetest.log("action", "timer run!")
         local node = minetest.get_node(pos)
         node.param2 = node.param2 - elapsed
-        minetest.log("action", "temporaty water with param2: " .. node.param2)
         if node.param2 < 0 then
-            minetest.log("action", "water removed")
             minetest.set_node(pos, {name = "air"})
             return false
         else
