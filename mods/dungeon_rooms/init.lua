@@ -104,12 +104,8 @@ end
 -- calculates a seed for each room based on the world seed,
 -- tries to do it without causing obvious patterns to form
 function dungeon_rooms.seed_for_room(room)
-	local hash = 17
-	hash = hash * 31 + room.level
-	hash = hash * 31 + room.x
-	hash = hash * 31 + room.z
-	hash = hash * 31 + dungeon_rooms.seed
-	return hash
+	math.randomseed(room.level)
+	return math.random(1, 1000) * room.x + math.random(1, 1000) * room.z
 end
 
 -- Collect room details that are used to determine what type of room to spawn
