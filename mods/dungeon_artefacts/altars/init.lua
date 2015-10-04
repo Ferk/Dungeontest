@@ -1,23 +1,19 @@
 
-local modpath = minetest.get_modpath("altars")
-
-local altars_context = {}
-
 altars = {}
 
 altars.gods = {}
+
+
+local modpath = minetest.get_modpath(minetest.get_current_modname())
+
+local altars_context = {}
+
+
 
 function altars.register_god(name, def)
 	altars.gods[name] = def
 end
 
-dofile(modpath.."/eresh.lua")
-
-altars.register_god("xom", {
-	title = "Xom, god of chaos",
-	texture = "altars_xom.png",
-	particle = "altars_xom_particle.png",
-})
 
 altars.register_god("trog", {
 	title = "Trog, god of rage",
@@ -25,10 +21,13 @@ altars.register_god("trog", {
 	particle = "mobs_blood.png",
 })
 
+dofile(modpath.."/xom.lua")
+dofile(modpath.."/eresh.lua")
+
+
 
 
 minetest.register_entity("altars:altar_top", {
-	hp_max = 1,
 	visual = "sprite",
 	visual_size = {x=1.2, y=1.2},
 	collisionbox = {-0.6, -0.5, -0.6, 0.6, 0.5, 0.6},

@@ -40,6 +40,7 @@ dungeon_rooms.rooms[3] = {
 	"3/evendarker",
 	"3/secretrod",
 	"3/hiddendoor",
+	"3/woodenwall",
 }
 dungeon_rooms.rooms[4] = {
 	"corridor",
@@ -220,7 +221,7 @@ function dungeon_rooms.spawn_room(center)
 
 	local chosen = roompool[math.random(1, #roompool)]
 	load_room(center, chosen, rotation)
-	
+
 	return chosen, rotation
 end
 
