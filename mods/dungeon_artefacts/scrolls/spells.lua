@@ -175,6 +175,7 @@ scrolls.register_spell("scrolls:immolation", {
 				end
 			end
 		end
+		return true
 	end,
 
 	on_cast = function(caster, pointed_thing)
@@ -194,7 +195,6 @@ scrolls.register_spell("scrolls:immolation", {
 					damage_groups = {fleshy=4},
 				}, vec)
 			end
-
 		else
 			return false
 		end
@@ -210,6 +210,7 @@ scrolls.register_spell("scrolls:immolation", {
 				end
 			end
 		end
+		return true
 	end
 })
 
@@ -233,6 +234,7 @@ scrolls.register_spell("scrolls:irrigation", {
 				end
 			end
 		end
+		return true
 	end,
 
 	on_cast = function(caster, pointed_thing)
@@ -250,6 +252,7 @@ scrolls.register_spell("scrolls:irrigation", {
 					end
 				end
 			end
+			return true
 		else
 			return false
 		end
