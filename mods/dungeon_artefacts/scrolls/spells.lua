@@ -29,7 +29,7 @@ scrolls.register_spell("scrolls:levitation", {
 	particle_image =  "scroll_status_levitation.png",
 	groups = {gravity=1},
 
-	status_duration = 10,
+	status_duration = 15,
     status = {
         description = "Levitating",
         on_start = function(status, target)
@@ -63,7 +63,7 @@ scrolls.register_spell("scrolls:poisoning", {
 	particle_image =  "scroll_status_poisoning.png",
 	groups = {health=1},
 
-	status_duration = 10,
+	status_duration = 15,
     status = {
         description = "Poisoned",
         on_start = function(status, target)
@@ -87,7 +87,7 @@ scrolls.register_spell("scrolls:regeneration", {
 	particle_image =  "heart.png",
 	groups = {health=1},
 
-	status_duration = 10,
+	status_duration = 15,
     status = {
         description = "Regeneration",
         on_start = function(status, target)
@@ -107,7 +107,7 @@ scrolls.register_spell("scrolls:regeneration", {
 
 scrolls.register_spell("scrolls:breathing", {
 	description = "Breathing",
-	--scroll_image = "scroll_of_healing.png",
+	scroll_image = "scroll_of_breathing.png",
 	particle_image =  "bubble.png",
 	groups = {health=1},
 
@@ -127,8 +127,8 @@ scrolls.register_spell("scrolls:breathing", {
 
 scrolls.register_spell("scrolls:confusion", {
 	description = "Confusion",
-	--scroll_image = "scroll_of_confusion.png",
-	--particle_image =  "scroll_status_confusion.png",
+	scroll_image = "scroll_of_confusion.png",
+	particle_image =  "scroll_status_confusion.png",
 
 	status_duration = 1,
     status = {
@@ -215,7 +215,7 @@ scrolls.register_spell("scrolls:immolation", {
 
 scrolls.register_spell("scrolls:irrigation", {
 	description = "Irrigation",
-	--scroll_image = "scroll_of_confusion.png",
+	scroll_image = "scroll_of_irrigation.png",
 	particle_image =  minetest.inventorycube("default_river_water.png"),
 	liquids_pointable = true,
 
