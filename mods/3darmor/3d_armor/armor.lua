@@ -75,51 +75,6 @@ armor = {
 	version = "0.4.4",
 }
 
-if minetest.get_modpath("inventory_plus") then
-	inv_mod = "inventory_plus"
-	armor.formspec = "size[8,8.5]button[0,0;2,0.5;main;Back]"
-		.."list[detached:player_name_armor;armor;0,1;2,3;]"
-		.."image[2.5,0.75;2,4;armor_preview]"
-		.."label[5,1;Level: armor_level]"
-		.."label[5,1.5;Heal:  armor_heal]"
-		.."label[5,2;Fire:  armor_fire]"
-		.."list[current_player;main;0,4.5;8,4;]"
-	if minetest.get_modpath("crafting") then
-		inventory_plus.get_formspec = function(player, page)
-		end
-	end
-elseif minetest.get_modpath("unified_inventory") then
-	inv_mod = "unified_inventory"
-	unified_inventory.register_button("armor", {
-		type = "image",
-		image = "inventory_plus_armor.png",
-	})
-	unified_inventory.register_page("armor", {
-		get_formspec = function(player)
-			local name = player:get_player_name()
-			local formspec = "background[0.06,0.99;7.92,7.52;3d_armor_ui_form.png]"
-				.."label[0,0;Armor]"
-				.."list[detached:"..name.."_armor;armor;0,1;2,3;]"
-				.."image[2.5,0.75;2,4;"..armor.textures[name].preview.."]"
-				.."label[5,1;Level: "..armor.def[name].level.."]"
-				.."label[5,1.5;Heal:  "..armor.def[name].heal.."]"
-				.."label[5,2;Fire:  "..armor.def[name].fire.."]"
-			if minetest.setting_getbool("unified_inventory_lite") then
-				formspec = "background[0.06,0.49;7.92,7.52;3d_armor_ui_form.png]"
-					.."label[0,0;Armor]"
-					.."list[detached:"..name.."_armor;armor;0,0.5;2,3;]"
-					.."image[2.5,0.25;2,4;"..armor.textures[name].preview.."]"
-					.."label[5,0.5;Level: "..armor.def[name].level.."]"
-					.."label[5,1;Heal:  "..armor.def[name].heal.."]"
-					.."label[5,1.5;Fire:  "..armor.def[name].fire.."]"
-			end
-			return {formspec=formspec}
-		end,
-	})
-elseif minetest.get_modpath("inventory_enhanced") then
-	inv_mod = "inventory_enhanced"
-end
-
 if minetest.get_modpath("skins") then
 	skin_mod = "skins"
 elseif minetest.get_modpath("simple_skins") then
@@ -260,7 +215,7 @@ armor.update_armor = function(self, player)
 				end
 			end
 		end
-	end	
+	end
 	if hp <= 0 or hp == self.player_hp[name] then
 		return
 	end
@@ -427,7 +382,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	end
 end)
 
-minetest.register_on_joinplayer(function(player)
+local function armor_init_player(player)
 	default.player_set_model(player, "3d_armor_character.b3d")
 	local name = player:get_player_name()
 	local player_inv = player:get_inventory()
@@ -468,7 +423,7 @@ minetest.register_on_joinplayer(function(player)
 	for i=1, 6 do
 		local stack = player_inv:get_stack("armor", i)
 		armor_inv:set_stack("armor", i, stack)
-	end	
+	end
 
 	-- Legacy support, import player's armor from old inventory format
 	for _,v in pairs(armor.elements) do
@@ -532,7 +487,8 @@ minetest.register_on_joinplayer(function(player)
 			end
 		end, player)
 	end
-end)
+end
+minetest.register_on_joinplayer(armor_init_player)
 
 if ARMOR_DROP == true or ARMOR_DESTROY == true then
 	armor.drop_armor = function(pos, stack)
@@ -600,3 +556,54 @@ minetest.register_globalstep(function(dtime)
 	end
 end)
 
+
+if minetest.get_modpath("inventory_plus") then
+	inv_mod = "inventory_plus"
+	armor.formspec = "size[8,8.5]button[0,0;2,0.5;main;Back]"
+		.."list[detached:player_name_armor;armor;0,1;2,3;]"
+		.."image[2.5,0.75;2,4;armor_preview]"
+		.."label[5,1;Level: armor_level]"
+		.."label[5,1.5;Heal:  armor_heal]"
+		.."label[5,2;Fire:  armor_fire]"
+		.."list[current_player;main;0,4.5;8,4;]"
+	if minetest.get_modpath("crafting") then
+		inventory_plus.get_formspec = function(player, page)
+		end
+	end
+elseif minetest.get_modpath("unified_inventory") then
+	inv_mod = "unified_inventory"
+	unified_inventory.register_button("armor", {
+		type = "image",
+		image = "inventory_plus_armor.png",
+	})
+	unified_inventory.register_page("armor", {
+		get_formspec = function(player)
+			local name = player:get_player_name()
+
+			if not armor.def[name] then
+				armor_init_player(player)
+			end
+
+			--minetest.log("action", "is this nil?" .. (armor.def or "yes!"))
+			local formspec = "background[0.06,0.99;7.92,7.52;3d_armor_ui_form.png]"
+				.."label[0,0;Armor]"
+				.."list[detached:"..name.."_armor;armor;0,1;2,3;]"
+				.."image[2.5,0.75;2,4;"..armor.textures[name].preview.."]"
+				.."label[5,1;Level: "..armor.def[name].level.."]"
+				.."label[5,1.5;Heal:  "..armor.def[name].heal.."]"
+				.."label[5,2;Fire:  "..armor.def[name].fire.."]"
+			if minetest.setting_getbool("unified_inventory_lite") then
+				formspec = "background[0.06,0.49;7.92,7.52;3d_armor_ui_form.png]"
+					.."label[0,0;Armor]"
+					.."list[detached:"..name.."_armor;armor;0,0.5;2,3;]"
+					.."image[2.5,0.25;2,4;"..armor.textures[name].preview.."]"
+					.."label[5,0.5;Level: "..armor.def[name].level.."]"
+					.."label[5,1;Heal:  "..armor.def[name].heal.."]"
+					.."label[5,1.5;Fire:  "..armor.def[name].fire.."]"
+			end
+			return {formspec=formspec}
+		end,
+	})
+elseif minetest.get_modpath("inventory_enhanced") then
+	inv_mod = "inventory_enhanced"
+end

@@ -23,16 +23,33 @@ function unified_inventory.get_formspec(player, page)
 	unified_inventory.current_page[player_name] = page
 	local pagedef = unified_inventory.pages[page]
 
-	local formspec = {
-		"size[14,10]",
-		"background[-0.19,-0.25;14.4,10.75;ui_form_bg.png]" -- Background
-	}
+	-- Current page
+	if not unified_inventory.pages[page] then
+		return "" -- Invalid page name
+	end
+	local fsdata = pagedef.get_formspec(player)
+
+
+	if minetest.setting_getbool("creative_mode") and fsdata.draw_item_list ~= false then
+		fsdata.draw_item_list = true
+	end
+
+	local formspec = {}
+
+	if fsdata.draw_item_list then
+		if unified_inventory.lite_mode then
+			formspec[1] = "size[11,7.7]"
+			formspec[2] = "background[-0.19,-0.2;11.4,8.4;ui_form_bg.png]"
+		else
+			formspec[1] = "size[14,10]"
+			formspec[2] = "background[-0.19,-0.25;14.4,10.75;ui_form_bg.png]"
+		end
+	else
+		formspec[1] = "size[8,10]"
+		formspec[2] = "background[-0.19,-0.25;8.4,10.75;ui_form_bg.png]"
+	end
 	local n = 3
 
-	if unified_inventory.lite_mode then
-		formspec[1] = "size[11,7.7]"
-		formspec[2] = "background[-0.19,-0.2;11.4,8.4;ui_form_bg.png]"
-	end
 
 	if unified_inventory.is_creative(player_name)
 	and page == "craft" then
@@ -40,11 +57,7 @@ function unified_inventory.get_formspec(player, page)
 		n = n+1
 	end
 
-	-- Current page
-	if not unified_inventory.pages[page] then
-		return "" -- Invalid page name
-	end
-	local fsdata = pagedef.get_formspec(player)
+
 	formspec[n] = fsdata.formspec
 	n = n+1
 
@@ -78,7 +91,7 @@ function unified_inventory.get_formspec(player, page)
 		n = n+2
 	end
 
-	if fsdata.draw_item_list == false then
+	if not fsdata.draw_item_list then
 		return table.concat(formspec, "")
 	end
 
@@ -179,6 +192,7 @@ function unified_inventory.get_formspec(player, page)
 		formspec[n] = "label[8.2,"..(unified_inventory.form_header_y + 0.4)..";" .. S("Filter") .. ":]"
 		formspec[n+1] = "label[9.1,"..(unified_inventory.form_header_y + 0.4)..";"..minetest.formspec_escape(unified_inventory.activefilter[player_name]).."]"
 	end
+
 	return table.concat(formspec, "")
 end
 

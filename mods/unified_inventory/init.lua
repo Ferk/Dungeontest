@@ -28,7 +28,7 @@ unified_inventory = {
 	home_filename =	worldpath.."/unified_inventory_home.home",
 
 	-- Default inventory page
-	default = "craft",
+	default = minetest.setting_get("unified_inventory_default_page") or "craft",
 
 	-- intllib
 	gettext = rawget(_G, "intllib") and intllib.Getter() or function(s) return s end,
@@ -74,13 +74,8 @@ dofile(modpath.."/internal.lua")
 dofile(modpath.."/callbacks.lua")
 dofile(modpath.."/register.lua")
 
-if not unified_inventory.lite_mode then
-	dofile(modpath.."/bags.lua")
-end
-
 dofile(modpath.."/item_names.lua")
 
 if minetest.get_modpath("datastorage") and not unified_inventory.lite_mode then
 	dofile(modpath.."/waypoints.lua")
 end
-
