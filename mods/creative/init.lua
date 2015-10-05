@@ -102,6 +102,12 @@ minetest.register_on_joinplayer(function(player)
 		return
 	end
 	creative_inventory.set_creative_formspec(player, 0, 1)
+	-- also give fly and noclip privs
+	local name = player:get_player_name()
+	local privs = minetest.get_player_privs(name)
+	privs.fly = true
+	privs.noclip = true
+	minetest.set_player_privs(name, privs)
 end)
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if not minetest.setting_getbool("creative_mode") then
