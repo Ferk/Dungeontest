@@ -2,3 +2,5 @@ default
 tnt
 fire
 mobs
+treasurer
+
