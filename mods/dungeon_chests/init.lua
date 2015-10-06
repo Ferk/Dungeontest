@@ -8,7 +8,6 @@ function dungeon_chests.register_chest(type, def)
 	dungeon_chests.types[type] = def;
 end
 
-
 dungeon_chests.register_chest("tnt", {
 	on_open = function(pos, node, player, itemstack, pointed_thing)
 		minetest.chat_send_player(player:get_player_name(), " - TNT Trap! -")
@@ -35,6 +34,55 @@ dungeon_chests.register_chest("mimic", {
 		return false
 	end
 })
+
+
+dungeon_chests.register_chest("treasure", {
+	on_open = function(pos, node, player, itemstack, pointed_thing)
+		minetest.chat_send_player(player:get_player_name(), "You found a treasure!")
+
+
+		-- Base preciousness relates to heigh (the deeper down, the more precious)
+		local basepr = -pos.y / 32
+		if basepr < 0 then
+			basepr = 0.01
+		end
+
+		-- chance for rarer items to start appearing
+		local rare_chance = 4
+		
+		-- determine a random amount of treasures
+		local common_amount = math.random(1, 3)
+		local rare_amount = 0
+		while math.random(rare_chance) == 1 do
+			rare_amount = rare_amount + 1
+		end
+
+		-- 
+		local minpr = basepr
+		local maxpr = basepr*1.5+2.1
+
+		local tr_common = treasurer.select_random_treasures(common_amount,
+														   basepr, 2.1+basepr*1.2)
+
+		local tr_rare = treasurer.select_random_treasures(rare_amount,
+														   basepr*2, 2.1+basepr*2.2)
+
+		
+		-- Get the inventory of the chest to place the treasures in
+		local meta = minetest.get_meta(pos)
+		local inv = meta:get_inventory()
+		
+		for i=1,#tr_common do
+			inv:set_stack("main",i,treasures[i])
+		end
+		for i=1,#tr_rare do
+			inv:set_stack("main",i,treasures[i])
+		end
+		
+		return true
+	end
+})
+
 
 -- TODO: I should have chests that contain random loot based on level!
 
