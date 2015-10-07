@@ -19,7 +19,7 @@ minetest.register_node("dungeon_rooms:wall_decoration", {
 	    local room = dungeon_rooms.room_at(pos)
 	    local roomseed = dungeon_rooms.seed_for_room(room)
 	    local roomtype, rotation, Xdoor = dungeon_rooms.get_room_details(room)
-	
+
 	    local infostring = string.format("Level: %d Room: %d,%d (type:%d rot:%d door:%s seed:%d)", room.level, room.x, room.z, roomtype, rotation, Xdoor and "X" or "Z", roomseed)
 	    local meta = minetest.get_meta(pos)
 	    meta:set_string("infotext", infostring)
@@ -79,22 +79,5 @@ minetest.register_abm( {
 	action = function(pos, node, active_object_count, active_object_count_wider)
         minetest.set_node(pos, {name="air"})
 		dungeon_rooms.spawn_room(pos)
-	end,
-})
-
-minetest.register_node("dungeon_rooms:entrance_spawner", {
-	description = "Entrance Spawner",
-	tiles = {"dungeontest_wall_decor.png"},
-    	is_ground_content = false,
-    	groups = {not_in_creative_inventory=1},
-	sounds = default.node_sound_stone_defaults(),
-})
-
-minetest.register_abm( {
-	nodenames = {"dungeon_rooms:entrance_spawner"},
-	interval = 1,
-	chance = 1,
-	action = function(pos, node, active_object_count, active_object_count_wider)
-		dungeon_rooms.spawn_entrance(pos)
 	end,
 })

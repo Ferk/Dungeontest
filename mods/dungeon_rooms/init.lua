@@ -54,11 +54,11 @@ dungeon_rooms.rooms[4] = {
 	"kitchen"
 }
 
-dungeon_rooms.stairsdown = {
+dungeon_rooms.rooms["down"] = {
 	"down/stairsdown",
 }
 
-dungeon_rooms.stairsup = {
+dungeon_rooms.rooms["up"]  = {
 	--"up/stairsup",
 	"up/ladderup",
 }
@@ -201,11 +201,12 @@ function dungeon_rooms.spawn_room(center)
 	if isStairs == 1
 	then
 		rotation = 0
-		roompool = dungeon_rooms.stairsup
+		roompool = dungeon_rooms.rooms["up"]
+
 	elseif isStairs == 2
 	then
 		rotation = 0
-		roompool = dungeon_rooms.stairsdown
+		roompool = dungeon_rooms.rooms["down"]
 
 	elseif math.random(0, 5) == 0 then
 		-- We may use any of the type 4 rooms randomly
@@ -227,17 +228,33 @@ end
 function dungeon_rooms.spawn_entrance(pos)
 	minetest.log("action","spawning dungeon entrance at "..pos.x..","..pos.y..","..pos.z)
 	local filename = modpath .. "/schems/dungeon_entrance.mts"
+
+	-- It seems the chunk heighmap is unreliable, check we are really up
+	pos.y = pos.y + 1
+	local node = minetest.get_node(pos)
+	while node.name ~= "air" do
+		pos.y = pos.y + 1
+		node = minetest.get_node(pos)
+	end
+	-- Also check we are not floating in the air
+	while node.name == "air" do
+		pos.y = pos.y - 1
+		node = minetest.get_node(pos)
+	end
+
 	minetest.place_schematic({
 			x = pos.x - 3,
 			y = pos.y,
 			z = pos.z - 3,
 		}, filename, nil, nil, true)
 
-	while  pos.y >= dungeon_rooms.origin.y do
+	local ladderend = dungeon_rooms.origin.y -2
+	while  pos.y >= ladderend do
 		minetest.set_node(pos, {name="default:ladder", param2=minetest.dir_to_wallmounted({x=1,y=0,z=0})})
 		pos.y = pos.y - 1
 	end
 	minetest.set_node(pos, {name="default:ladder", param2=minetest.dir_to_wallmounted({x=1,y=0,z=0})})
+	print("ladderend: " .. minetest.pos_to_string(pos))
 end
 
 -- Places a ladder going down to the next dungeon level
@@ -304,6 +321,18 @@ function clear_room(pos)
 end
 
 
+-- Removes all metadata from the room (placing schematics does not clear the metadata!)
+function clear_room_meta(pos)
+	local minp, maxp = dungeon_rooms.get_room_limits(pos)
+	for x = minp.x, maxp.x do
+		for y = minp.y, maxp.y do
+			for z = minp.z, maxp.z do
+				minetest.get_meta({x=x,y=y,z=z}):from_table(nil)
+			end
+		end
+	end
+end
+
 --------------
 -- Chat commands
 
@@ -325,10 +354,32 @@ minetest.register_chatcommand("load", {
 		local roomname = param or "draft"
 		local player = minetest.get_player_by_name(name)
 		local pos = player:getpos()
+		-- clear metadata before loading the schematic, otherwise the previous meta will be stored!
+		clear_room_meta(pos)
 		if load_room(pos, roomname, 0) then
 			minetest.chat_send_player(name, "room loaded: " .. roomname)
 		else
 			minetest.chat_send_player(name, "room couldn't be loaded")
+		end
+	end,
+})
+
+-- Mostly for testing and for converting all rooms to same format when developing
+-- a change in the map storage
+minetest.register_chatcommand("rewrite_all", {
+	params = "",
+	description = "Loads and saves all rooms",
+	func = function(name, param)
+		local player = minetest.get_player_by_name(name)
+		local pos = player:getpos()
+		for i, pool in pairs(dungeon_rooms.rooms) do
+			for i = 1, #pool do
+				local roomname = pool[i]
+				clear_room_meta(pos)
+				load_room(pos, roomname, 0)
+				save_room(pos, roomname)
+				minetest.chat_send_player(name, "rewritten room: " .. roomname)
+			end
 		end
 	end,
 })

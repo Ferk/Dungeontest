@@ -3,9 +3,9 @@
 
 -- origin point of the dungeon (will generate below this point)
 -- the Y coordinate should be below -32 to avoid the mapchunk at ground level.
-dungeon_rooms.origin = {x=0, y=-35, z=0}
+dungeon_rooms.origin = {x=0, y=-33, z=0}
 -- Area of a dungeon room (needs to be on factors of 2!)
-dungeon_rooms.room_area = {x=16, y=12, z=16}
+dungeon_rooms.room_area = {x=16, y=16, z=16}
 -- Size of the dungeon
 dungeon_rooms.total_size = {x=5, y=20, z=5}
 
@@ -42,7 +42,9 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
             if (next_entrance.y < maxp.y) and (next_entrance.y > minp.y) then
                 minetest.log("action","Placing Dungeon entrance at " .. next_entrance.x .. ",".. next_entrance.z)
-                minetest.set_node(next_entrance, {name="dungeon_rooms:entrance_spawner"})
+                dungeon_rooms.spawn_entrance(next_entrance)
+                local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+                vm:calc_lighting()
             end
         end
 
@@ -57,6 +59,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
     	local c_air = minetest.get_content_id("air")
     	local c_wall = minetest.get_content_id("dungeon_rooms:wall")
         local c_door = minetest.get_content_id("dungeon_rooms:door")
+        local c_ladder = minetest.get_content_id("default:ladder")
         local c_deco = minetest.get_content_id("dungeon_rooms:wall_decoration")
 
     	for x = minp.x, maxp.x do
@@ -67,8 +70,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     				local level = math.floor((dungeon_rooms.origin.y - y -1) / dungeon_rooms.room_area.y)
 
-    				if(data[pos] == c_door) then
-    					-- don't replace doors
+    				if (data[pos] == c_door) or (data[pos] == c_ladder) then
+    					-- don't replace doors or ladders
     				elseif(level%2 == 1) then
                         -- even levels are pure wall as separators
     					data[pos] = c_wall

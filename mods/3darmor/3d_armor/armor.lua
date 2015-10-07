@@ -43,13 +43,14 @@ if input then
 	input:close()
 	input = nil
 end
+--[[ we still can have the armor even if we don't have the materials 
 if not minetest.get_modpath("moreores") then
 	ARMOR_MATERIALS.mithril = nil
 end
 if not minetest.get_modpath("ethereal") then
 	ARMOR_MATERIALS.crystal = nil
 end
-
+--]]
 -- override hot nodes so they do not hurt player anywhere but mod
 if ARMOR_FIRE_PROTECT == true then
 	for _, row in ipairs(ARMOR_FIRE_NODES) do
