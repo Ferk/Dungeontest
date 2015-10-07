@@ -19,7 +19,12 @@ scrolls.register_spell("scrolls:speed", {
     		scrolls.chat_if_player(target, "You regain normal speed")
     		target:set_physics_override(1,nil,nil)
     	end
-    }
+    },
+
+	treasure = {
+		rarity = 0.1,
+		preciousness = 5,
+	}
 })
 
 
@@ -53,7 +58,12 @@ scrolls.register_spell("scrolls:levitation", {
             -- set gravity to its original value
             target:set_physics_override({ gravity = 1 })
         end
-    }
+    },
+
+	treasure = {
+		rarity = 0.02,
+		preciousness = 7,
+	}
 })
 
 
@@ -78,7 +88,12 @@ scrolls.register_spell("scrolls:poisoning", {
 				target:set_hp(target:get_hp()-1)
 			end
 		}}
-    }
+    },
+
+	treasure = {
+		rarity = 0.2,
+		preciousness = 2,
+	}
 })
 
 scrolls.register_spell("scrolls:regeneration", {
@@ -102,7 +117,12 @@ scrolls.register_spell("scrolls:regeneration", {
 				target:set_hp(target:get_hp()+1)
 			end
 		}}
-    }
+    },
+
+	treasure = {
+		rarity = 0.1,
+		preciousness = 4,
+	}
 })
 
 scrolls.register_spell("scrolls:breathing", {
@@ -120,7 +140,12 @@ scrolls.register_spell("scrolls:breathing", {
 				target:set_breath(target:get_breath()+2)
 			end
 		}}
-    }
+    },
+
+	treasure = {
+		rarity = 0.1,
+		preciousness = 4,
+	}
 })
 
 
@@ -146,7 +171,12 @@ scrolls.register_spell("scrolls:confusion", {
 				target:set_look_yaw(rnd_yaw)
 			end
 		}}
-    }
+    },
+
+	treasure = {
+		rarity = 0.1,
+		preciousness = 2.5,
+	}
 })
 
 scrolls.register_spell("scrolls:immolation", {
@@ -211,7 +241,12 @@ scrolls.register_spell("scrolls:immolation", {
 			end
 		end
 		return true
-	end
+	end,
+
+	treasure = {
+		rarity = 0.04,
+		preciousness = 8,
+	}
 })
 
 scrolls.register_spell("scrolls:irrigation", {
@@ -256,7 +291,12 @@ scrolls.register_spell("scrolls:irrigation", {
 		else
 			return false
 		end
-	end
+	end,
+
+	treasure = {
+		rarity = 0.07,
+		preciousness = 7,
+	}
 })
 
 
@@ -301,4 +341,9 @@ scrolls.register_spell("scrolls:random", {
         end
         return random_spell.on_cast(caster, pointed_thing)
     end,
+
+	treasure = {
+		rarity = 0.2,
+		preciousness = 2,
+	}
 })

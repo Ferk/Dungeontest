@@ -92,6 +92,15 @@ function scrolls.register_spell(name, def)
     scroll.groups.scroll = 1
 
     minetest.register_craftitem(name, scroll)
+
+    if def.treasure and treasurer then
+        treasurer.register_treasure(name,
+            def.rarity or 0.9,
+            def.preciousness or 7.5,
+            def.count or 1,
+            nil,
+            def.groups)
+    end
 end
 
 

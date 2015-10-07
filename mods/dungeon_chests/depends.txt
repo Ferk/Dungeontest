@@ -4,3 +4,5 @@ fire
 mobs
 treasurer
 
+throwing?
+3d_armor?

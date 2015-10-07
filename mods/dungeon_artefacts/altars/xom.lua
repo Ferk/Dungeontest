@@ -1,98 +1,8 @@
 local world_path = minetest.get_worldpath()
 
 
---[[
-
--- Makes the player screen black for 5 seconds (very experimental!)
-statuses.register_effect_type("blind", "Blind", nil, {},
-	function(player)
-		local hudid = player:hud_add({
-			hud_elem_type = "image",
-			position = { x=0.5, y=0.5 },
-			scale = { x=-100, y=-100 },
-			text = "statuses_example_black.png",
-		})
-		if(hudid ~= nil) then
-			return { hudid = hudid }
-		else
-			minetest.log("error", "[statuses] [examples] The effect \"Blind\" could not be applied. The call to hud_add(...) failed.")
-			return false
-		end
-	end,
-	function(effect, player)
-		player:hud_remove(effect.metadata.hudid)
-	end
-)
-
--- Makes the user faster
-statuses.register_effect_type("high_speed", "High speed", nil, {"speed"},
-	function(player)
-		player:set_physics_override(4,nil,nil)
-	end,
-
-	function(effect, player)
-		player:set_physics_override(1,nil,nil)
-	end
-)
-
--- Makes the user faster (hidden effect)
-statuses.register_effect_type("high_speed_hidden", "High speed", nil, {"speed"},
-	function(player)
-		player:set_physics_override(4,nil,nil)
-	end,
-
-	function(effect, player)
-		player:set_physics_override(1,nil,nil)
-	end,
-	true
-)
-
-
-
--- Slows the user down
-statuses.register_effect_type("low_speed", "Low speed", nil, {"speed"},
-	function(player)
-		player:set_physics_override(0.25,nil,nil)
-	end,
-
-	function(effect, player)
-		player:set_physics_override(1,nil,nil)
-	end
-)
-
--- Increases the jump height
-statuses.register_effect_type("highjump", "Greater jump height", "statuses_example_highjump.png", {"jump"},
-	function(player)
-		player:set_physics_override(nil,2,nil)
-	end,
-	function(effect, player)
-		player:set_physics_override(nil,1,nil)
-	end
-)
-
--- Adds the “fly” privilege. Keep the privilege even if the player dies
-statuses.register_effect_type("fly", "Fly mode available", "statuses_example_fly.png", {"fly"},
-	function(player)
-		local playername = player:get_player_name()
-		local privs = minetest.get_player_privs(playername)
-		privs.fly = true
-		minetest.set_player_privs(playername, privs)
-	end,
-	function(effect, player)
-		local privs = minetest.get_player_privs(effect.playername)
-		privs.fly = nil
-		minetest.set_player_privs(effect.playername, privs)
-	end,
-	false, -- not hidden
-	false  -- do NOT cancel the effect on death
-)
---]]
-
-
-
 -- Makes the player screen black for 5 seconds (very experimental!)
 statuses.register_status("blind", {
-
 	description = "Blind",
 	on_start = function(player)
 		local hudid = player:hud_add({
@@ -110,40 +20,6 @@ statuses.register_status("blind", {
 	end,
 	on_cancel = function(effect, player)
 		player:hud_remove(effect.metadata.hudid)
-	end
-})
-
--- Makes the user faster
-statuses.register_status("high_speed",{
-	description = "High Speed",
-	icon =  "heart.png",
-	groups = "speed",
-	on_start = function(status, target)
-		local name = target:get_player_name()
-		minetest.chat_send_player(name, "You suddently feel very hyperactive!")
-		target:set_physics_override(4,nil,nil)
-	end,
-	on_cancel = function(status, target)
-		local name = target:get_player_name()
-		minetest.chat_send_player(name, "You regain normal speed")
-		target:set_physics_override(1,nil,nil)
-	end
-})
-
--- Increases the jump height
-statuses.register_status("high_jump", {
-	description = "Low Gravity",
-	icon =  "heart.png",
-	groups = "speed",
-	on_start = function(status, target)
-		local name = target:get_player_name()
-		minetest.chat_send_player(name, "You suddently feel very light!")
-		target:set_physics_override(nil,2,nil)
-	end,
-	on_cancel = function(status, target)
-		local name = target:get_player_name()
-		minetest.chat_send_player(name, "You regain your normal weight, no longer feeling light")
-		target:set_physics_override(nil,1,nil)
 	end
 })
 
