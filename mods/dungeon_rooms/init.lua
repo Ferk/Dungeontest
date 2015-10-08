@@ -5,63 +5,6 @@ dungeon_rooms = {}
 -- Will be set to the world's seed on mapgen init
 dungeon_rooms.seed = 1
 
--- Table containing the pools of room schematics for each layout
-dungeon_rooms.rooms = {}
-dungeon_rooms.rooms[0] = {
-	"0/treasure",
-	"0/deadend",
-	"0/xom",
-}
-dungeon_rooms.rooms[1] = {
-	"1/corridor",
-	"1/corridora",
-	"1/corridorb",
-	"1/parkour_lava",
-	"1/blockmess",
-	"1/spikes",
-	"1/spikesb",
-	"1/bumpyholes",
-	"1/phantompit"
-}
-dungeon_rooms.rooms[2] = {
-	"2/corridor",
-	"2/corridora",
-	"2/corridorb",
-	"2/traveler",
-	"2/jail1",
-	"2/stone",
-	"2/webs",
-}
-dungeon_rooms.rooms[3] = {
-	"3/corridor",
-	"3/corridora",
-	"3/corridorb",
-	"3/treasure",
-	"3/darker",
-	"3/evendarker",
-	"3/secretrod",
-	"3/hiddendoor",
-	"3/woodenwall",
-}
-dungeon_rooms.rooms[4] = {
-	"corridor",
-	"standard",
-	"treasure",
-	"parkour_lava",
-	"blockmess",
-	"aquarium",
-	"battle",
-	"kitchen"
-}
-
-dungeon_rooms.rooms["down"] = {
-	"down/stairsdown",
-}
-
-dungeon_rooms.rooms["up"]  = {
-	--"up/stairsup",
-	"up/ladderup",
-}
 
 dungeon_rooms.stairs_distance = 5
 
@@ -69,10 +12,14 @@ dungeon_rooms.stairs_distance = 5
 dungeon_rooms.generic_room_chance = 5
 
 
+
 --------------
 
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
+dofile(modpath.."/roomdata.lua")
+
+--------------
 
 -- Return the global coordinates of a relative position on a room
 local function roomp2pos(roomp, room)
@@ -125,26 +72,26 @@ function dungeon_rooms.get_room_details(room)
 	if Xdoor then
 		rotation=0
 		if not mXdoor and not mZdoor then
-			roomtype=0
+			roomtype="0"
 		elseif mXdoor and not mZdoor then
-			roomtype=1
+			roomtype="1"
 		elseif not mXdoor and mZdoor then
-			roomtype=2
+			roomtype="2"
 		elseif mXdoor and mZdoor then
-			roomtype=3
+			roomtype="3"
 		end
 	else
 		if not mXdoor and not mZdoor then
-			roomtype=0
+			roomtype="0"
 			rotation=270
 		elseif mXdoor and not mZdoor then
-			roomtype=2
+			roomtype="2"
 			rotation=180
 		elseif not mXdoor and mZdoor then
-			roomtype=1
+			roomtype="1"
 			rotation=90
 		elseif mXdoor and mZdoor then
-			roomtype=3
+			roomtype="3"
 			rotation=90
 		end
 	end
@@ -201,24 +148,24 @@ function dungeon_rooms.spawn_room(center)
 	if isStairs == 1
 	then
 		rotation = 0
-		roompool = dungeon_rooms.rooms["up"]
+		roompool = "up"
 
 	elseif isStairs == 2
 	then
 		rotation = 0
-		roompool = dungeon_rooms.rooms["down"]
+		roompool = "down"
 
 	elseif math.random(0, 5) == 0 then
 		-- We may use any of the type 4 rooms randomly
-		rotation="random"
-		roompool = dungeon_rooms.rooms[4]
+		rotation = "random"
+		roompool = "4"
 
 	else
-		roompool = dungeon_rooms.rooms[roomtype]
+		roompool = roomtype
 	end
 
-	local chosen = roompool[math.random(1, #roompool)]
-	load_room(center, chosen, rotation)
+	local chosen = dungeon_rooms.random_roomdata(roompool, room.level/2)
+	dungeon_rooms.place_roomdata(center, chosen, rotation)
 
 	return chosen, rotation
 end
@@ -226,7 +173,6 @@ end
 
 -- Places a dungeon entrance in the given position of the world
 function dungeon_rooms.spawn_entrance(pos)
-	minetest.log("action","spawning dungeon entrance at "..pos.x..","..pos.y..","..pos.z)
 	local filename = modpath .. "/schems/dungeon_entrance.mts"
 
 	-- It seems the chunk heighmap is unreliable, check we are really up
@@ -295,21 +241,12 @@ function dungeon_rooms.get_room_limits(pos)
 	return minp, maxp
 end
 
--- Save the schematic of the room in the given position, with the given name
-function save_room(pos, name)
-	local minp, maxp = dungeon_rooms.get_room_limits(pos)
-	return dungeon_rooms.save_region(minp, maxp, nil, modpath .. "/roomdata/" .. name)
-end
 
--- Load the given schematic name in the room of the given position, with the given rotation
-function load_room(pos, name, rotation)
-	local minp, maxp = dungeon_rooms.get_room_limits(pos)
-	minetest.log("action","loading " .. name);
-	return dungeon_rooms.load_region(minp, modpath .. "/roomdata/" .. name, rotation, nil, true)
-end
+
+
 
 -- Empties the schematic area (filling it with air)
-function clear_room(pos)
+function dungeon_rooms.clear_room(pos)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	for x = minp.x, maxp.x do
 		for y = minp.y, maxp.y do
@@ -322,7 +259,7 @@ end
 
 
 -- Removes all metadata from the room (placing schematics does not clear the metadata!)
-function clear_room_meta(pos)
+function dungeon_rooms.clear_room_meta(pos)
 	local minp, maxp = dungeon_rooms.get_room_limits(pos)
 	for x = minp.x, maxp.x do
 		for y = minp.y, maxp.y do
@@ -333,108 +270,7 @@ function clear_room_meta(pos)
 	end
 end
 
---------------
--- Chat commands
 
-minetest.register_chatcommand("save", {
-	params = "<text>",
-	description = "Saves the room",
-	func = function(name, param)
-		local roomname = param or "draft"
-		local player = minetest.get_player_by_name(name)
-		save_room(player:getpos(), roomname)
-		minetest.chat_send_player(name, "room saved: " .. roomname)
-	end,
-})
-
-minetest.register_chatcommand("load", {
-	params = "<text>",
-	description = "Loads the room",
-	func = function(name, param)
-		local roomname = param or "draft"
-		local player = minetest.get_player_by_name(name)
-		local pos = player:getpos()
-		-- clear metadata before loading the schematic, otherwise the previous meta will be stored!
-		clear_room_meta(pos)
-		if load_room(pos, roomname, 0) then
-			minetest.chat_send_player(name, "room loaded: " .. roomname)
-		else
-			minetest.chat_send_player(name, "room couldn't be loaded")
-		end
-	end,
-})
-
--- Mostly for testing and for converting all rooms to same format when developing
--- a change in the map storage
-minetest.register_chatcommand("rewrite_all", {
-	params = "",
-	description = "Loads and saves all rooms",
-	func = function(name, param)
-		local player = minetest.get_player_by_name(name)
-		local pos = player:getpos()
-		for i, pool in pairs(dungeon_rooms.rooms) do
-			for i = 1, #pool do
-				local roomname = pool[i]
-				clear_room_meta(pos)
-				load_room(pos, roomname, 0)
-				save_room(pos, roomname)
-				minetest.chat_send_player(name, "rewritten room: " .. roomname)
-			end
-		end
-	end,
-})
-
-minetest.register_chatcommand("clear", {
-	params = "",
-	description = "Clears the room",
-	func = function(name, param)
-		local player = minetest.get_player_by_name(name)
-		clear_room(player:getpos())
-		minetest.chat_send_player(name, "room cleared")
-	end,
-})
-
-
-minetest.register_chatcommand("reset", {
-	params = "",
-	description = "Re-generates the room",
-	func = function(name, param)
-		local player = minetest.get_player_by_name(name)
-
-		local room = dungeon_rooms.room_at(player:getpos())
-		local center = {
-			x = room.maxp.x - math.floor(dungeon_rooms.room_area.x/2),
-			y = room.maxp.y - math.floor(dungeon_rooms.room_area.y/2),
-			z = room.maxp.z - math.floor(dungeon_rooms.room_area.z/2),
-		}
-		local chosen, rotation = dungeon_rooms.spawn_room(center)
-		minetest.chat_send_player(name, "room regenerated: " .. chosen ..
-								  " (angle:" .. rotation .. ")")
-	end,
-})
-
-
-minetest.register_chatcommand("rotate", {
-	params = "<angle>",
-	description = "Rotate the current Dungeon room around the Y axis by angle <angle> (90 degree increment)",
-	func = function(name, param)
-		local angle = tonumber(param) % 360
-		if angle % 90 ~= 0 then
-			minetest.chat_send_player(name, "invalid usage: angle must be multiple of 90")
-			return nil
-		end
-		if angle < 0 then
-			angle = angle + 360
-		end
-		local player = minetest.get_player_by_name(name)
-		local minp, maxp = dungeon_rooms.get_room_limits(player:getpos())
-		if dungeon_rooms.rotate(minp, maxp, angle) then
-		   minetest.chat_send_player(name, "room successfully rotated " .. angle .. " degrees")
-		else
-		   minetest.chat_send_player(name, "an error occurred rotating the room " .. angle .. " degrees")
-		end
-	end
-})
 
 --------------
 
@@ -442,6 +278,7 @@ minetest.register_chatcommand("rotate", {
 dofile(modpath.."/nodes.lua")
 dofile(modpath.."/serialization.lua")
 dofile(modpath.."/mapgen.lua")
+dofile(modpath.."/chatcommands.lua")
 --dofile(modpath.."/hud.lua")
 
 if minetest.setting_getbool("creative_mode") then

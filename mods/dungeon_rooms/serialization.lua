@@ -74,7 +74,7 @@ function dungeon_rooms.save_region(minp, maxp, probability_list, filename, slice
 
 	local success = minetest.create_schematic(minp, maxp, probability_list, filename .. ".mts", slice_prob_list)
 	if not success then
-		minetest.log("error", "Problem loading schematic: " .. filename)
+		minetest.log("error", "Problem creating schematic: " .. filename)
 		return false
 	end
 
@@ -167,7 +167,7 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 	local success = minetest.place_schematic(minp, filename .. ".mts", tostring(rotation), replacements, force_placement)
 
 	if not success then
-		minetest.log("error", "Problem loading schematic: " .. filename)
+		minetest.log("error", "Problem placing schematic: " .. filename)
 		return false
 	end
 
@@ -187,7 +187,7 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 			entry.x, entry.y, entry.z = minp.x + entry.x, minp.y + entry.y, minp.z + entry.z
 			if entry.meta then get_meta(entry):from_table(entry.meta) end
 		end
-	elseif rotation == 90 then
+	elseif rotation == 270 then
 		for i, entry in ipairs(data.nodes) do
 			entry.x, entry.y, entry.z = minp.x + entry.z, minp.y + entry.y, minp.z + entry.x
 			if entry.meta then get_meta(entry):from_table(entry.meta) end
@@ -199,7 +199,7 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 				entry.x, entry.y, entry.z = maxp_x - entry.x, minp.y + entry.y, maxp_z - entry.z
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
 			end
-		elseif rotation == 270 then
+		elseif rotation == 90 then
 			for i, entry in ipairs(data.nodes) do
 				entry.x, entry.y, entry.z = maxp_x - entry.z, minp.y + entry.y, maxp_z - entry.x
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
@@ -250,6 +250,11 @@ function dungeon_rooms.rotate(minp, maxp, rotation)
    if rotation == 90 then
 	  for i, entry in ipairs(nodes) do
 		 entry.node = rotate_node_facedir(entry.node, rotation)
+
+         if next(entry.meta.fields) then
+             print("90 rotation: x = " .. minp.x .. "+" .. entry.rz)
+         end
+
 		 entry.x, entry.z = minp.x + entry.rz, minp.z + entry.rx
 		 minetest.set_node(entry, entry.node)
 		 minetest.get_meta(entry):from_table(entry.meta)
