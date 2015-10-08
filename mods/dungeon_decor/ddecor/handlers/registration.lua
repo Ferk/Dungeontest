@@ -83,6 +83,9 @@ function ddecor.register(name, def)
 		end
 	end
 
+	-- unless explicitly stated, ddecor nodes won't drop themselves
+	def.drop = def.drop or ""
+
 	-- This will register multiple decoration nodes that only differ in its tiles
 	-- they won't be available in creative, but randomly replace this node
 	if def.extra_tiles and #def.extra_tiles ~= 0 then
