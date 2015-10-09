@@ -3,7 +3,7 @@
 
 
 minetest.wallmounted_to_dir = minetest.wallmounted_to_dir or function(wallmounted)
-   return ({[0]={x=0, y=1, z=0},
+	return ({[0]={x=0, y=1, z=0},
 			{x=0, y=-1, z=0},
 			{x=1, y=0, z=0},
 			{x=-1, y=0, z=0},
@@ -12,54 +12,28 @@ minetest.wallmounted_to_dir = minetest.wallmounted_to_dir or function(wallmounte
 end
 
 local function rotate_node_facedir(node, rotation)
-   local def = minetest.registered_nodes[node.name]
+	local def = minetest.registered_nodes[node.name]
 
-   local param_to_dir, dir_to_param
-   if def.paramtype2 == "facedir" then
-	  param_to_dir, dir_to_param = minetest.facedir_to_dir, minetest.dir_to_facedir
-   elseif def.paramtype2 == "wallmounted" then
-	  param_to_dir, dir_to_param = minetest.wallmounted_to_dir, minetest.dir_to_wallmounted
-   else
-	  return node
-   end
-
-   local dir = param_to_dir(node.param2)
-   local rot = { y = dir.y }
-   if rotation == 90 then
-	  rot.x, rot.z = dir.z, dir.x
-   elseif rotation == 180 then
-	  rot.x, rot.z = -dir.x, -dir.z
-   elseif rotation == 270 then
-	  rot.x, rot.z = -dir.z, -dir.x
-   end
-
-   node.param2 = dir_to_param(rot)
-
-   return node
-end
-
-
-
-function core.dir_to_wallmounted(dir)
-	if math.abs(dir.y) > math.max(math.abs(dir.x), math.abs(dir.z)) then
-		if dir.y < 0 then
-			return 1
-		else
-			return 0
-		end
-	elseif math.abs(dir.x) > math.abs(dir.z) then
-		if dir.x < 0 then
-			return 3
-		else
-			return 2
-		end
+	local param_to_dir, dir_to_param
+	if def.paramtype2 == "facedir" then
+		param_to_dir, dir_to_param = minetest.facedir_to_dir, minetest.dir_to_facedir
+	elseif def.paramtype2 == "wallmounted" then
+		param_to_dir, dir_to_param = minetest.wallmounted_to_dir, minetest.dir_to_wallmounted
 	else
-		if dir.z < 0 then
-			return 5
-		else
-			return 4
-		end
+		return node
 	end
+
+	local dir = param_to_dir(node.param2)
+	local rot = { y = dir.y }
+	if rotation == 90 then
+		rot.x, rot.z = dir.z, -dir.x
+	elseif rotation == 180 then
+		rot.x, rot.z = -dir.x, -dir.z
+	elseif rotation == 270 then
+		rot.x, rot.z = -dir.z, dir.x
+	end
+	node.param2 = dir_to_param(rot)
+	return node
 end
 
 -- Saves schematic in the Minetest Schematic (and metadata) to disk.
@@ -187,21 +161,21 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 			entry.x, entry.y, entry.z = minp.x + entry.x, minp.y + entry.y, minp.z + entry.z
 			if entry.meta then get_meta(entry):from_table(entry.meta) end
 		end
-	elseif rotation == 270 then
-		for i, entry in ipairs(data.nodes) do
-			entry.x, entry.y, entry.z = minp.x + entry.z, minp.y + entry.y, minp.z + entry.x
-			if entry.meta then get_meta(entry):from_table(entry.meta) end
-		end
 	else
 		local maxp_x, maxp_z = minp.x + data.size.x, minp.z + data.size.z
-		if rotation == 180 then
+		if rotation == 90 then
+		for i, entry in ipairs(data.nodes) do
+			entry.x, entry.y, entry.z = minp.x + entry.z, minp.y + entry.y, maxp_z - entry.x
+			if entry.meta then get_meta(entry):from_table(entry.meta) end
+		end
+		elseif rotation == 180 then
 			for i, entry in ipairs(data.nodes) do
 				entry.x, entry.y, entry.z = maxp_x - entry.x, minp.y + entry.y, maxp_z - entry.z
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
 			end
-		elseif rotation == 90 then
+		elseif rotation == 270 then
 			for i, entry in ipairs(data.nodes) do
-				entry.x, entry.y, entry.z = maxp_x - entry.z, minp.y + entry.y, maxp_z - entry.x
+				entry.x, entry.y, entry.z = maxp_x - entry.z, minp.y + entry.y, minp.z + entry.x
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
 			end
 		else
@@ -248,38 +222,31 @@ function dungeon_rooms.rotate(minp, maxp, rotation)
 
    -- Now apply the table rotated to the map
    if rotation == 90 then
-	  for i, entry in ipairs(nodes) do
-		 entry.node = rotate_node_facedir(entry.node, rotation)
-
-         if next(entry.meta.fields) then
-             print("90 rotation: x = " .. minp.x .. "+" .. entry.rz)
-         end
-
-		 entry.x, entry.z = minp.x + entry.rz, minp.z + entry.rx
-		 minetest.set_node(entry, entry.node)
-		 minetest.get_meta(entry):from_table(entry.meta)
-	  end
-   else
-	  if rotation == 180 then
+	   for i, entry in ipairs(nodes) do
+		  entry.node = rotate_node_facedir(entry.node, rotation)
+		  entry.x, entry.z = minp.x + entry.rz, maxp.z - entry.rx
+		  minetest.set_node(entry, entry.node)
+		  minetest.get_meta(entry):from_table(entry.meta)
+	   end
+	elseif rotation == 180 then
 		 for i, entry in ipairs(nodes) do
 			entry.node = rotate_node_facedir(entry.node, rotation)
 			entry.x, entry.z = maxp.x - entry.rx, maxp.z - entry.rz
 			minetest.set_node(entry, entry.node)
 			minetest.get_meta(entry):from_table(entry.meta)
 		 end
-	  elseif rotation == 270 then
-		 for i, entry in ipairs(nodes) do
-			entry.node = rotate_node_facedir(entry.node, rotation)
-			entry.x, entry.z = maxp.x - entry.rz, maxp.z - entry.rx
-			minetest.set_node(entry, entry.node)
-			minetest.get_meta(entry):from_table(entry.meta)
-		 end
-	  else
+	elseif rotation == 270 then
+		for i, entry in ipairs(nodes) do
+			 entry.node = rotate_node_facedir(entry.node, rotation)
+			 entry.x, entry.z = maxp.x - entry.rz, minp.z + entry.rx
+			 minetest.set_node(entry, entry.node)
+			 minetest.get_meta(entry):from_table(entry.meta)
+		  end
+	else
 		 minetest.log("error", "Unsupported rotation angle: " ..  (rotation or "nil"))
 		 return false
-	  end
-   end
-   return true
+	end
+	return true
 end
 
 
