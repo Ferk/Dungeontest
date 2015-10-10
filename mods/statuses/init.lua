@@ -155,7 +155,8 @@ function statuses.remove_status(sindex)
 		local target
 		if status.playername then
 			target = minetest.get_player_by_name(status.playername)
-			local hudinfo = statuses.hudinfos[status.playername][sindex]
+			local hudinfo = statuses.hudinfos[status.playername]
+			hudinfo = hudinfo and hudinfo[sindex]
 			if(hudinfo ~= nil) then
 				if(hudinfo.text_id~=nil) then
 					target:hud_remove(hudinfo.text_id)

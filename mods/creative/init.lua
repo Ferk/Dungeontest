@@ -101,13 +101,23 @@ minetest.register_on_joinplayer(function(player)
 	if not minetest.setting_getbool("creative_mode") then
 		return
 	end
-	creative_inventory.set_creative_formspec(player, 0, 1)
-	-- also give fly and noclip privs
+
 	local name = player:get_player_name()
-	local privs = minetest.get_player_privs(name)
-	privs.fly = true
-	privs.noclip = true
-	minetest.set_player_privs(name, privs)
+	local inv = player:get_inventory()
+	if not inv:contains_item("main", "dmaking:tome") then
+		inv:add_item("main", "dmaking:tome")
+
+		minetest.show_formspec(name, "creative:welcome", "size[7,5.5]"
+			.."label[1,0;Welcome to Dungeontest Creative mode!]"
+			.."textarea[0.5,1;6.5,5;;"
+			.."You have started Dungeontest on creative mode.\nIn this mode you can freely modify Dungeon rooms"
+			.." and some of the objects in the Dungeon will behave differently (for example treasure chest won't open"
+			.." and mob spawners won't work). Sometimes interacting with some objects will offer options to edit its"
+			.." properties.\nTo help you creating Dungeon rooms a Tome of DungeonMaking has been added to your inventory.\n"
+			.."Have fun!"
+			..";]"
+			.."button_exit[2.5,5;2,1;;Close]")
+	end
 end)
 minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if not minetest.setting_getbool("creative_mode") then

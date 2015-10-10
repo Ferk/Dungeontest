@@ -5,7 +5,7 @@ dungeon_rooms.rooms = {}
 
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
-
+dungeon_rooms.roomdata_directory = modpath .. "/roomdata"
 
 function dungeon_rooms.load_roomdata_from_dir(dirpath)
     local roomdirs = minetest.get_dir_list(dirpath, true)

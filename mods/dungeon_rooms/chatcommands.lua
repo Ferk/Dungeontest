@@ -136,3 +136,42 @@ minetest.register_chatcommand("rotate", {
 		end
 	end
 })
+
+
+
+----------------------------------------------
+---- Alias
+
+local function run_command(name, args)
+	if not args or args == "" then
+		return false, "You need a command."
+	end
+	local found, _, commandname, params = args:find("^([^%s]+)%s(.+)$")
+	if not found then
+		commandname = args
+	end
+
+	local command = minetest.chatcommands[commandname]
+	if not command then
+		return false, "Not a valid command."
+	end
+	if not minetest.check_player_privs(name, command.privs) then
+		return false, "Your privileges are insufficient."
+	end
+
+	minetest.log("action", name.." runs " .. args)
+	return command.func(name, (params or ""))
+end
+
+minetest.register_chatcommand("gall", {
+	params = "",
+	description = "Alias for granting all priviledges",
+	func = function(name, param)
+        local success, msg = run_command(name, "grant " .. name .. " all")
+        if success then
+            minetest.chat_send_player(name, "All priviledges granted!")
+        else
+            minetest.chat_send_player(name, msg)
+        end
+    end
+    })
