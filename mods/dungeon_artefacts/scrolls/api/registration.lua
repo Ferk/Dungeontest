@@ -68,12 +68,12 @@ function scrolls.register_spell(name, def)
         liquids_pointable = def.liquids_pointable,
 
         on_use = function(itemstack, user, pointed_thing)
-            local done = def.on_cast(user, pointed_thing)
+            local done = scrolls.cast(def, user, pointed_thing)
             if done then
                 local pos = (pointed_thing.type == "node" and pointed_thing.under)
                     or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
                 if pos then
-                    scrolls.particle_effect(pos, def)
+                    scrolls.particle_effect(def, pos)
                 end
                 itemstack:take_item()
             end
@@ -81,9 +81,8 @@ function scrolls.register_spell(name, def)
         end,
 
         on_place = function(itemstack, placer, pointed_thing)
-            local done = def.on_self_cast(placer, pointed_thing)
+            local done = scrolls.self_cast(def, placer, pointed_thing)
             if done then
-                scrolls.particle_effect(placer:getpos(), def)
                 itemstack:take_item()
             end
             return itemstack
@@ -105,28 +104,42 @@ end
 
 
 function scrolls.cast(spell, caster, pointed_thing)
-    local spell = scrolls.registered_spells[name]
-
-    if spell.on_cast then
-        return spell.on_cast(caster, pointed_thing)
+    -- spell might be the name or the spell definition
+    local def
+    if type(spell) == "table" then
+        def = spell
     else
+        def = scrolls.registered_spells[spell]
+    end
+
+    if def and def.on_cast and def.on_cast(caster, pointed_thing) then
+        return true
+    else
+        minetest.sound_play("scrolls_fail", {pos=caster:getpos(), max_hear_distance=6})
         return false
     end
 end
 
-function scrolls.self_cast(spellname, caster, pointed_thing)
-    local spell = scrolls.registered_spells[spellname]
-
-    if spell and spell.on_self_cast then
-        scrolls.particle_effect(caster:getpos(), spell)
-        return spell.on_self_cast(caster, pointed_thing)
+function scrolls.self_cast(spell, caster, pointed_thing)
+    -- spell might be the name or the spell definition
+    local def
+    if type(spell) == "table" then
+        def = spell
     else
+        def = scrolls.registered_spells[spell]
+    end
+
+    if def and def.on_self_cast and def.on_self_cast(caster, pointed_thing) then
+        scrolls.particle_effect(def, caster:getpos())
+        return true
+    else
+        minetest.sound_play("scrolls_fail", {pos=caster:getpos(), max_hear_distance=6})
         return false
     end
 end
 
 
-function scrolls.particle_effect(pos, spell)
+function scrolls.particle_effect(spell, pos)
     -- spell might be the name or the spell definition
     local def
     if type(spell) == "table" then

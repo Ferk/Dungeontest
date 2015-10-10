@@ -2,3 +2,4 @@ default
 fire
 statuses
 treasurer?
+dungeon_rooms?

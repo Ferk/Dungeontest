@@ -300,6 +300,115 @@ scrolls.register_spell("scrolls:irrigation", {
 })
 
 
+scrolls.register_spell("scrolls:teleportation", {
+	description = "Teleportation",
+	scroll_image = "scroll_of_teleportation.png",
+	groups = {speed=1},
+
+	-- Teleport to a random location on self cast
+	on_self_cast = function(caster, pointed_thing)
+		local pos = caster:getpos()
+
+		-- Use the center of the room, as it's more likely there'll be space there
+		if dungeon_rooms then
+			local room = dungeon_rooms.room_at(pos)
+			pos.y = room.maxp.y - dungeon_rooms.room_area.y/2
+		end
+
+		local range = 40
+		-- see if you can find a random position in 15 tries
+		for tries=1, 15 do
+			local dst = {
+				x = pos.x + math.random(-range, range),
+				y=pos.y,
+				z = pos.z + math.random(-range, range)
+			}
+
+			local node = minetest.get_node(dst)
+			if node.name == "air" then
+				if minetest.get_node({x=dst.x, y=dst.y+1, z=dst.z}).name == "air" then
+					minetest.sound_play( {name="scrolls_teleport1", gain=1}, {pos=src, max_hear_distance=12})
+					caster:setpos(dst)
+					minetest.after(0.5, function(dest) minetest.sound_play( {name="scrolls_teleport2", gain=1}, {pos=dest, max_hear_distance=12}) end, dest)
+					return true
+				end
+			end
+		end
+		return false
+	end,
+
+	-- teleport to the pointed thing, or swap positions with it if it's an entity
+	on_cast = function(caster, pointed_thing)
+		local pos
+		if pointed_thing.type == "object" and pointed_thing.ref.getpos then
+			pos = pointed_thing.ref:getpos()
+		else
+			pos = pointed_thing.above
+		end
+		if not pos then
+			return false
+		end
+		local src = caster:getpos()
+		local dest = {x=pos.x, y=math.ceil(pos.y)-0.5, z=pos.z}
+		local over = {x=dest.x, y=dest.y+1, z=dest.z}
+		local destnode = minetest.get_node({x=dest.x, y=math.ceil(dest.y), z=dest.z})
+		local overnode = minetest.get_node({x=over.x, y=math.ceil(over.y), z=over.z})
+
+		-- prevent the player's head to spawn in a walkable node if the player clicked on the lower side of a node
+		-- NOTE: This piece of code must be updated as soon the collision boxes of players become configurable
+		if minetest.registered_nodes[overnode.name].walkable then
+			dest.y = dest.y - 1
+		end
+
+		-- The destination must be collision free
+		destnode = minetest.get_node({x=dest.x, y=math.ceil(dest.y), z=dest.z})
+		if minetest.registered_nodes[destnode.name].walkable then
+			return false
+		end
+
+		minetest.sound_play( {name="scrolls_teleport1", gain=1}, {pos=src, max_hear_distance=12})
+		caster:setpos(dest)
+		minetest.after(0.5, function(dest) minetest.sound_play( {name="scrolls_teleport2", gain=1}, {pos=dest, max_hear_distance=12}) end, dest)
+
+		-- switch positions with pointed thing if object
+		if pointed_thing.type == "object" and pointed_thing.ref.setpos then
+			pointed_thing.ref:setpos(src)
+		end
+
+		return true
+	end,
+
+	treasure = {
+		rarity = 0.07,
+		preciousness = 6,
+	}
+})
+
+scrolls.register_spell("scrolls:invisibility", {
+	description = "Invisibility",
+	--scroll_image = "scroll_of_invisibility.png",
+
+	status_duration = 15,
+    status = {
+        on_start = function(status, target)
+            scrolls.chat_if_player(target, "You became transparent ")
+			-- TODO: this doesn't work, how to get current visual property?
+			status.visual = target.visual
+			target:set_properties({visual="air"})
+        end,
+        on_cancel = function(status, target)
+            scrolls.chat_if_player(target, "You regain visibility")
+			target:set_properties({visual = status.visual or "mesh"})
+        end,
+    },
+
+	treasure = {
+		rarity = 0.02,
+		preciousness = 8,
+	}
+})
+
+
 scrolls.register_spell("scrolls:random", {
 	description = "Chaos",
 	scroll_image = "scroll_of_chaos.png",
