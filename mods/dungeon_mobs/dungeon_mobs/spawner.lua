@@ -58,28 +58,35 @@ if minetest.setting_getbool("creative_mode") then
             meta = meta,
         }
 
+        local amount = meta:get_int("amount")
+        if amount == 0 then amount = 2 end
+        local chance = meta:get_int("chance")
+        if chance == 0 then chance = 1 end
+        local timeout = meta:get_int("timeout")
+        local groups = meta:get_string("groups")
+
         minetest.show_formspec(name, "dungeon_mobs:edit_spawner",
             "size[8,4]" ..
-            "field[0.5,0.5;1.5,1;amount;Amount;2]" ..
-            "field[0.5,1.5;1.5,2;chance;Chance;1]" ..
-            "field[3,0.5;5,1;names;Mob ids;]" ..
-            "field[3,1.5;5,2;groups;Mob groups;]" ..
+            "field[0.5,0.5;1.5,1;amount;Amount;".. amount .."]" ..
+            "field[0.5,1.5;1.5,2;chance;Chance;" .. chance .. "]" ..
+            "field[3,0.5;5,1;timeout;Timeout to reactivate;" .. timeout .. "]" ..
+            "field[3,1.5;5,2;groups;Mob groups;".. groups .."]" ..
             "button_exit[3,2;4,3;exit;Save]")
 
     end
 
 
     minetest.register_on_player_receive_fields(function(player, formname, fields)
-    	if formname == "dungeon_mobs:edit_spawner" then
+    	if formname == "dungeon_mobs:edit_spawner" and fields.timeout then
 
     		local name = player:get_player_name()
     		local context = spawner_context[name]
 
     		local meta = context.meta or minetest.get_meta(context.pos)
             meta:set_int("amount", fields.amount)
-            meta:set_string("names", fields.names)
             meta:set_string("groups", fields.groups)
             meta:set_int("chance", fields.chance)
+            meta:set_int("timeout", fields.timeout)
 
             minetest.chat_send_player(name, "Changes saved to mob spawner")
 
@@ -120,6 +127,9 @@ minetest.register_node("dungeon_mobs:spawner_active", {
         wall_bottom = {-0.5, -0.5, -0.5, 0.5, -0.49, 0.5},
         wall_side = {-0.5, -0.5, -0.5, -0.49, 0.5, 0.5},
     },
+    on_construct = function(pos)
+        minetest.get_meta(pos):set_int("timeout", 240)
+    end,
 	groups = {creative_breakable = 1},
     on_rightclick = spawner_on_rightclick,
 })
@@ -148,6 +158,16 @@ minetest.register_node("dungeon_mobs:spawner_inactive", {
     },
 	groups = {creative_breakable = 1},
     on_rightclick = spawner_on_rightclick,
+    on_timer = function(pos, elapsed)
+        minetest.get_node_timer(pos):stop()
+        local node = minetest.get_node(pos)
+        node.name = "dungeon_mobs:spawner_active"
+        minetest.swap_node(pos, node)
+    end,
+    on_dungeon_generation = minetest.setting_getbool("creative_mode") and function(pos)
+        local timeout = minetest.get_meta(pos):get_int("timeout")
+        minetest.get_node_timer(pos):stop(timeout)
+    end
 })
 
 -- this is just for decoration... maybe also to confuse/scare the player
@@ -179,16 +199,6 @@ minetest.register_node("dungeon_mobs:decorative_pentacle", {
 -- spawners won'T change state on creative mode, to permit editting
 if not minetest.setting_getbool("creative_mode") then
 
-    minetest.register_abm( {
-    	nodenames = {"dungeon_mobs:spawner_inactive"},
-    	interval = 10,
-    	chance = 50,
-    	action = function(pos, node, active_object_count, active_object_count_wider)
-    		-- set it active
-            node.name = "dungeon_mobs:spawner_active"
-            minetest.set_node(pos, node)
-    	end }
-    )
 
     minetest.register_abm( {
         nodenames = {"dungeon_mobs:spawner_active"},
@@ -197,35 +207,32 @@ if not minetest.setting_getbool("creative_mode") then
         action = function(pos, node, active_object_count, active_object_count_wider)
 
         	-- set it inactive as soon as it triggers to avoid triggering twice!
+            local meta = minetest.get_meta(pos)
+            local fields = meta:to_table().fields
+
             node.name = "dungeon_mobs:spawner_inactive"
-            minetest.set_node(pos, node)
+            minetest.swap_node(pos, node)
+            -- Start the timeout for the inactive spawner to become active again
+            if fields.timeout ~= 0 then
+                minetest.get_node_timer(pos):start(fields.timeout or 240)
+            end
 
             -- if a chance is defined, apply it before continuing
-            local meta = minetest.get_meta(pos)
-            local chance = meta:get_int("chance")
+            local chance = tonumber(fields.chance) or 0
             if chance > 1 and math.random(1,chance) ~= 1 then
                 return
             end
 
             -- Get the rest of the metadata
-            local amount = meta:get_int("amount")
-            local names_str = meta:get_string("names")
-            local groups_str = meta:get_string("groups")
-
-            if not amount or amount == 0 then
+            local amount = tonumber(fields.amount) or 0
+            if amount <= 0 then
                 amount = 2
             end
             local names
-            if names_str then
-                names = {}
-                for i in string.gmatch(names_str, "%S+") do
-                    table.insert(names, i)
-                end
-            end
             local groups
-            if groups_str then
+            if fields.groups then
                 groups = {}
-                for i in string.gmatch(names_str, "%S+") do
+                for i in string.gmatch(fields.groups, "%S+") do
                     table.insert(groups, i)
                 end
             end
@@ -238,7 +245,6 @@ if not minetest.setting_getbool("creative_mode") then
                 dungeon_mobs.spawn_mob(pos, {
                     minlevel = level,
                     maxlevel = level,
-                    names = names,
                     groups = names,
                 })
             end

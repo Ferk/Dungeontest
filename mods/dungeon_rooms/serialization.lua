@@ -78,14 +78,23 @@ function dungeon_rooms.save_region(minp, maxp, probability_list, filename, slice
 						meta_empty = false
 					end
 
+					local def = minetest.registered_nodes[node.name]
+					if def.on_dungeon_generation then
+						meta_empty = false
+					end
+
 					if not meta_empty then
 						count = count + 1
 						nodes[count] = {
 							x = pos.x - minp.x,
 							y = pos.y - minp.y,
 							z = pos.z - minp.z,
-							meta = meta,
+							meta = meta
 						}
+						if def.on_dungeon_generation then
+							nodes[count].name = node.name
+							nodes[count].generation_callback = true
+						end
 					end
 				end
 				pos.z = pos.z + 1
@@ -167,16 +176,28 @@ function dungeon_rooms.load_region(minp, filename, rotation, replacements, force
 		for i, entry in ipairs(data.nodes) do
 			entry.x, entry.y, entry.z = minp.x + entry.z, minp.y + entry.y, maxp_z - entry.x
 			if entry.meta then get_meta(entry):from_table(entry.meta) end
+			if entry.generation_callback and minetest.registered_nodes[entry.name] then
+				local callback = minetest.registered_nodes[entry.name].on_dungeon_generation
+				if callback then callback(entry) end
+			end
 		end
 		elseif rotation == 180 then
 			for i, entry in ipairs(data.nodes) do
 				entry.x, entry.y, entry.z = maxp_x - entry.x, minp.y + entry.y, maxp_z - entry.z
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
+				if entry.generation_callback and minetest.registered_nodes[entry.name] then
+					local callback = minetest.registered_nodes[entry.name].on_dungeon_generation
+					if callback then callback(entry) end
+				end
 			end
 		elseif rotation == 270 then
 			for i, entry in ipairs(data.nodes) do
 				entry.x, entry.y, entry.z = maxp_x - entry.z, minp.y + entry.y, minp.z + entry.x
 				if entry.meta then get_meta(entry):from_table(entry.meta) end
+				if entry.generation_callback and minetest.registered_nodes[entry.name] then
+					local callback = minetest.registered_nodes[entry.name].on_dungeon_generation
+					if callback then callback(entry) end
+				end
 			end
 		else
 			minetest.log("error", "Unsupported rotation angle: " ..  (rotation or "nil"))
