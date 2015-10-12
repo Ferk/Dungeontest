@@ -38,7 +38,7 @@ In creative mode everything is destructible and you will have all the nodes avai
 
 This book offers an interface when opened that allows you to load room presets and save them after you have edited the room. If you save the room with a different name, a new room preset will be created.
 
-When you save a room preset everything that is in-between the dungeon walls of the will be saved, but not the dungeon walls themselves. This gives you a volume of 15x14x15 blocks. This should be enough for most purposes. There's no support for bigger rooms at the moment, unless you change the hardcoded default, but this will break previously saved rooms.
+When you save a room preset everything that is in-between the outermost dungeon walls of the room will be saved (excluding those walls themselves). This gives you a volume of 15x14x15 blocks, which should be enough for most purposes. There's no support for bigger rooms at the moment (you could change the hardcoded default, but this will break previously saved rooms).
 
 You can however make the rooms smaller simply by adding more layers of wall, which will get saved along the room schematic.
 
