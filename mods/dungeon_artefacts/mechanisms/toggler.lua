@@ -177,11 +177,11 @@ minetest.register_node("mechanisms:toggler_on", {
 		fixed = { -6/16, -6/16, 5/16, 6/16, 6/16, 8/16 }
 	},
 	node_box = {
-	type = "fixed",
-		fixed = {
-			{ -6/16, -6/16,  7/16, 6/16, 6/16, 8/16 },
-			{ -4/16, -4/16,  6.8/16, 4/16, 4/16, 7/16 }
-		}
+		type = "fixed",
+			fixed = {
+				{ -6/16, -6/16,  7/16, 6/16, 6/16, 8/16 },
+				{ -4/16, -4/16,  6.8/16, 4/16, 4/16, 7/16 }
+			}
 	},
 	on_rightclick = function (pos, node, player, itemstack, pointed_thing)
 		-- If the player is holding the Tome of DungeonMaking, allow setup
