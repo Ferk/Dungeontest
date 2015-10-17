@@ -136,7 +136,7 @@ xpanes.register_pane("chainlink", {
 	textures = {"ddecor_chainlink.png", "ddecor_chainlink.png", "xpanes_space.png"},
 	inventory_image = "ddecor_chainlink.png",
 	wield_image = "ddecor_chainlink.png",
-	groups = {pane=1},
+	groups = {pane=1, creative_breakable=1},
 	recipe = {
 		{"default:steel_ingot", "", "default:steel_ingot"},
 		{"", "default:steel_ingot", ""},
