@@ -24,44 +24,29 @@ The ladders going up from the first level (the one closer to the surface) will s
 
 * What this game is:
 
-  * __It's a Work-In-Progress__. And it might be for a long time. At this point I'm not very afraid of breaking stuff if it helps the game development in some way. Expect things working in unexpected ways at times. You can always give me suggestions in the forum thread.
+  * __It's an experiment done for fun__. Currently it's a work in progress and it might be for a long time. I might not be afraid of breaking stuff from one version to another.
   * __It's meant to be extensible__. The idea is that it should be easy to add stuff for dungeon rooms: traps, chests, scrolls, mobs and decorations. Also anything that can have variations of it should be allowed to.
-  * __It's meant to give freedom to Dungeon Makers__. Entering in creative mode should give you access to more stuff than what normal creative mode allows you to. And some nodes should bahave different when interacted with to offer better editing possibilities (for example: the spawners don't change state, the "bones" mod was extended so that a creative player can add their custom corpse with whatever stuff he wants inside of it, whereas a normal player can only take stuff out).
-  * __It's based on Roguelike elements__. I will always try to draw elements from modern roguelike games like [Stone Soup Dungeon Crawl](https://crawl.develz.org/) and so.
+  * __It's meant to be easy to edit__. Entering in creative mode should give you access to more stuff than what normal creative mode allows you to. And some nodes may behave different when interacted with (for example: the spawners don't change state, the "bones" mod was extended so that a creative player can add their custom corpse with whatever stuff he wants inside of it, whereas a normal player can only take stuff out).
+  * __It's meant to be Roguelike-like__. I will always try to draw elements from modern roguelike games, such as [Stone Soup Dungeon Crawl](https://crawl.develz.org/).
 
 
-#### Being a Dungeon Maker
+#### Dungeon-Making
 
-Currently, to start Dungeon Making you need to run the game in creative mode.
+The only thing needed to start adding content to the Dungeon is to turn on the "creative mode" checkbox when starting the game.
 
-Just get into a dungeon room and start changing stuff. Everything that is in-between the dungeon walls of a room will be saved, but not the dungeon walls themselves.
+In creative mode everything is destructible and you will have all the nodes available in the inventory along with a special item given to creative-mode players: The Tome of DungeonMaking.
 
-This currently gives you a 15x10x15 space. This should be enough for most purposes. There's no support for bigger rooms at the moment, unless you change the hardcoded default, but this will break previously saved rooms.
+This book offers an interface when opened that allows you to load room presets and save them after you have edited the room. If you save the room with a different name, a new room preset will be created.
 
-You can however make the rooms smaller simply by added additional layers of wall, which will get saved along the room schematic.
+When you save a room preset everything that is in-between the outermost dungeon walls of the room will be saved (excluding those walls themselves). This gives you a volume of 15x14x15 blocks, which should be enough for most purposes. There's no support for bigger rooms at the moment (you could change the hardcoded default, but this will break previously saved rooms).
 
-To save and load the current room (the one your player is currently standing on) you can respectively enter the following commands in the Minetest console (F10):
+You can however make the rooms smaller simply by adding more layers of wall, which will get saved along the room schematic.
 
-    /save <NAME_OF_THE_ROOM_FILE>
+Saved rooms are stored in the  "[game/dungeontest/mods/dungeon_rooms/roomdata/](mods/dungeon_rooms/roomdata)", inside of a subdirectory corresponding to each of the possible room layouts that a room can have.
 
-    /load <NAME_OF_THE_ROOM_FILE>
-
-This will save/load the whole room from/to the  "game/dungeontest/dungeon_rooms/roomdata/" directory. There will be at least an ".mts" file, but if there's additional metadata required (like inventory of chests, etc) a ".meta" file might also be created.
+There will be a ".conf" file that stores some information for the room selection ([check here](mods/dungeon_rooms/roomdata/4/standard.conf) for an example) and at least an ".mts" file, but if there's additional per-node metadata required (like inventory of chests, etc) a ".meta" file might also be created.
 
 I'm looking forward to you guys making cool rooms that you can share so that they can be included in the game by default! Just let me know and send me your files.
-
-There are some additional commands that you can use as well:
-
-* ``/reset`` will re-generate the current room using the same parameters as the ones used during the generation of the room.
-
-        /reset
-
-
-* ``/rotate`` will rotate the room around the Y axis. This might be useful if you are creating a room that is designed only for a particular set of entrances.
-
- Note that rotating a room can result in the player getting stuck inside a wall, so I'd recomend having noclip enabled during such manipulation
-
-        /rotate <number multiple of 90>
 
 ##### Room layouts
 
@@ -102,6 +87,28 @@ With the current algorithm, there are 4 possible layout types:
 Every room in the dungeon is a rotation or permutation of any of these 4 layouts. There are no rooms with more than 3 doors.
 
 However, in the random pool of roomdata there's a 4th set of schematics that are layout-agnostic. Every room generated has a possibility of being replaced by one of these generic schematics. This means they have to offer openings for all of the 4 doors, even if when they are used one or more of the openings won't have a door. These schematics are placed always with a random rotation.
+
+##### Chat commands
+
+In addition to the Tome of DungeonMaking, you can save and load the room by entering the following commands in the Minetest console (F10) or directly in the chat input box (T key):
+
+    /save <NAME_OF_THE_ROOM_FILE>
+
+    /load <NAME_OF_THE_ROOM_FILE>
+
+
+There are some additional commands that you can use as well:
+
+* ``/reset`` will re-generate the current room using the same parameters as the ones used during the generation of the room.
+
+        /reset
+
+
+* ``/rotate`` will rotate the room around the Y axis. This might be useful if you are creating a room that is designed only for a particular set of entrances.
+
+ Note that rotating a room can result in the player getting stuck inside a wall, so I'd recomend having noclip enabled during such manipulation
+
+        /rotate <number multiple of 90>
 
 #### Compatibility
 
