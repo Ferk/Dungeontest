@@ -60,7 +60,7 @@ minetest.register_entity("mechanisms:marker", {
 		textures = {"mechanisms_mark.png", "mechanisms_mark.png",
 			"mechanisms_mark.png", "mechanisms_mark.png",
 			"mechanisms_mark.png", "mechanisms_mark.png"},
-		collisionbox = {-0.55, -0.55, -0.55, 0.55, 0.55, 0.55},
+		collisionbox = {0, 0, 0, 0, 0, 0},
 		physical = false,
 	},
 	on_step = function(self, dtime)
