@@ -118,6 +118,7 @@ function xpanes.register_pane(name, def)
 			drawtype = "nodebox",
 			tiles = {def.textures[3], def.textures[3], texture},
 			paramtype = "light",
+			paramtype2 = "facedir",
 			groups = def.groups,
 			drop = "xpanes:"..name,
 			sounds = def.sounds,
@@ -192,4 +193,3 @@ xpanes.register_pane("bar", {
 		{'default:steel_ingot', 'default:steel_ingot', 'default:steel_ingot'}
 	}
 })
-
