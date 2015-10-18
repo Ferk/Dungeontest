@@ -224,6 +224,14 @@ if minetest.setting_getbool("creative_mode") then
 	})
 else
 	minetest.register_alias("mechanisms:toggled_node","air")
+
+	minetest.register_node(":air", {
+		drawtype = "airlike",
+		paramtype = "light",
+		paramtype2 = "facedir",
+		walkable = false,
+		sunlight_propagates = true,
+	})
 end
 
 -- handles set up punches
