@@ -395,10 +395,16 @@ scrolls.register_spell("scrolls:invisibility", {
 			-- TODO: this doesn't work, how to get current visual property?
 			status.visual = target.visual
 			target:set_properties({visual="air"})
+			local nametag = target:get_nametag_attributes()
+			nametag.color.a = 0
+			target:set_nametag_attributes(nametag)
         end,
         on_cancel = function(status, target)
             scrolls.chat_if_player(target, "You regain visibility")
 			target:set_properties({visual = status.visual or "mesh"})
+			local nametag = target:get_nametag_attributes()
+			nametag.color.a = 255
+			target:set_nametag_attributes(nametag)
         end,
     },
 
