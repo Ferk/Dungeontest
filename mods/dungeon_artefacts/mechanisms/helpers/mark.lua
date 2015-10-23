@@ -20,9 +20,9 @@ end
 
 function mechanisms.end_marking(name)
 	minetest.log("action", "finished marking " .. name)
-	local markset = mechanisms.markset[name]
+	local markset = mechanisms.markset[name] or {}
 
-	for k,marker in pairs(markset.markers) do
+	for k,marker in pairs(markset.markers or {}) do
 		marker:remove()
 	end
 	mechanisms.markset[name] = nil

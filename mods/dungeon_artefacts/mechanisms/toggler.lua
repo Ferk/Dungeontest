@@ -1,6 +1,6 @@
 
 
-local punching_state = {}
+
 
 -- A table with nodes that will be considered the same for the toggler
 -- (so, even if the node gets swapped to a different state it still can be toggled)
@@ -9,46 +9,27 @@ mechanisms.toggler_alias_table = {}
 mechanisms.toggler_alias_table["mechanisms:toggler_on"] = "mechanisms:toggler"
 
 
-function absolute_to_relative(node, node_pos, pos)
-	local dir = minetest.facedir_to_dir(node.param2)
-	local p = {
-		x = pos.x - node_pos.x,
-		z = pos.z - node_pos.z,
-		y = pos.y - node_pos.y,
-	}
-	if dir.x > 0 and dir.z == 0 then
-	elseif dir.x < 0 and dir.z == 0 then
-		p.x, p.z = -p.x, -p.z
-	elseif dir.z > 0 and dir.x == 0 then
-		p.x, p.z = p.z, -p.x
-	elseif dir.z < 0 and dir.x == 0 then
-		p.x, p.z = -p.z, p.x
-	end
-	return p
-end
+mechanisms.register_punchstate("mechanisms:toggler", {
+	on_unmark_node = function(punchdata, node)
+		-- if the node punched is toggled already, remove it
+		-- otherwise toggle it (allowing us to save the node as off)
+		if node.name == "mechanisms:toggled_node" then
+			node.name = punchdata.name
+			minetest.swap_node(punchdata, node)
+			return false -- do not remove mark
+		else
+			punched_node.name = "mechanisms:toggled_node"
+			minetest.swap_node(punchdata, node)
+			return true -- remove mark
+		end
+	end,
 
-function relative_to_absolute(node, node_pos, pos)
-	local dir = minetest.facedir_to_dir(node.param2)
-	local p = {
-		x = node_pos.x,
-		z = node_pos.z,
-		y = pos.y + node_pos.y,
-	}
-	if dir.x > 0 and dir.z == 0 then
-		p.x = p.x + pos.x
-		p.z = p.z + pos.z
-	elseif dir.x < 0 and dir.z == 0 then
-		p.x = p.x - pos.x
-		p.z = p.z - pos.z
-	elseif dir.z > 0 and dir.x == 0 then
-		p.x = p.x - pos.z
-		p.z = p.z + pos.x
-	elseif dir.z < 0 and dir.x == 0 then
-		p.x = p.x + pos.z
-		p.z = p.z - pos.x
+	on_mark_node = function(punchdata, node)
+		punchdata.name = mechanisms.toggler_alias_table[node.name] or node.name
+		print("added node at " .. minetest.pos_to_string(punchdata))
+		return true
 	end
-	return p
-end
+})
 
 
 function toggle_nodes(pos, toggler)
@@ -58,7 +39,7 @@ function toggle_nodes(pos, toggler)
 	togglenodes = togglenodes and minetest.deserialize(togglenodes)
 	if togglenodes then
 		for k,v in pairs(togglenodes) do
-			local p = relative_to_absolute(toggler, pos, v)
+			local p = mechanisms.relative_to_absolute(toggler, pos, v)
 			local node = minetest.get_node(p)
 			if node.name ~= v.name and mechanisms.toggler_alias_table[node.name] ~= v.name then
 				node.name = v.name
@@ -73,14 +54,15 @@ end
 function toggle_punch_node_selection(pos, node, player)
 	local name = player:get_player_name()
 
-	if punching_state[name] then
-		pos = minetest.string_to_pos(punching_state[name].id)
+	local state = mechanisms.end_player_punchstate(name, "mechanisms:toggler")
+	if state then
+		-- A punch state is already defined, save it!
+		pos = minetest.string_to_pos(state.id)
 		local meta = minetest.get_meta(pos)
 
-		mechanisms.end_marking(name, positions)
 		local togglenodes = {}
-		for k,v in pairs(punching_state[name].nodes) do
-			local node = absolute_to_relative(node, pos, v)
+		for k,v in pairs(state.nodes) do
+			local node = mechanisms.absolute_to_relative(node, pos, v)
 			node.name = v.name
 			table.insert(togglenodes, node)
 		end
@@ -88,9 +70,8 @@ function toggle_punch_node_selection(pos, node, player)
 		minetest.chat_send_player(name, "Saved " .. #togglenodes .. " toggling nodes")
 		minetest.log("action", name .. "saved toggler data with " .. #togglenodes .. " toggleable nodes")
 		meta:set_string("togglenodes", minetest.serialize(togglenodes))
-
-		punching_state[name] = nil
 	else
+		-- no punchstate defined, create it!
 		local meta = minetest.get_meta(pos)
 		local togglenodes = meta:get_string("togglenodes")
 		local punchs = {}
@@ -98,7 +79,7 @@ function toggle_punch_node_selection(pos, node, player)
 		togglenodes = togglenodes and minetest.deserialize(togglenodes)
 		if togglenodes then
 			for k,v in pairs(togglenodes) do
-				local node = relative_to_absolute(node, pos, v)
+				local node = mechanisms.relative_to_absolute(node, pos, v)
 				node.name = v.name
 				table.insert(punchs, node)
 			end
@@ -109,11 +90,12 @@ function toggle_punch_node_selection(pos, node, player)
 		minetest.chat_send_player(name, "Node toggler edit mode! Punch nodes to assign them to this toggler,"
 			.." then right click again with the tome to save status. " .. #togglenodes .. " nodes are currently assigned.")
 		minetest.log("action", "Loading toggler data with " .. #togglenodes .. " toggleable nodes")
-		punching_state[name] = {
+
+		mechanisms.begin_player_punchstate(name, {
+			name = "mechanisms:toggler",
 			id = minetest.pos_to_string(pos),
 			nodes = punchs,
-		}
-		mechanisms.start_marking(name, punchs)
+		})
 	end
 end
 
@@ -233,42 +215,3 @@ else
 		sunlight_propagates = true,
 	})
 end
-
--- handles set up punches
-minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
-
-	local name = puncher:get_player_name(); if name==nil then return end
-	local state = punching_state[name]
-	if not state then
-		return
-	elseif state.nodes then
-		local punchs = state.nodes
-		local already_punched = false
-
-		for k,p in pairs(punchs) do
-			if p.x==pos.x and p.y==pos.y and p.z==pos.z then
-				already_punched = k
-				break
-			end
-		end
-
-		if already_punched then
-			-- if the node punched is toggled already, remove it
-			-- otherwise toggle it (allowing us to save the node as off)
-			if node.name == "mechanisms:toggled_node" then
-				node.name = punchs[already_punched].name
-				minetest.swap_node(pos, node)
-				punchs[already_punched] = nil
-				mechanisms.unmark_pos(name, pos)
-			else
-				node.name = "mechanisms:toggled_node"
-				minetest.swap_node(pos, node)
-			end
-		else
-			pos.name = mechanisms.toggler_alias_table[node.name] or node.name
-			table.insert(punchs, pos)
-			mechanisms.mark_pos(name, pos)
-			print("added node at " .. minetest.pos_to_string(pos))
-		end
-	end
-end)
