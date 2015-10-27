@@ -446,8 +446,9 @@ end
 ddecor.register("phantom_stonebrick", {
 	description = "Phantom Stone Brick",
 	tiles = {"default_stone_brick.png"},
+	drawtype = "nodebox",
 	walkable = false,
-	post_effect_color = {a=255, r=50, g=50, b=50},
+	post_effect_color = {a=175, r=50, g=50, b=50},
 })
 
 ddecor.register("spikes", {
