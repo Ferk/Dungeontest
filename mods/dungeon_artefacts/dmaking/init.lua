@@ -3,7 +3,13 @@
 dmaking = {}
 
 
-local formspec_context = {}
+statuses.register_status("dmaking:maker",{
+	description = "DungeonMaking",
+	hidden = true,
+	survive_player_death = true,
+	groups = {dmaking=1}
+})
+
 local pool_selection_array = {"0","1","2","3","4","down","up"}
 
 -- Teleport the given player to the X entrance of the room, which is always
@@ -17,16 +23,15 @@ function dmaking.teleport_player_safe(player)
 	})
 end
 
-function dmaking.show_formspec(player, param)
+function dmaking.show_formspec(player, context)
 
-	local name = player:get_player_name()
+	local name = player:get_player_name() or "singleplayer"
 	local pos = player:getpos()
-
-	formspec_context[name] = formspec_context[name] or {}
-	local context = formspec_context[name]
 
 	local room = dungeon_rooms.room_at(pos)
 	local roomtype, rotation, Xdoor = dungeon_rooms.get_room_details(room)
+
+	context.room = context.room or room
 
 	if pos.y > dungeon_rooms.origin.y then
 		minetest.chat_send_player(name, "You open the tome but it's empty! it seems to have no power outside the Dungeon")
@@ -41,7 +46,9 @@ function dmaking.show_formspec(player, param)
 		.."label[0,3.5;Layout " .. roomtype .. " (default rotation " .. rotation .. ")]"
 		.."button[0,4;4,3.5;reset;RESET room to default state]"
 
-	if context.roomdata then
+
+	if context.roomdata and context.room.x == room.x and context.room.z == room.z and context.room.level == room.level then
+
 		local roomdata = context.roomdata
 		formspec = formspec
 			.."field[5.75,0.5;4,1;roomdata_name;Room Name;" .. minetest.formspec_escape(roomdata.name) .."]"
@@ -89,15 +96,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		print("received:" .. dump(fields))
 
 		local name = player:get_player_name()
-		formspec_context[name] = formspec_context[name] or {}
-		local context = formspec_context[name]
+		local context = statuses.get_player_status(name)["dmaking:maker"]
 
 		if fields.reset then
 			minetest.show_formspec(name, "dmaking:tome", "size[4,2.5]"
 				.."label[0,0;Are you sure you want to reset it?]"
 				.."label[0,0.5;Current room changes will be lost]"
 				.."button_exit[0,1.5;2,1;reset_for_sure;Reset!]"
-				.."button_exit[2,1.5;2,1;cancel;Cancel]")
+				.."button_exit[2,1.5;2,1;cancel;Cancel]", context)
 
 		elseif fields.reset_for_sure then
 
@@ -112,7 +118,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			}
 			local roomdata, rotation = dungeon_rooms.spawn_room(center)
 			-- reset the context as well
-			formspec_context[name] = {}
+			context.pooli = nil
+			context.roomdata = nil
 			dmaking.teleport_player_safe(player)
 			minetest.chat_send_player(name, "room regenerated: " .. roomdata.name ..
 									  " (angle:" .. rotation .. ")")
@@ -129,7 +136,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					local pool = dungeon_rooms.rooms[fields.select]
 					context.roomdata = pool and pool[event.index]
 					if context.roomdata then
-						dmaking.show_formspec(player)
+						context.room = nil
+						dmaking.show_formspec(player, context)
 						local pos = player:getpos()
 						dungeon_rooms.clear_room_meta(pos)
 						if dungeon_rooms.place_roomdata(pos, context.roomdata) then
@@ -150,7 +158,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 						break
 					end
 				end
-				dmaking.show_formspec(player)
+				dmaking.show_formspec(player, context)
 			end
 
 		elseif fields.save then
@@ -171,7 +179,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				.."label[0,0;A different filename will create a new room]"
 				.."field[0.5,1.5;4,1;filename;Room filename;" .. context.filename .."]"
 				.."button_exit[0.5,2.5;2,1;save_for_sure;Save!]"
-				.."button_exit[2.5,2.5;2,1;cancel;Cancel]")
+				.."button_exit[2.5,2.5;2,1;cancel;Cancel]", context)
 
 		elseif fields.save_for_sure then
 
@@ -222,7 +230,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				.."label[0,0.0;To create a new room, first load a]"
 				.."label[0,0.5;room for the desired layout and]"
 				.."label[0,1.0;then save it under a different name]"
-				.."button[0,2;4,1;select;SELECT room data to load]")
+				.."button[0,2;4,1;select;SELECT room data to load]", context)
 		end
 		return true
 	end
@@ -238,16 +246,16 @@ minetest.register_tool("dmaking:tome", {
 	liquids_pointable = true,
 	stack_max = 1,
 
-
 	on_use = function(itemstack, player, pointed_thing)
 
-		local meta = itemstack:get_metadata()
-		if meta then
-			meta = minetest.deserialize(meta)
+		local name = player:get_player_name()
+		local context = statuses.get_player_status(name)["dmaking:maker"]
+		if not context then
+			local i
+			i, context = statuses.apply_player_status(player, {name="dmaking:maker"})
 		end
 
-		dmaking.show_formspec(player, meta or {})
-
+		if context then dmaking.show_formspec(player, context) end
 		return itemstack
 	end,
 })
