@@ -16,11 +16,11 @@ mechanisms.register_punchstate("mechanisms:toggler", {
 		if node.name == "mechanisms:toggled_node" then
 			node.name = punchdata.name
 			minetest.swap_node(punchdata, node)
-			return false -- do not remove mark
-		else
-			punched_node.name = "mechanisms:toggled_node"
-			minetest.swap_node(punchdata, node)
 			return true -- remove mark
+		else
+			node.name = "mechanisms:toggled_node"
+			minetest.swap_node(punchdata, node)
+			return false -- do not remove mark
 		end
 	end,
 
