@@ -159,7 +159,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			end
 
 		elseif fields.save then
-			local filesplit = string.split(context.roomdata.path, "//")
+			local filesplit = string.split(context.roomdata.path, "/",true,-1,true)
 			context.filename = filesplit[#filesplit]
 			context.save = {
 				name = fields.roomdata_name,
