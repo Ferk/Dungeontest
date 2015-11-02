@@ -77,7 +77,7 @@ minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
 	if not state then
 		return
 	elseif state.name then
-		local selection = state.nodes
+		local selection = state.nodes or {}
 		local def = mechanisms.registered_punchstates[state.name] or {}
 
 		if def.on_punchnode_select then
