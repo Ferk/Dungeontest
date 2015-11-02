@@ -356,13 +356,15 @@ scrolls.register_spell("scrolls:teleportation", {
 
 		-- prevent the player's head to spawn in a walkable node if the player clicked on the lower side of a node
 		-- NOTE: This piece of code must be updated as soon the collision boxes of players become configurable
-		if minetest.registered_nodes[overnode.name].walkable then
+		local def = minetest.registered_nodes[overnode.name]
+		if def and def.walkable then
 			dest.y = dest.y - 1
 		end
 
 		-- The destination must be collision free
 		destnode = minetest.get_node({x=dest.x, y=math.ceil(dest.y), z=dest.z})
-		if minetest.registered_nodes[destnode.name].walkable then
+		def = minetest.registered_nodes[destnode.name]
+		if def and def.walkable then
 			return false
 		end
 
