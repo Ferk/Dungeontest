@@ -10,9 +10,11 @@ minetest.register_tool("rods:rod_of_blinking", {
 	wield_image = "rod_3.png",
 	inventory_image = "rod_3.png",
 	on_use = function(itemstack, user, pointed_thing)
-		if scrolls.cast("scrolls:teleportation", user, pointed_thing) then
-			failure = not mana.subtract(user:get_player_name(), 60)
-		end
-		return itemstack
+	   
+	   local name = user:get_player_name()
+	   if mana.get(name) > 60 and scrolls.cast("scrolls:teleportation", user, pointed_thing) then
+		  mana.subtract(user:get_player_name(), 60)
+	   end
+	   return itemstack
 	end,
 })
