@@ -2,13 +2,6 @@
 rods = {}
 
 
-local cost_mana = tonumber(minetest.setting_get("rods_cost_mana"))
-if cost_mana ~= nil then
-	rods.settings.cost_mana = cost_mana
-end
-
-
-
 
 minetest.register_tool("rods:rod_of_blinking", {
 	description = "Rod of blinking",
@@ -18,7 +11,7 @@ minetest.register_tool("rods:rod_of_blinking", {
 	inventory_image = "rod_3.png",
 	on_use = function(itemstack, user, pointed_thing)
 		if scrolls.cast("scrolls:teleportation", user, pointed_thing) then
-			failure = not mana.subtract(user:get_player_name(), rods.settings.cost_mana)
+			failure = not mana.subtract(user:get_player_name(), 60)
 		end
 		return itemstack
 	end,
