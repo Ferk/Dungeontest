@@ -20,6 +20,10 @@ HUNGER_EXHAUST_PLACE = 1 -- exhaustion increased this value after placed
 HUNGER_EXHAUST_MOVE = 0.3 -- exhaustion increased this value if player movement detected
 HUNGER_EXHAUST_LVL = 160 -- at what exhaustion player satiation gets lowerd
 
+-- In creative mode, greatly reduce hunger
+if minetest.setting_getbool("creative_mode") then
+   HUNGER_HUNGER_TICK = HUNGER_HUNGER_TICK * 50
+end
 
 --load custom settings
 local set = io.open(minetest.get_modpath("hbhunger").."/hbhunger.conf", "r")
