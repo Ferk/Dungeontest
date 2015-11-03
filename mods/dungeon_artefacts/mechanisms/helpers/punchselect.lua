@@ -20,8 +20,12 @@ function mechanisms.end_player_punchstate(player_name, punchstate_name)
 end
 
 function mechanisms.begin_player_punchstate(player_name, state)
+	local def = mechanisms.registered_punchstates[state.name]
+	if not def then
+		return error("Unregistered punchstate: " .. state.name)
+	end
 	mechanisms.punchstates[player_name] = state
-	mechanisms.start_marking(state.name .. "_" .. player_name, state.nodes or {})
+	mechanisms.start_marking(state.name .. "_" .. player_name, state.nodes or {}, def.get_mark_texture)
 end
 
 -- helper function
@@ -94,14 +98,25 @@ minetest.register_on_punchnode(function(pos, node, puncher, pointed_thing)
 		end
 
 		if already_selected then
-			if not def.on_unmark_node or def.on_unmark_node(selection[already_selected], node) then
-				selection[already_selected] = nil
-				mechanisms.unmark_pos(state.name .. "_" .. name, pos)
-			end
+		   local can_unmark, texture = true, nil
+		   if def.on_unmark_node then
+			  can_unmark, texture = def.on_unmark_node(selection[already_selected], node)
+		   end
+		   if can_unmark then
+			  selection[already_selected] = nil
+			  mechanisms.unmark_pos(state.name .. "_" .. name, pos)
+
+		   elseif texture then -- if instead the texture changed, apply it
+			  mechanisms.mark_pos(state.name .. "_" .. name, pos, texture)
+		   end
 		else
-			if not def.on_mark_node or def.on_mark_node(pos, node) then
+			local can_mark, texture = true, nil
+			if def.on_mark_node then
+				can_mark, texture = def.on_mark_node(pos, node)
+			end
+			if can_mark then
 				table.insert(selection, pos)
-				mechanisms.mark_pos(state.name .. "_" .. name, pos)
+				mechanisms.mark_pos(state.name .. "_" .. name, pos, texture)
 			end
 		end
 	end

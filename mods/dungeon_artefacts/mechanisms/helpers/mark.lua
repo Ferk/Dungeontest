@@ -7,14 +7,14 @@
 mechanisms.markset = {}
 
 
-function mechanisms.start_marking(name, positions)
+function mechanisms.start_marking(name, positions, texture_func)
 	minetest.log("action", "started marking " .. name .. " initial positions: " .. #positions)
 	mechanisms.markset[name] = {
 		markers = {},
 		positions = positions or {},
 	}
 	for k,pos in pairs(positions) do
-		mechanisms.mark_pos(name, pos)
+		mechanisms.mark_pos(name, pos, texture_func and texture_func(pos))
 	end
 end
 
@@ -30,15 +30,18 @@ function mechanisms.end_marking(name)
 end
 
 
-mechanisms.mark_pos = function(name, pos)
+mechanisms.mark_pos = function(name, pos, texture)
 	local markset = mechanisms.markset[name]
 
 	local id = minetest.pos_to_string(pos)
-	markset.markers[id] = minetest.add_entity(pos, "mechanisms:marker")
+	markset.markers[id] = markset.markers[id] or minetest.add_entity(pos, "mechanisms:marker")
 	if markset.markers[id] ~= nil then
 		local ent = markset.markers[id]:get_luaentity()
 		ent.markset = name
 		ent.id = str
+		if texture then
+		   ent:set_texture(texture)
+		end
 	end
 end
 
@@ -80,6 +83,11 @@ minetest.register_entity("mechanisms:marker", {
 		return (self.markset or "_") .. " " .. (self.id or "_")
 	end,
 	on_punch = function(self, hitter) end,
+	set_texture = function(self, texture)
+	   self.object:set_properties({textures={
+									  texture,texture,texture,
+									  texture,texture,texture,}})
+	end
 })
 
 minetest.register_entity(":mechanisms:pos11", {
