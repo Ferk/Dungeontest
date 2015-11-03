@@ -91,22 +91,25 @@ function switch_mechanisms(pos, toggler)
 
 	switching = switching and minetest.deserialize(switching)
 	if switching then
-		for k,v in pairs(switching) do
-			local p = mechanisms.relative_to_absolute(toggler, pos, v)
-			local meta = minetest.get_meta(p)
-			local disabled = meta:get_int("disabled")
-			if disabled ~= 0 then
-			   meta:set_int("disabled", 1)
-			else
-			   meta:set_int("disabled", nil)
+		-- add a delay to prevent lockups
+		minetest.after(1, function()
+			for k,v in pairs(switching) do
+				local p = mechanisms.relative_to_absolute(toggler, pos, v)
+				local meta = minetest.get_meta(p)
+				local disabled = meta:get_int("disabled")
+				if disabled ~= 0 then
+					meta:set_int("disabled", 1)
+				else
+					meta:set_int("disabled", nil)
+				end
+				
+				local node = minetest.get_node(p)
+				local def = node and minetest.registered_nodes[node.name]
+				if def and def.on_switch then
+					def.on_switch(p, node, disabled ~= 0, meta)
+				end
 			end
-			
-			local node = minetest.get_node(p)
-			local def = node and minetest.registered_nodes[node.name]
-			if def and def.on_switch then
-			   def.on_switch(p, node, disabled ~= 0, meta)
-			end
-		end
+		end)
 	end
 end
 
