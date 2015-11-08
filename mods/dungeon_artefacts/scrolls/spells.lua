@@ -453,26 +453,18 @@ scrolls.register_spell("scrolls:fireball", {
 		scrolls.shoot_projectile(pos, {
 			direction = direction,
 			speed = 6,
-			hit_player = function(self, player)
-				player:punch(self.object, 1.0,  {
-					full_punch_interval = 1.0,
-					damage_groups = {fleshy = 8},
-				}, 0)
-				local pos = player:getpos()
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=1})
-			end,
 
-			hit_mob = function(self, player)
+			hit_entity = function(self, player)
 				player:punch(self.object, 1.0,  {
 					full_punch_interval = 1.0,
 					damage_groups = {fleshy = 8},
 				}, 0)
 				local pos = player:getpos()
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=1})
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=1}, 2)
 			end,
 
 			hit_node = function(self, pos, node)
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=2})
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=2}, 2)
 			end
 		})
 		return true
@@ -517,18 +509,19 @@ scrolls.register_spell("scrolls:icebolt", {
 			properties = {
 				textures = {"scrolls_icebolt.png"},
 			},
-			hit_player = function(self, player)
-				local pos = player:getpos()
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
-			end,
 
-			hit_mob = function(self, player)
+			hit_entity = function(self, player)
+				print("OUCH!!!!")
+				player:punch(self.object, 1.0,  {
+					full_punch_interval = 1.0,
+					damage_groups = {fleshy = 8},
+				}, 0)
 				local pos = player:getpos()
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5}, 2)
 			end,
 
 			hit_node = function(self, pos, node)
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5}, 2)
 			end
 		})
 		return true

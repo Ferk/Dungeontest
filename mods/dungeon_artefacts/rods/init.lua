@@ -28,8 +28,8 @@ minetest.register_tool("rods:rod_of_fireball", {
 	on_use = function(itemstack, user, pointed_thing)
 
 	   local name = user:get_player_name()
-	   if mana.get(name) > 40 and scrolls.cast("scrolls:fireball", user, pointed_thing) then
-		  mana.subtract(user:get_player_name(), 60)
+	   if mana.get(name) > 20 and scrolls.cast("scrolls:fireball", user, pointed_thing) then
+		  mana.subtract(user:get_player_name(), 20)
 	   end
 	   return itemstack
 	end,
@@ -46,8 +46,8 @@ minetest.register_tool("rods:rod_of_icebolt", {
 	on_use = function(itemstack, user, pointed_thing)
 
 	   local name = user:get_player_name()
-	   if mana.get(name) > 40 and scrolls.cast("scrolls:icebolt", user, pointed_thing) then
-		  mana.subtract(user:get_player_name(), 60)
+	   if mana.get(name) > 20 and scrolls.cast("scrolls:icebolt", user, pointed_thing) then
+		  mana.subtract(user:get_player_name(), 20)
 	   end
 	   return itemstack
 	end,
