@@ -22,7 +22,7 @@ scrolls.register_spell("scrolls:speed", {
     },
 
 	treasure = {
-		rarity = 0.1,
+		rarity = 0.07,
 		preciousness = 5,
 	}
 })
@@ -91,7 +91,7 @@ scrolls.register_spell("scrolls:poisoning", {
     },
 
 	treasure = {
-		rarity = 0.2,
+		rarity = 0.1,
 		preciousness = 2,
 	}
 })
@@ -143,7 +143,7 @@ scrolls.register_spell("scrolls:breathing", {
     },
 
 	treasure = {
-		rarity = 0.1,
+		rarity = 0.09,
 		preciousness = 4,
 	}
 })
@@ -174,7 +174,7 @@ scrolls.register_spell("scrolls:confusion", {
     },
 
 	treasure = {
-		rarity = 0.1,
+		rarity = 0.07,
 		preciousness = 2.5,
 	}
 })
@@ -223,7 +223,7 @@ scrolls.register_spell("scrolls:immolation", {
 	end,
 
 	treasure = {
-		rarity = 0.04,
+		rarity = 0.03,
 		preciousness = 8,
 	}
 })
@@ -302,7 +302,7 @@ scrolls.register_spell("scrolls:irrigation", {
 	end,
 
 	treasure = {
-		rarity = 0.07,
+		rarity = 0.03,
 		preciousness = 7,
 	}
 })
@@ -479,8 +479,8 @@ scrolls.register_spell("scrolls:fireball", {
 	end,
 
 	treasure = {
-		rarity = 0.2,
-		preciousness = 2,
+		rarity = 0.02,
+		preciousness = 0.5,
 	}
 })
 
@@ -535,8 +535,8 @@ scrolls.register_spell("scrolls:icebolt", {
 	end,
 
 	treasure = {
-		rarity = 0.2,
-		preciousness = 2,
+		rarity = 0.02,
+		preciousness = 0.5,
 	}
 })
 
@@ -583,7 +583,7 @@ scrolls.register_spell("scrolls:random", {
     end,
 
 	treasure = {
-		rarity = 0.2,
+		rarity = 0.08,
 		preciousness = 2,
 	}
 })
