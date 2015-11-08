@@ -194,17 +194,7 @@ scrolls.register_spell("scrolls:immolation", {
 			damage_groups = {fleshy=4},
 		}, vec)
 		local pos = caster:getpos()
-		for dx=0,1 do
-			for dy=0,1 do
-				for dz=0,1 do
-					local p = {x=pos.x+dx, y=pos.y+dy, z=pos.z+dz}
-					local n = minetest.env:get_node(p).name
-					if (n == "air") then
-							minetest.env:set_node(p, {name="fire:basic_flame"})
-					end
-				end
-			end
-		end
+		scrolls.replace_air_in_radius(pos, 1, {name="fire:basic_flame"})
 		return true
 	end,
 
@@ -228,18 +218,56 @@ scrolls.register_spell("scrolls:immolation", {
 		else
 			return false
 		end
+		scrolls.replace_air_in_radius(pos, 1, {name="fire:basic_flame"})
+		return true
+	end,
 
-		for dx=-1,1 do
-			for dy=-2,1 do
-				for dz=-1,1 do
-					local p = {x=pos.x+dx, y=pos.y+dy, z=pos.z+dz}
-					local n = minetest.env:get_node(p).name
-					if (n == "air") then
-							minetest.env:set_node(p, {name="fire:basic_flame"})
-					end
-				end
+	treasure = {
+		rarity = 0.04,
+		preciousness = 8,
+	}
+})
+
+scrolls.register_spell("scrolls:frostbite", {
+	description = "immolation",
+	--scroll_image = "scroll_of_frostbite.png",
+	particle_image =  minetest.inventorycube("default_ice.png"),
+	groups = { ice = 1 },
+
+	on_self_cast = function(caster, pointed_thing)
+		local s = caster:getpos()
+		local p = caster:get_look_dir()
+		local vec = {x=s.x-p.x, y=s.y-p.y, z=s.z-p.z}
+		caster:punch(caster, 1.0,  {
+			full_punch_interval=1.0,
+			damage_groups = {fleshy=4},
+		}, vec)
+		local pos = caster:getpos()
+		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=10})
+		return true
+	end,
+
+	on_cast = function(caster, pointed_thing)
+		local pos
+		if pointed_thing.type == "node" then
+			pos = pointed_thing.under
+
+		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
+			local target = pointed_thing.ref
+			pos = target:getpos()
+
+			if target.punch and caster.get_look_dir then
+				local dir = caster:get_look_dir()
+				local vec = {x=pos.x-dir.x, y=pos.y-dir.y, z=pos.z-dir.z}
+				target:punch(caster, 1.0,  {
+					full_punch_interval=1.0,
+					damage_groups = {fleshy=4},
+				}, vec)
 			end
+		else
+			return false
 		end
+		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=10})
 		return true
 	end,
 
@@ -258,17 +286,7 @@ scrolls.register_spell("scrolls:irrigation", {
 	on_self_cast = function(caster, pointed_thing)
 		local pos = caster:getpos()
 		pos.y = pos.y + 1
-		for dx=-1,1 do
-			for dy=-2,1 do
-				for dz=-1,1 do
-					local p = {x=pos.x+dx, y=pos.y+dy, z=pos.z+dz}
-					local n = minetest.env:get_node(p).name
-					if (n == "air") then
-							minetest.env:set_node(p, {name="scrolls:temporary_water", param2 = 10})
-					end
-				end
-			end
-		end
+		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_water", param2 = 10})
 		return true
 	end,
 
@@ -276,17 +294,7 @@ scrolls.register_spell("scrolls:irrigation", {
 		local pos = (pointed_thing.type == "node" and pointed_thing.under)
 			or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
 		if pos then
-			for dx=-1,1 do
-				for dy=-2,1 do
-					for dz=-1,1 do
-						local p = {x=pos.x+dx, y=pos.y+dy, z=pos.z+dz}
-						local n = minetest.env:get_node(p).name
-						if (n == "air") then
-								minetest.env:set_node(p, {name="scrolls:temporary_water", param2 = 10})
-						end
-					end
-				end
-			end
+			scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_water", param2 = 10})
 			return true
 		else
 			return false
@@ -416,6 +424,121 @@ scrolls.register_spell("scrolls:invisibility", {
 	}
 })
 
+scrolls.register_spell("scrolls:fireball", {
+	description = "Fireball",
+	scroll_image = "scroll_of_fireball.png",
+
+	on_cast = function(caster, pointed_thing)
+		local pointed_pos
+		if not pointed_thing then
+			if caster.get_look_pitch and caster.get_look_yaw then
+				local pitch = caster:get_look_pitch()
+				local yaw = caster:get_look_yaw()
+				pointed_pos = {x = cos(yaw), y = sin(pitch), z = sin(-yaw)}
+			else
+				return false
+			end
+		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
+			pointed_pos = pointed_thing.ref:getpos()
+		else
+			pointed_pos = pointed_thing.above
+		end
+		if not pointed_pos then
+			return false
+		end
+		local pos = caster:getpos()
+		pos.y  = pos.y + 1
+		local direction = vector.direction(pos, pointed_pos)
+
+		scrolls.shoot_projectile(pos, {
+			direction = direction,
+			speed = 6,
+			hit_player = function(self, player)
+				player:punch(self.object, 1.0,  {
+					full_punch_interval = 1.0,
+					damage_groups = {fleshy = 8},
+				}, 0)
+				local pos = player:getpos()
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=1})
+			end,
+
+			hit_mob = function(self, player)
+				player:punch(self.object, 1.0,  {
+					full_punch_interval = 1.0,
+					damage_groups = {fleshy = 8},
+				}, 0)
+				local pos = player:getpos()
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=1})
+			end,
+
+			hit_node = function(self, pos, node)
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=2})
+			end
+		})
+		return true
+	end,
+
+	treasure = {
+		rarity = 0.2,
+		preciousness = 2,
+	}
+})
+
+
+scrolls.register_spell("scrolls:icebolt", {
+	description = "Icebold",
+	scroll_image = "scroll_of_icebolt.png",
+
+	on_cast = function(caster, pointed_thing)
+		local pointed_pos
+		if not pointed_thing then
+			if caster.get_look_pitch and caster.get_look_yaw then
+				local pitch = caster:get_look_pitch()
+				local yaw = caster:get_look_yaw()
+				pointed_pos = {x = cos(yaw), y = sin(pitch), z = sin(-yaw)}
+			else
+				return false
+			end
+		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
+			pointed_pos = pointed_thing.ref:getpos()
+		else
+			pointed_pos = pointed_thing.above
+		end
+		if not pointed_pos then
+			return false
+		end
+		local pos = caster:getpos()
+		pos.y  = pos.y + 1
+		local direction = vector.direction(pos, pointed_pos)
+
+		scrolls.shoot_projectile(pos, {
+			direction = direction,
+			speed = 6,
+			properties = {
+				textures = {"scrolls_icebolt.png"},
+			},
+			hit_player = function(self, player)
+				local pos = player:getpos()
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
+			end,
+
+			hit_mob = function(self, player)
+				local pos = player:getpos()
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
+			end,
+
+			hit_node = function(self, pos, node)
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
+			end
+		})
+		return true
+	end,
+
+	treasure = {
+		rarity = 0.2,
+		preciousness = 2,
+	}
+})
 
 scrolls.register_spell("scrolls:random", {
 	description = "Chaos",
