@@ -6,9 +6,12 @@ mobs:register_mob("mobs:dungeon_master", {
 	passive = false,
 	damage = 4,
 	attack_type = "shoot",
-	shoot_interval = 2.5,
-	arrow = "mobs:fireball",
-	shoot_offset = 1,
+	spells = {
+		{
+			name = "scrolls:fireball",
+			interval = 2.5,
+		}
+	},
 	hp_min = 12,
 	hp_max = 35,
 	armor = 60,
@@ -57,31 +60,3 @@ mobs:register_mob("mobs:dungeon_master", {
 mobs:register_spawn("mobs:dungeon_master", {"default:stone"}, 5, 0, 7000, 1, -70)
 
 mobs:register_egg("mobs:dungeon_master", "Dungeon Master", "fire_basic_flame.png", 1)
-
--- fireball (weapon)
-mobs:register_arrow("mobs:fireball", {
-	visual = "sprite",
-	visual_size = {x = 1, y = 1},
-	textures = {"mobs_fireball.png"},
-	velocity = 6,
-
-	-- direct hit, no fire... just plenty of pain
-	hit_player = function(self, player)
-		player:punch(self.object, 1.0,  {
-			full_punch_interval = 1.0,
-			damage_groups = {fleshy = 8},
-		}, 0)
-	end,
-
-	hit_mob = function(self, player)
-		player:punch(self.object, 1.0,  {
-			full_punch_interval = 1.0,
-			damage_groups = {fleshy = 8},
-		}, 0)
-	end,
-
-	-- node hit, bursts into flame
-	hit_node = function(self, pos, node)
-		mobs:explosion(pos, 1, 1, 0)
-	end
-})

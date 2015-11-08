@@ -112,6 +112,11 @@ function scrolls.cast(spell, caster, pointed_thing)
         def = scrolls.registered_spells[spell]
     end
 
+    -- If it's a luaentity, make sure we are pointing to the object
+    if type(caster) ~= "userdata" and caster.object then
+      caster = caster.object
+    end
+
     if def and def.on_cast and def.on_cast(caster, pointed_thing) then
         return true
     else
