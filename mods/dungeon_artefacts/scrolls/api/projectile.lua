@@ -38,11 +38,11 @@ minetest.register_entity("scrolls:magic_projectile", {
 		and self.timer > engage then
 			for _,obj in pairs(minetest.get_objects_inside_radius(vector.add(pos,self.direction), 1.0)) do
 				if obj:is_player() or (
-					obj:get_luaentity().name ~= "__builtin:item"
+					obj:get_luaentity()
+					and obj:get_luaentity().name ~= "__builtin:item"
 					and obj:get_luaentity().name ~= "gauges:hp_bar"
 					and obj:get_luaentity().name ~= "signs:text"
 					) then
-					print("HITT!!!")
 					self.hit_entity(self, obj)
 					self.object:remove()
 					return
@@ -78,11 +78,11 @@ function scrolls.replace_air_in_radius(pos, radius, node, chance)
 	for dx = -radius, radius do
 		for dy = -radius, radius do
 			for dz = -radius, radius do
-				if chance and math.random(chance) == 1 then
+				if not chance or math.random(chance) == 1 then
 					local p = { x = pos.x+dx, y = pos.y+dy, z = pos.z+dz}
 					local n = minetest.get_node(p).name
-					if (n == "air") then
-							minetest.set_node(p, node)
+					if n == "air" then
+						minetest.set_node(p, node)
 					end
 				end
 			end

@@ -229,8 +229,8 @@ scrolls.register_spell("scrolls:immolation", {
 })
 
 scrolls.register_spell("scrolls:frostbite", {
-	description = "immolation",
-	--scroll_image = "scroll_of_frostbite.png",
+	description = "Frostbite",
+	scroll_image = "scroll_of_frostbite.png",
 	particle_image =  minetest.inventorycube("default_ice.png"),
 	groups = { ice = 1 },
 
@@ -295,6 +295,37 @@ scrolls.register_spell("scrolls:irrigation", {
 			or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
 		if pos then
 			scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_water", param2 = 10})
+			return true
+		else
+			return false
+		end
+	end,
+
+	treasure = {
+		rarity = 0.03,
+		preciousness = 7,
+	}
+})
+
+
+scrolls.register_spell("scrolls:miasma", {
+	description = "Miasma",
+	scroll_image = "scroll_of_miasma.png",
+	particle_image =  minetest.inventorycube("scrolls_biotoxin.png"),
+	liquids_pointable = true,
+
+	on_self_cast = function(caster, pointed_thing)
+		local pos = caster:getpos()
+		pos.y = pos.y + 1
+		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:biotoxin", param2 = 4})
+		return true
+	end,
+
+	on_cast = function(caster, pointed_thing)
+		local pos = (pointed_thing.type == "node" and pointed_thing.under)
+			or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
+		if pos then
+			scrolls.replace_air_in_radius(pos, 1, {name="scrolls:biotoxin", param2 = 4})
 			return true
 		else
 			return false
@@ -478,7 +509,7 @@ scrolls.register_spell("scrolls:fireball", {
 
 
 scrolls.register_spell("scrolls:icebolt", {
-	description = "Icebold",
+	description = "Icebolt",
 	scroll_image = "scroll_of_icebolt.png",
 
 	on_cast = function(caster, pointed_thing)
@@ -511,13 +542,13 @@ scrolls.register_spell("scrolls:icebolt", {
 			},
 
 			hit_entity = function(self, player)
-				print("OUCH!!!!")
 				player:punch(self.object, 1.0,  {
 					full_punch_interval = 1.0,
-					damage_groups = {fleshy = 8},
+					damage_groups = {fleshy = 4},
 				}, 0)
-				local pos = player:getpos()
-				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5}, 2)
+				local pos = vector.round(player:getpos())
+				minetest.set_node(pos,{name="scrolls:temporary_ice", param2=10})
+				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=3}, 2)
 			end,
 
 			hit_node = function(self, pos, node)

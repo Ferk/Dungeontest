@@ -174,29 +174,103 @@ minetest.register_node("scrolls:temporary_ice", {
 	is_ground_content = false,
 	drops = "",
 	paramtype = "light",
-	groups = {cracky=3, puts_out_fire = 1, not_in_creative_inventory=1},
+	--groups = {cracky=3, liquid=4, puts_out_fire = 1, not_in_creative_inventory=1},
+	groups = {cracky=3, liquid=4, puts_out_fire = 1 },
 	sounds = default.node_sound_glass_defaults(),
 	alpha = 50,
 	post_effect_color = {a=75, r=200, g=200, b=255},
+	liquidtype = "source",
+	liquid_viscosity = 31,
 
 	on_construct = function(pos)
 		local node = minetest.get_node(pos)
 		if node.param2 < 1 then
-			node.param2 = math.random(4,6)
-			minetest.swap_node(pos, node)
+			node.param2 = math.random(5,10)
 		end
 		minetest.get_node_timer(pos):start(node.param2)
 	end,
 
 	on_timer = function(pos, elapsed)
+		minetest.remove_node(pos)
+	end
+})
+
+minetest.register_node("scrolls:biotoxin", {
+    description = "Biotoxin",
+    inventory_image = minetest.inventorycube("scrolls_biotoxin.png"),
+    tiles = {
+        {name="scrolls_biotoxin_source_animated.png", animation={type="vertical_frames", aspect_w=32, aspect_h=32, length=2.0}}
+    },
+    special_tiles = {
+        {
+            name="scrolls_biotoxin_source_animated.png",
+            animation={type="vertical_frames", aspect_w=32, aspect_h=32, length=2.0},
+            backface_culling = false,
+        }
+    },
+    drawtype = "nodebox",
+    paramtype = "light",
+    sunlight_propagates = true,
+    use_texture_alpha = true,
+    walkable = false,
+    diggable = false,
+    pointable = false,
+    drop = "",
+    liquidtype = "source",
+    liquid_alternative_flowing = "scrolls:biotoxin_flowing",
+    liquid_alternative_source = "scrolls:biotoxin",
+    post_effect_color = {a=10, r=50, g=240, b=76},
+    groups = {liquid=5, flammable=15},
+	on_construct = function(pos)
 		local node = minetest.get_node(pos)
-		node.param2 = node.param2 - elapsed
-		if node.param2 <= 0 then
-			minetest.set_node(pos, {name = "air"})
-			return false
-		else
-			minetest.swap_node(pos, node)
-			return true
+		if node.param2 > 0 then
+			minetest.get_node_timer(pos):start(node.param2)
+		end
+	end,
+	on_timer = function(pos, elapsed)
+		minetest.remove_node(pos)
+	end
+})
+
+minetest.register_node("scrolls:biotoxin_flowing", {
+    description = "Flowing Biotoxin",
+    inventory_image = minetest.inventorycube("scrolls_biotoxin.png"),
+    tiles =  {
+        {
+            image="scrolls_biotoxin_flowing_animated.png",
+            backface_culling=false,
+            animation={type="vertical_frames", aspect_w=32, aspect_h=32, length=0.8}
+        }
+    },
+	drawtype = "nodebox",
+	sunlight_propagates = true,
+	paramtype = "light",
+	use_texture_alpha = true,
+	walkable = false,
+	diggable = false,
+	pointable = false,
+	drop = "",
+	liquidtype = "flowing",
+	liquid_alternative_flowing = "scrolls:biotoxin_flowing",
+	liquid_alternative_source = "scrolls:biotoxin",
+	climbable = false,
+	post_effect_color = {a=10, r=50, g=240, b=76},
+	groups = {liquid=5, flammable=15, not_in_creative_inventory=1},
+})
+
+minetest.register_abm({
+	nodenames = {"scrolls:biotoxin_source", "scrolls:biotoxin_flowing"},
+	interval = 2,
+	chance = 16,
+	action = function(pos, node, active_object_count, active_object_count_wider)
+		local objs = minetest.get_objects_inside_radius(pos, 2)
+		for k, obj in pairs(objs) do
+			if obj:is_player() then
+				statuses.apply_status(obj, {
+					name = "scrolls:poisoning",
+					duration = active_object_count_wider + math.random(3,8),
+				})
+			end
 		end
 	end
 })
