@@ -273,7 +273,7 @@ minetest.register_abm({
 			if obj:is_player() then
 				statuses.apply_status(obj, {
 					name = "scrolls:poisoning",
-					duration = active_object_count_wider + math.random(3,8),
+					duration = active_object_count_wider + math.random(8,18),
 				})
 			end
 		end
