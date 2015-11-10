@@ -12,9 +12,9 @@ do
 			local savetable = minetest.deserialize(string)
 			statuses.inactive = savetable.inactive
 			minetest.log("action", "[statuses] status_players.mt successfully read.")
-			minetest.debug("[statuses] inactive = "..dump(statuses.inactive))
+			--minetest.debug("[statuses] inactive = "..dump(statuses.inactive))
 			statuses.id_count = savetable.id_count
-			minetest.debug("[statuses] id_count = "..dump(statuses.id_count))
+			--minetest.debug("[statuses] id_count = "..dump(statuses.id_count))
 
 		end
 	end
