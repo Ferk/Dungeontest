@@ -35,8 +35,8 @@ altars.register_god("eresh", {
        texture = "altars_eresh.png",
        particle = "altars_eresh_particle.png",
        on_pray = function(pos, node, player, itemstack)
-			local name = player:get_player_name()
-			statuses.apply_player_status(player, { name="altars:eresh_respawn", value = player:getpos() })
+		  local name = player:get_player_name()
+			statuses.update_player_status(player, { name="altars:eresh_respawn", value = player:getpos() })
 			minetest.log("action","player '" .. name .. "' saved Eresh spawn at " .. minetest.serialize(pos))
 			minetest.chat_send_player(name, "Eresh listened to your prayers")
        end

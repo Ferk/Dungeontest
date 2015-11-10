@@ -56,7 +56,7 @@ end
 --[=[ API functions ]=]
 function statuses.register_status(name, def)
 	def = def or {}
-	def.description = def.description or ""
+	def.description = def.description or name
 	def.icon = def.icon or ""
 	def.groups = def.groups or {}
 	def.default_value = def.default_value or 0
@@ -89,6 +89,28 @@ function statuses.apply_status(target, status)
 	end
 end
 
+local function create_proxy(values)    
+    -- create proxy table
+    local t = {}
+    
+    -- create metatable
+    local mt = {
+      __index = function (t,k)
+		minetest.log("debug","accessing stat " .. (values.name or "") .. "::" .. tostring(k))
+        return values[k]
+      end,
+    
+      __newindex = function (t,k,v)
+		 minetest.log("action", "updating " .. (values.playername or "object") .. " stat "
+						 .. (values.name or "") .. "::" .. tostring(k)
+						 .. " from " .. tostring(values[k]) .. " to " .. tostring(v))
+        rawset(values, k, v)
+      end
+    }
+    setmetatable(t, mt)
+
+	return t
+end
 
 function statuses.add_status(target, status)
 
@@ -100,7 +122,7 @@ function statuses.add_status(target, status)
 	else
 		local sindex = statuses.next_status_id()
 		status.id = sindex
-		statuses.active[sindex] = status
+		statuses.active[sindex] = create_proxy(status)
 
 		-- If a "duration" is defined, the status will be cancelled after it
 		-- Also store the start time, to be able to get static data

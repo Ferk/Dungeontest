@@ -76,15 +76,15 @@ end
 
 
 function statuses.get_player_status(playername)
-	if(minetest.get_player_by_name(playername) ~= nil) then
-		local status_list = {}
+   if(minetest.get_player_by_name(playername) ~= nil) then
+	  local status_list = {}
 		for k,v in pairs(statuses.active) do
-			if(v.playername == playername) then
-				status_list[v.name] = v
-			end
+		   if(v.playername == playername) then
+			  status_list[v.name] = v
+		   end
 		end
 		return status_list
-	else
+   else
 		return {}
 	end
 end
@@ -109,7 +109,7 @@ function statuses.apply_player_status(player, status)
     local def = statuses.registered_statuses[status.name]
 
     if not def then
-        minetest.log("action", "[statuses] status definition not registered '" .. status.name .. "', won't apply it")
+	   minetest.log("action", "[statuses] status definition not registered '" .. (status.name or "nil") .. "', won't apply it")
         return false
     end
 
@@ -163,6 +163,19 @@ function statuses.apply_player_status(player, status)
 	end
 
 	return sindex, status
+end
+
+function statuses.update_player_status(player, status)
+   local name = player:get_player_name()
+   local existing_status = statuses.get_player_status(name)[status.name]
+
+   if not existing_status then
+	  statuses.apply_player_status(player, status)
+   else
+	  for k,v in pairs(status) do
+		 existing_status[k] = v
+	  end
+   end
 end
 
 
