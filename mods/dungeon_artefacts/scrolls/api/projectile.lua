@@ -6,6 +6,7 @@ minetest.register_entity("scrolls:magic_projectile", {
 	visual = "sprite",
 	visual_size = {x = 1, y = 1},
 	textures = {"scrolls_fireball.png"},
+	use_texture_alpha = true,
 	hit_entity = function() end,
 	hit_mob = function() end,
 	drop = false,

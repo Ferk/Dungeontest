@@ -174,13 +174,17 @@ minetest.register_node("scrolls:temporary_ice", {
 	is_ground_content = false,
 	drops = "",
 	paramtype = "light",
-	--groups = {cracky=3, liquid=4, puts_out_fire = 1, not_in_creative_inventory=1},
-	groups = {cracky=3, liquid=4, puts_out_fire = 1 },
+	groups = {cracky=3, puts_out_fire=1, not_in_creative_inventory=1 },
 	sounds = default.node_sound_glass_defaults(),
-	alpha = 50,
+	use_texture_alpha = true,
 	post_effect_color = {a=75, r=200, g=200, b=255},
+	sunlight_propagates = true,
 	liquidtype = "source",
 	liquid_viscosity = 31,
+	liquid_alternative_flowing = "scrolls:temporary_ice",
+	liquid_alternative_source = "scrolls:temporary_ice",
+	liquid_renewable = false,
+	liquid_range = 0,
 
 	on_construct = function(pos)
 		local node = minetest.get_node(pos)
@@ -255,6 +259,7 @@ minetest.register_node("scrolls:biotoxin_flowing", {
 	liquid_alternative_source = "scrolls:biotoxin",
 	climbable = false,
 	post_effect_color = {a=10, r=50, g=240, b=76},
+	damage_per_second = 0.2,
 	groups = {liquid=5, flammable=15, not_in_creative_inventory=1},
 })
 
