@@ -52,14 +52,19 @@ doors.register_trapdoor("dungeon_rooms:trapdoor", {
     	on_open = dungeon_rooms.spawn_ladder
 })
 
--- pillars
+-- wall pillars and other nodeboxes
 
 castle.register_pillar("dungeon_rooms:pillar", {
     description = "Dungeon Pillar",
     tile = "dungeon_rooms_wall.png",
     groups = {creative_breakable=1},
 })
-
+stairs.register_stair_and_slab("wall", "dungeon_rooms:wall",
+		{cracky = 3},
+		{"dungeon_rooms_wall.png"},
+		"Dungeon Stair",
+		"Dungeon Slab",
+		default.node_sound_stone_defaults())
 
 -- spawner nodes
 

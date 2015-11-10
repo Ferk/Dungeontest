@@ -556,3 +556,23 @@ ddecor.register("wood_tile", {
 	groups = {wood=1, flammable=2},
 	sounds = default.node_sound_wood_defaults()
 })
+
+minetest.register_node("ddecor:rat_hole", {
+	description = "Rat Hole",
+	drawtype = "nodebox",
+	tiles = {
+			"ddecor_rat_hole.png",
+			},
+	paramtype = "light",
+	paramtype2 = "facedir",
+	groups = {creative_breakable=1},
+	is_ground_content = false,
+	light_source = 8,
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, 0.5, 0.5, 0.5, 0.49},
+		}
+	}
+})
+
