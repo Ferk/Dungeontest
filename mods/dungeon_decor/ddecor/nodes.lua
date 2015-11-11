@@ -352,14 +352,6 @@ ddecor.register("lightbox", {
 	sounds = default.node_sound_glass_defaults()
 })
 
-ddecor.register("packed_ice", {
-	drawtype = "normal",
-	description = "Packed Ice",
-	tiles = {"ddecor_packed_ice.png"},
-	groups = {cracky=2},
-	sounds = default.node_sound_glass_defaults()
-})
-
 
 ddecor.register("painting", {
 	description = "Painting",
@@ -557,17 +549,13 @@ ddecor.register("wood_tile", {
 	sounds = default.node_sound_wood_defaults()
 })
 
-minetest.register_node("ddecor:rat_hole", {
+ddecor.register("rat_hole", {
 	description = "Rat Hole",
 	drawtype = "nodebox",
 	tiles = {
 			"ddecor_rat_hole.png",
 			},
-	paramtype = "light",
 	paramtype2 = "facedir",
-	groups = {creative_breakable=1},
-	is_ground_content = false,
-	light_source = 8,
 	node_box = {
 		type = "fixed",
 		fixed = {
@@ -576,3 +564,213 @@ minetest.register_node("ddecor:rat_hole", {
 	}
 })
 
+
+-- Well Top
+ddecor.register("well_top_stonebrick", {
+	description = "Well Top Stone Brick",
+	drawtype = "nodebox",
+	tiles = {
+			"default_stone_brick.png"
+			},
+	paramtype2 = "facedir",
+	groups = {creative_breakable=1},
+	is_ground_content = false,
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.5, 0.3125, -0.125, -0.3125, 0.5},
+			{0.3125, -0.5, -0.5, 0.5, -0.3125, -0.1875},
+			{0.25, -0.5, -0.3125, 0.4375, -0.3125, -0.0625},
+			{0.1875, -0.5, -0.1875, 0.375, -0.3125, 0.0625},
+			{-0.25, -0.5, 0.25, 0, -0.3125, 0.4375},
+			{-0.125, -0.5, 0.1875, 0.125, -0.3125, 0.375},
+			{0, -0.5, 0.125, 0.1875, -0.3125, 0.3125},
+			{0.125, -0.5, 0, 0.3125, -0.3125, 0.1875},
+			{0.0625, -0.5, 0.0625, 0.25, -0.3125, 0.25},
+			{-0.125, -0.5625, 0.1875, 0.5, -0.49, 0.5},
+			{0.1875, -0.5625, -0.1875, 0.5, -0.49, 0.5},
+		}
+	},
+	on_place = minetest.rotate_node
+})
+
+-- Tile
+ddecor.register("tile", {
+	description = "Dungeon Tile",
+	tiles = {
+			"ddecor_tile.png"
+			},
+})
+-- Cracked Tile
+ddecor.register("tile_cracked", {
+	description = "Dungeon Cracked Tile",
+	tiles = {
+			"ddecor_tile.png^ddecor_crack.png"
+			},
+	paramtype2 = "facedir",
+})
+-- Tile with Green overlay
+ddecor.register("tile_mossy", {
+	description = "Mossy Dungeon Tile",
+	tiles = {
+			"ddecor_tile.png^ddecor_green_overlay.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			},
+	paramtype2 = "facedir",
+})
+--Cracked Tile with Green overlay
+ddecor.register("tile_mossy_cracked", {
+	description = "Cracked Mossy Dungeon Tile",
+	tiles = {
+			"ddecor_tile.png^ddecor_crack.png^ddecor_green_overlay.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			"ddecor_tile.png",
+			},
+	paramtype2 = "facedir",
+})
+--Cracked Tile
+ddecor.register("red_tile", {
+	description = "Dungeon Red Tile",
+	drawtype = "normal",
+	tiles = {
+			"ddecor_tile.png^ddecor_red_overlay.png"
+			},
+	paramtype2 = "facedir",
+})
+
+-- Tile stairs and slab
+stairs.register_stair_and_slab("tile", "ddecor:tile",
+		{creative_breakable=1},
+		{"ddecor_tile.png"},
+		"Dungeon Tile Stair",
+		"Dungeon Tile Slab",
+		default.node_sound_stone_defaults())
+
+
+--Ladder
+minetest.register_node(":default:ladder",{
+	description = "Ladder",
+	tiles = {"ddecor_ladder.png"},
+	drawtype = "mesh",
+	mesh = "ddecor_ladder.obj",
+	paramtype = "light",
+	paramtype2 = "facedir",
+	climbable = true,
+	walkable = false,
+	groups = {creative_breakable=1},
+	selection_box = {
+		type = "fixed",
+		fixed = {
+			{-0.375, -0.5, 0.3125, 0.375, 0.5, 0.5},
+		}
+	},
+})
+
+--Curved Ceiling
+ddecor.register("curved_ceiling", {
+	description = "Curved Ceiling",
+	drawtype = "nodebox",
+	tiles = {
+			"default_gravel.png"
+			},
+	paramtype2 = "facedir",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, 0.5,	 0.4375, 0.5, -0.5, 0.5}, 
+			{-0.5, 0.4375, 0.375,  0.5, 0.25, 0.5}, 
+			{-0.5, 0.125,0.375,	 0.5, -0.5, 0.5}, 
+			{-0.5, -0.0625, 0.3125, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.1875, 0.25, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.4375, -0.5, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.375,-0.4375, 0.5, -0.5, -0.25}, 
+			{-0.5, -0.375,-0.125, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.3125, 0.0625, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.25, 0.1875, 0.5,-0.5, 0.5},
+		}
+	},
+	on_place = minetest.rotate_node
+})
+ddecor.register("curved_ceiling_middle", {
+	description = "Curved Ceiling Middle",
+	drawtype = "nodebox",
+	tiles = {
+			"default_gravel.png"
+			},
+	paramtype2 = "facedir",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, 0.4375, -0.5, 0.5, 0.5, 0.5},
+			{0.1875, 0.375, -0.5, 0.5, 0.5, 0.5},
+			{-0.5, 0.375, -0.5, -0.1875, 0.5, 0.5},
+		}
+	},
+	--on_place = minetest.rotate_node
+})
+ddecor.register("curved_ceiling_ic", {
+	description = "Curved Ceiling Inside Corner",
+	drawtype = "nodebox",
+	tiles = {
+			"default_gravel.png"
+			},
+	paramtype2 = "facedir",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, 0.5, 0.4375, 0.5, -0.5, 0.5}, 
+			{-0.5, 0.4375, 0.375, 0.5, 0.25, 0.5}, 
+			{-0.5, 0.125, 0.375, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.0625, 0.3125, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.1875, 0.25, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.4375, -0.5, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.375, -0.4375, 0.5, -0.5, -0.25}, 
+			{-0.5, -0.375, -0.125, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.3125, 0.0625, 0.5, -0.5, 0.5}, 
+			{-0.5, -0.25, 0.1875, 0.5, -0.5, 0.5}, 
+			{0.4375, 0.5, -0.5, 0.5, -0.5, 0.5}, 
+			{0.375, 0.4375, -0.5, 0.5, 0.25, 0.5}, 
+			{0.375, 0.125, -0.5, 0.5, -0.5, 0.5}, 
+			{0.3125, -0.0625, -0.5, 0.5, -0.5, 0.5}, 
+			{0.25, -0.1875, -0.5, 0.5, -0.5, 0.5}, 
+			{-0.4375, -0.375, -0.5, -0.25, -0.5, 0.5}, 
+			{-0.125, -0.375, -0.5, 0.5, -0.5, 0.5}, 
+			{0.0625, -0.3125, -0.5, 0.5, -0.5, 0.5}, 
+			{0.1875, -0.25, -0.5, 0.5, -0.5, 0.5}, 
+			{-0.25, -0.375, -0.25, 0.5, -0.5, 0.5},
+		}
+	},
+	on_place = minetest.rotate_node
+})
+ddecor.register("curved_ceiling_oc", {
+	description = "Curved Ceiling Outside Corner",
+	drawtype = "nodebox",
+	tiles = {
+			"default_gravel.png"
+			},
+	paramtype2 = "facedir",
+	node_box = {
+		type = "fixed",
+		fixed = {
+			{-0.5, -0.4375, -0.5, 0.5, -0.5, 0.5}, 
+			{-0.5, 0.5, 0.4375, -0.4375, -0.5, 0.5}, 
+			{-0.5, 0.4375, 0.375, -0.375, 0.25, 0.5}, 
+			{-0.5, 0.125, 0.375, -0.375, -0.5, 0.5}, 
+			{-0.5, -0.0625, 0.3125, -0.3125, -0.5, 0.5}, 
+			{-0.5, -0.1875, 0.25, -0.25, -0.5, 0.5}, 
+			{-0.5, -0.25, 0.1875, -0.1875, -0.5, 0.5}, 
+			{-0.5, -0.3125, 0.0625, -0.0625, -0.5, 0.5}, 
+			{-0.5, -0.375, -0.125, 0.125, -0.5, 0.5}, 
+			{-0.5, -0.375, -0.4375, 0.4375, -0.5, -0.25}, 
+			{0.25, -0.375, -0.4375, 0.4375, -0.5, 0.5},
+		}
+	},
+	on_place = minetest.rotate_node
+})
