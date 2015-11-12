@@ -317,7 +317,7 @@ function mobs:register_mob(name, def)
 
 				-- water
 				if self.water_damage ~= 0
-				and nodef.groups.water then
+				and nodef and nodef.groups.water then
 					self.object:set_hp(self.object:get_hp() - self.water_damage)
 					effect(pos, 5, "bubble.png")
 					if check_for_death(self) then return end
@@ -325,7 +325,7 @@ function mobs:register_mob(name, def)
 
 				-- lava or fire
 				if self.lava_damage ~= 0
-				and (nodef.groups.lava or nod.name == "fire:basic_flame") then
+				and (nodef and nodef.groups.lava or nod.name == "fire:basic_flame") then
 					self.object:set_hp(self.object:get_hp() - self.lava_damage)
 					effect(pos, 5, "fire_basic_flame.png")
 					if check_for_death(self) then return end
