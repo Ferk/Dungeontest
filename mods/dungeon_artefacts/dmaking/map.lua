@@ -18,7 +18,7 @@ function dmaking.show_map(player)
 	end
 
 	local formspec = "size[5,5]"
-		--.."background[-1,-1;12,9;dmaking_map_bg.png]"
+		.."background[-0.5,-0.5;6,6.5;dmaking_parchment_bg.png]"
 		.."label[1.5,0;Map of Level " .. current_room.level .. "]"
 		.."label[0.5,0.5;" .. current_room.leveldata.name .."]"
 
@@ -56,3 +56,29 @@ function dmaking.show_map(player)
 
 	minetest.show_formspec(name, "dmaking:map", formspec)
 end
+
+
+
+
+minetest.register_node("dmaking:map", {
+	description = "Dungeon Map",
+	drawtype = "signlike",
+	tiles = {"dmaking_parchment.png^dmaking_parchment_map.png"},
+	--wield_image = "dmaking_parchment.png^dmaking_parchment_map.png",
+	inventory_image = "dmaking_parchment.png^dmaking_parchment_map.png",
+	paramtype = "light",
+	paramtype2 = "wallmounted",
+	selection_box = {
+		type="wallmounted",
+		wall_top = {-0.44, 0.49, -0.44, 0.44, 0.5, 0.44},
+		wall_bottom = {-0.44, -0.5, -0.44, 0.44, -0.49, 0.44},
+		wall_side = {-0.5, -0.44, -0.44, -0.49, 0.44, 0.44},
+	},
+	groups = {attached_node=1, creative_breakable=1},
+	on_construct = function(pos)
+		minetest.get_meta(pos):set_string("infotext","Dungeon Level map")
+	end,
+	on_rightclick = function(pos, node, player)
+		dmaking.show_map(player)
+	end
+})
