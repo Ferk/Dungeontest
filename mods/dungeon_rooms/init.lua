@@ -18,6 +18,7 @@ dungeon_rooms.generic_room_chance = 5
 local modpath = minetest.get_modpath(minetest.get_current_modname())
 
 dofile(modpath.."/roomdata.lua")
+dofile(modpath.."/leveldata.lua")
 
 --------------
 
@@ -55,50 +56,6 @@ function dungeon_rooms.seed_for_room(room)
 	return (rnd:next() * room.x - rnd:next() * room.z + rnd:next() * room.level)
 end
 
--- Collect room details that are used to determine what type of room to spawn
-function dungeon_rooms.get_room_details(room)
-	local rotation, roomtype, doorp
-
-	-- Is there a door on -X?
-	math.randomseed(dungeon_rooms.seed_for_room({x=room.x-1, level=room.level, z=room.z}))
-	local mXdoor = (math.random() < 0.5)
-	-- Is there a door on -Z?
-	math.randomseed(dungeon_rooms.seed_for_room({x=room.x, level=room.level, z=room.z-1}))
-	local mZdoor = not (math.random() < 0.5)
-	-- My door, should it be on X or Z?
-	math.randomseed(dungeon_rooms.seed_for_room(room))
-	local Xdoor = (math.random() < 0.5)
-
-	if Xdoor then
-		rotation=0
-		if not mXdoor and not mZdoor then
-			roomtype="0"
-		elseif mXdoor and not mZdoor then
-			roomtype="1"
-		elseif not mXdoor and mZdoor then
-			roomtype="2"
-		elseif mXdoor and mZdoor then
-			roomtype="3"
-		end
-	else
-		if not mXdoor and not mZdoor then
-			roomtype="0"
-			rotation=270
-		elseif mXdoor and not mZdoor then
-			roomtype="2"
-			rotation=180
-		elseif not mXdoor and mZdoor then
-			roomtype="1"
-			rotation=90
-		elseif mXdoor and mZdoor then
-			roomtype="3"
-			rotation=90
-		end
-	end
-
-	return roomtype, rotation, Xdoor
-end
-
 -- Returns nil if room is not a stairs room
 -- 1 for stairs up
 -- 2 for stairs down
@@ -127,47 +84,31 @@ function dungeon_rooms.spawn_room(center)
 	}
 
 	local room = dungeon_rooms.room_at(center)
-	local roomtype, rotation, Xdoor = dungeon_rooms.get_room_details(room)
+	local details = dungeon_rooms.get_room_details(room)
 
-	if Xdoor then
+	if details.door == "X" then
 		doorp.x = doorp.x + dungeon_rooms.room_area.x/2;
 		doorp.param2 = minetest.dir_to_wallmounted({x=-1,y=0,z=0})
-	else
+	elseif details.door == "Z" then
 		doorp.z = doorp.z + dungeon_rooms.room_area.z/2;
+		doorp.param2 = minetest.dir_to_wallmounted({x=1,y=0,z=0})
+	elseif details.door == "-X" then
+		doorp.x = doorp.x - dungeon_rooms.room_area.x/2;
+		doorp.param2 = minetest.dir_to_wallmounted({x=-1,y=0,z=0})
+	elseif details.door == "-Z" then
+		doorp.z = doorp.z - dungeon_rooms.room_area.z/2;
 		doorp.param2 = minetest.dir_to_wallmounted({x=1,y=0,z=0})
 	end
 
-	minetest.log("action","lvl:"..room.level.." room "..room.x..","..room.z.." ("..center.x..","..center.y..","..center.z..") type " .. roomtype .. " door:" .. (Xdoor and "X" or "Z").. "("..doorp.x..","..doorp.y..","..doorp.z..") "..dungeon_rooms.seed_for_room(room))
+	minetest.log("action","lvl:"..room.level.." room "..room.x..","..room.z.." ("..center.x..","..center.y..","..center.z..") " .. dungeon_rooms.room_details_to_string(details))
 
 	minetest.set_node(doorp,{ name="dungeon_rooms:door_b_1", param2=doorp.param2 })
 	doorp.y = doorp.y+1
 	minetest.set_node(doorp,{ name="dungeon_rooms:door_t_1", param2=doorp.param2 })
 
-	local roompool
-	local isStairs = dungeon_rooms.is_room_stairs(room)
-	if isStairs == 1
-	then
-		rotation = 0
-		roompool = "up"
+	dungeon_rooms.place_roomdata(center, details.data, details.rotation)
 
-	elseif isStairs == 2
-	then
-		rotation = 0
-		roompool = "down"
-
-	elseif math.random(0, 5) == 0 then
-		-- We may use any of the type 4 rooms randomly
-		rotation = "random"
-		roompool = "4"
-
-	else
-		roompool = roomtype
-	end
-
-	local chosen = dungeon_rooms.random_roomdata(roompool, room.level/2)
-	dungeon_rooms.place_roomdata(center, chosen, rotation)
-
-	return chosen, rotation
+	return details
 end
 
 
