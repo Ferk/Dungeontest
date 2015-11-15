@@ -79,8 +79,8 @@ function dungeon_rooms.random_roomdata(room_details)
 	for r=1, #pool do
 		local roomdata = pool[r]
 		if (not roomdata.minlevel or roomdata.minlevel <= level) and
-			(not roomdata.maxlevel or roomdata.maxlevel >= level) then
-			--(not room_details.groups or table.hasCommonElement(roomdata.groups, room_details.groups)) then
+			(not roomdata.maxlevel or roomdata.maxlevel >= level) and
+			(not room_details.groups or table.hasCommonElement(roomdata.groups, room_details.groups)) then
 				-- It's a candidate!
 				table.insert(candidates, roomdata)
 				raresum = raresum + roomdata.rarity

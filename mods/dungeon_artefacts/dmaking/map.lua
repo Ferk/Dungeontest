@@ -27,27 +27,23 @@ function dmaking.show_map(player)
 				local room = current_room.leveldata.rooms[x] and current_room.leveldata.rooms[x][z]
 				if room then
 
-					if not room.layout then
+					if not room.x or not room.z then
 						room.x = first_room.x + x
 						room.z = first_room.z + z
 						room.level = first_room.level
-						room = dungeon_rooms.get_room_details(room)
 					end
+					local layout, rotation = dungeon_rooms.calculate_room_layout(room)
 
 					-- The formspecs rotate in the oposite direction than the schematics rotate...
-					local transformRotation = type(room.rotation) ~= "string" and (360 - room.rotation) % 360 or 0
+					local transformRotation = type(rotation) ~= "string" and (360 - rotation) % 360 or 0
 					if transformRotation == 0 then
 						transformRotation = ""
 					else
 						transformRotation = "^[transformR" .. transformRotation
 					end
 
-					if room == current_room then
-						print("TRANS: " .. transformRotation)
-					end
-
 					formspec = formspec
-						.."image[".. (3.5 - 0.75*(room.z -first_room.z)) .."," .. (4.25 - 0.8*(room.x -first_room.x)) .. ";1,1;dmaking_layout_" .. room.layout ..".png" .. transformRotation
+						.."image[".. (3.5 - 0.75*(room.z -first_room.z)) .."," .. (4.25 - 0.8*(room.x -first_room.x)) .. ";1,1;dmaking_layout_" .. layout ..".png" .. transformRotation
 						..( room == current_room and "^dmaking_red_dot.png" or "" )
 						.."]"
 				end
@@ -64,7 +60,7 @@ minetest.register_node("dmaking:map", {
 	description = "Dungeon Map",
 	drawtype = "signlike",
 	tiles = {"dmaking_parchment.png^dmaking_parchment_map.png"},
-	--wield_image = "dmaking_parchment.png^dmaking_parchment_map.png",
+	wield_image = "dmaking_parchment.png^dmaking_parchment_map.png",
 	inventory_image = "dmaking_parchment.png^dmaking_parchment_map.png",
 	paramtype = "light",
 	paramtype2 = "wallmounted",
@@ -75,6 +71,7 @@ minetest.register_node("dmaking:map", {
 		wall_side = {-0.5, -0.44, -0.44, -0.49, 0.44, 0.44},
 	},
 	groups = {attached_node=1, creative_breakable=1},
+	walkable = false,
 	on_construct = function(pos)
 		minetest.get_meta(pos):set_string("infotext","Dungeon Level map")
 	end,

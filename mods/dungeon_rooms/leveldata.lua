@@ -4,7 +4,7 @@ dungeon_rooms.levels = {}
 
 -- Default level design
 table.insert(dungeon_rooms.levels, {
-	name = "Default Level (binary tree maze)",
+	name = "Binary tree maze Level",
 	rarity = 0.1,
 	mindepth = 1,
 	rooms = {
@@ -111,8 +111,8 @@ function dungeon_rooms.get_level_data(level, level_id)
 	local raresum = 0
 	for l=1, #dungeon_rooms.levels do
 		levelconf = dungeon_rooms.levels[l]
-		if (not levelconf.minlevel or levelconf.minlevel <= level) and
-			(not levelconf.maxlevel or levelconf.maxlevel >= level) then
+		if (not levelconf.mindepth or levelconf.mindepth <= level) and
+			(not levelconf.maxdepth or levelconf.maxdepth >= level) then
 				-- It's a candidate!
 				table.insert(candidates, levelconf)
 				raresum = raresum + levelconf.rarity
@@ -184,7 +184,7 @@ dungeon_rooms.get_room_config = setmetatable({}, {
 			z = math.floor(room.z/dungeon_rooms.total_size.z),
 			y = room.level,
 		}
-		local level_id = level_pos.x*10000 + level_pos.z
+		local level_id = minetest.hash_node_position(level_pos)
 
 		local leveldata = memotable[level_id]
 		if leveldata == nil then
@@ -235,68 +235,7 @@ function dungeon_rooms.get_room_details(room)
 		details.layout = "4"
 
 	else
-		-- Is there a door on X?
-		local Xdoor = details.door == "X" or (dungeon_rooms.get_room_config({x=room.x+1, level=room.level, z=room.z}).door == "-X")
-		-- Is there a door on Z?
-		local Zdoor = details.door == "Z" or (dungeon_rooms.get_room_config({x=room.x, level=room.level, z=room.z+1}).door == "-Z")
-		-- Is there a door on -X?
-		local mXdoor = details.door == "-X" or (dungeon_rooms.get_room_config({x=room.x-1, level=room.level, z=room.z}).door == "X")
-		-- Is there a door on -Z?
-		local mZdoor = details.door == "-Z" or(dungeon_rooms.get_room_config({x=room.x, level=room.level, z=room.z-1}).door == "Z")
-
-		if Xdoor then
-			details.rotation=0
-			if not Zdoor then
-				if not mXdoor and not mZdoor then
-					details.layout="0"
-				elseif mXdoor and not mZdoor then
-					details.layout="1"
-				elseif not mXdoor and mZdoor then
-					details.layout="2"
-				elseif mXdoor and mZdoor then
-					details.layout="3"
-				end
-			else
-				if not mXdoor and not mZdoor then
-					details.layout="2"
-					details.rotation=270
-				elseif mXdoor and not mZdoor then
-					details.layout="3"
-					details.rotation=180
-				elseif not mXdoor and mZdoor then
-					details.layout="3"
-					details.rotation=270
-				elseif mXdoor and mZdoor then
-					details.layout="4"
-					details.rotation="random"
-				end
-			end
-		elseif Zdoor then
-			if not mXdoor and not mZdoor then
-				details.layout="0"
-				details.rotation=270
-			elseif mXdoor and not mZdoor then
-				details.layout="2"
-				details.rotation=180
-			elseif not mXdoor and mZdoor then
-				details.layout="1"
-				details.rotation=90
-			elseif mXdoor and mZdoor then
-				details.layout="3"
-				details.rotation=90
-			end
-		elseif mXdoor then
-			if mZdoor then
-				details.layout="2"
-				details.rotation=90
-			else
-				details.layout="0"
-				details.rotation=180
-			end
-		else
-			details.layout="0"
-			details.rotation=90
-		end
+		details.layout, details.rotation = dungeon_rooms.calculate_room_layout(details)
 	end
 
 	math.randomseed(details.seed)
@@ -305,5 +244,74 @@ function dungeon_rooms.get_room_details(room)
 	return details
 end
 
+
+function dungeon_rooms.calculate_room_layout(details)
+	-- Is there a door on X?
+	local Xdoor = details.door == "X" or (dungeon_rooms.get_room_config({x=details.x+1, level=details.level, z=details.z}).door == "-X")
+	-- Is there a door on Z?
+	local Zdoor = details.door == "Z" or (dungeon_rooms.get_room_config({x=details.x, level=details.level, z=details.z+1}).door == "-Z")
+	-- Is there a door on -X?
+	local mXdoor = details.door == "-X" or (dungeon_rooms.get_room_config({x=details.x-1, level=details.level, z=details.z}).door == "X")
+	-- Is there a door on -Z?
+	local mZdoor = details.door == "-Z" or(dungeon_rooms.get_room_config({x=details.x, level=details.level, z=details.z-1}).door == "Z")
+
+	local layout, rotation
+
+	if Xdoor then
+		rotation=0
+		if not Zdoor then
+			if not mXdoor and not mZdoor then
+				layout="0"
+			elseif mXdoor and not mZdoor then
+				layout="1"
+			elseif not mXdoor and mZdoor then
+				layout="2"
+			elseif mXdoor and mZdoor then
+				layout="3"
+			end
+		else
+			if not mXdoor and not mZdoor then
+				layout="2"
+				rotation=270
+			elseif mXdoor and not mZdoor then
+				layout="3"
+				rotation=180
+			elseif not mXdoor and mZdoor then
+				layout="3"
+				rotation=270
+			elseif mXdoor and mZdoor then
+				layout="4"
+				rotation="random"
+			end
+		end
+	elseif Zdoor then
+		if not mXdoor and not mZdoor then
+			layout="0"
+			rotation=270
+		elseif mXdoor and not mZdoor then
+			layout="2"
+			rotation=180
+		elseif not mXdoor and mZdoor then
+			layout="1"
+			rotation=90
+		elseif mXdoor and mZdoor then
+			layout="3"
+			rotation=90
+		end
+	elseif mXdoor then
+		if mZdoor then
+			layout="2"
+			rotation=90
+		else
+			layout="0"
+			rotation=180
+		end
+	else
+		layout="0"
+		rotation=90
+	end
+
+	return layout, rotation
+end
 
 --dungeon_rooms.load_leveldata_from_dir(dungeon_rooms.leveldata_directory);

@@ -39,7 +39,7 @@ function dmaking.show_formspec(player, context)
 		.."background[-1,-1;12,9;dmaking_tome_bg.png]"
 		.."label[0.5,0;Tome of DungeonMaking]"
 		.."label[0,1;Level " .. room.level .." of the Dungeon.]"
-		.."label[0,1.5;" .. details.leveldata.name .." " .. details.leveldata.id .."]"
+		.."label[0,1.5;" .. details.leveldata.name .."]"
 		.."button[0,1.5;4,3.5;show_map;Show Level map]"
 		.."label[0,2;Current Room: (" .. room.x ..","..room.z .. ")]"
 		.."button[0,3;4,3.5;reset;RESET room to default state]"
