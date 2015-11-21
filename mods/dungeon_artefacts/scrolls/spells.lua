@@ -458,6 +458,7 @@ scrolls.register_spell("scrolls:invisibility", {
 scrolls.register_spell("scrolls:fireball", {
 	description = "Fireball",
 	scroll_image = "scroll_of_fireball.png",
+	particle_image =  "fire_basic_flame.png",
 
 	on_cast = function(caster, pointed_thing)
 		local pointed_pos
@@ -501,6 +502,12 @@ scrolls.register_spell("scrolls:fireball", {
 		return true
 	end,
 
+	on_self_cast = function(caster, pointed_thing)
+		local pos = vector.round(caster:getpos())
+		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=2}, 2)
+		return true
+	end,
+
 	treasure = {
 		rarity = 0.02,
 		preciousness = 0.5,
@@ -511,6 +518,7 @@ scrolls.register_spell("scrolls:fireball", {
 scrolls.register_spell("scrolls:icebolt", {
 	description = "Icebolt",
 	scroll_image = "scroll_of_icebolt.png",
+	particle_image =  "default_ice.png",
 
 	on_cast = function(caster, pointed_thing)
 		local pointed_pos
@@ -547,7 +555,9 @@ scrolls.register_spell("scrolls:icebolt", {
 					damage_groups = {fleshy = 4},
 				}, 0)
 				local pos = vector.round(player:getpos())
-				minetest.set_node(pos,{name="scrolls:temporary_ice", param2=10})
+				if minetest.get_node(pos).name == "air" then
+					minetest.set_node(pos,{name="scrolls:temporary_ice", param2=10})
+				end
 				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=3}, 2)
 			end,
 
@@ -555,6 +565,12 @@ scrolls.register_spell("scrolls:icebolt", {
 				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5}, 2)
 			end
 		})
+		return true
+	end,
+
+	on_self_cast = function(caster, pointed_thing)
+		local pos = vector.round(caster:getpos())
+		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
 		return true
 	end,
 
