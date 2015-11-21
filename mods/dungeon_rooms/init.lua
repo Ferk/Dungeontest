@@ -6,7 +6,6 @@ dungeon_rooms = {}
 dungeon_rooms.seed = 1
 
 
-dungeon_rooms.stairs_distance = 5
 
 -- Inverted chance for any room to be taken from the type4 pool
 dungeon_rooms.generic_room_chance = 5
@@ -56,23 +55,6 @@ function dungeon_rooms.seed_for_room(room)
 	return (rnd:next() * room.x - rnd:next() * room.z + rnd:next() * room.level)
 end
 
--- Returns nil if room is not a stairs room
--- 1 for stairs up
--- 2 for stairs down
-function dungeon_rooms.is_room_stairs(room)
-	if room.x % dungeon_rooms.stairs_distance == 0 and
-		room.z % dungeon_rooms.stairs_distance == 0
-	then
-		if room.x % 2 == (room.z + room.level/2) % 2
-		then
-			return 1 -- stairsup
-		else
-			return 2 -- stairsdown
-		end
-	else
-		return nil
-	end
-end
 
 -- Given the position of the center of a room, place doors and appropiate schematics to generate the room
 function dungeon_rooms.spawn_room(center)

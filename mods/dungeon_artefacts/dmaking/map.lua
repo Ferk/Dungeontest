@@ -34,18 +34,25 @@ function dmaking.show_map(player)
 					end
 					local layout, rotation = dungeon_rooms.calculate_room_layout(room)
 
+					local transform = ""
 					-- The formspecs rotate in the oposite direction than the schematics rotate...
-					local transformRotation = type(rotation) ~= "string" and (360 - rotation) % 360 or 0
-					if transformRotation == 0 then
-						transformRotation = ""
-					else
-						transformRotation = "^[transformR" .. transformRotation
+					local rotation = type(rotation) ~= "string" and (360 - rotation) % 360 or 0
+					if rotation ~= 0 then
+						transform = "^[transformR" .. rotation
+					end
+
+					local ladder = dungeon_rooms.is_room_ladder(room)
+					if ladder then
+						transform = transform .. "^dmaking_layout_" .. ladder .. ".png"
+					end
+
+					if room == current_room then
+						transform = transform .. "^dmaking_red_dot.png"
 					end
 
 					formspec = formspec
-						.."image[".. (3.5 - 0.75*(room.z -first_room.z)) .."," .. (4.25 - 0.8*(room.x -first_room.x)) .. ";1,1;dmaking_layout_" .. layout ..".png" .. transformRotation
-						..( room == current_room and "^dmaking_red_dot.png" or "" )
-						.."]"
+						.."image[".. (3.5 - 0.75*(room.z -first_room.z)) .."," .. (4.25 - 0.8*(room.x -first_room.x))
+						..";1,1;dmaking_layout_" .. layout .. ".png" .. transform .. "]"
 				end
 			end
 		end

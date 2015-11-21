@@ -3,8 +3,8 @@
 dungeon_rooms.levels = {}
 
 -- Default level design
-table.insert(dungeon_rooms.levels, {
-	name = "Binary tree maze Level",
+local default_level = {
+	name = "Standard maze Level",
 	rarity = 0.1,
 	mindepth = 1,
 	rooms = {
@@ -12,37 +12,39 @@ table.insert(dungeon_rooms.levels, {
 			door = {"X","Z"},
 		},
 	}
-});
-
+}
+for i=0,4 do
+	default_level.rooms[i] = {}
+end
+default_level.rooms[4][4] = {
+	door = {"-X","-Z"}
+}
+for i=0,3 do
+	default_level.rooms[i][4] = {
+		door = {"X","-Z"},
+	}
+	default_level.rooms[4][i] = {
+		door = {"-X","Z"},
+	}
+end
+for i=0,3 do
+	default_level.rooms[i][0] = {
+		door = {"X","Z"},
+	}
+	default_level.rooms[0][i] = {
+		door = {"X","Z"},
+	}
+end
+table.insert(dungeon_rooms.levels, default_level)
 
 -- Level design for the first level of the dungeon
 local intro_level = {
 	name = "Introductory Level",
 	rarity = 10,
 	maxdepth = 0,
-	rooms = {
-		default = {
-			door = {"X","Z","-X","-Z"},
-		},
-	}
+	rooms = table.copy(default_level.rooms)
 }
-for i=0,4 do
-	intro_level.rooms[i] = {}
-end
-for i=0,3 do
-	intro_level.rooms[i][0] = {
-		door = {"X","Z"},
-	}
-	intro_level.rooms[i][4] = {
-		door = {"X","-Z"},
-	}
-	intro_level.rooms[0][i] = {
-		door = {"X","Z"},
-	}
-	intro_level.rooms[4][i] = {
-		door = {"-X","Z"},
-	}
-end
+
 table.insert(dungeon_rooms.levels, intro_level)
 
 --------------------
@@ -204,6 +206,23 @@ dungeon_rooms.get_room_config = setmetatable({}, {
 	__mode = "v",
 });
 
+-- Returns nil if room doesn't contain a ladder to a different level
+-- Otherwise it'll contain a string that identified the type of ladder:
+-- "up" for ladder up
+-- "down" for ladder down
+function dungeon_rooms.is_room_ladder(room)
+	local x = room.x % dungeon_rooms.total_size.x
+	local z = room.z % dungeon_rooms.total_size.z
+	local oddlevel = math.floor(room.level / 2) % 2 == 0
+
+	if x == 0 and z == 0 then
+		return oddlevel and "up" or "down"
+	elseif x == 4 and z == 4 then
+		return oddlevel and "down" or "up"
+	else
+		return nil
+	end
+end
 
 -- Collect room details that are used to determine what type of room to spawn
 --function dungeon_rooms.get_room_details(room)
@@ -218,16 +237,11 @@ function dungeon_rooms.get_room_details(room)
 	--details.Xdoor = (math.random() < 0.5)
 
 
-	local isStairs = dungeon_rooms.is_room_stairs(room)
-	if isStairs == 1
+	local isStairs = dungeon_rooms.is_room_ladder(room)
+	if isStairs ~= nil
 	then
 		details.rotation = 0
-		details.layout = "up"
-
-	elseif isStairs == 2
-	then
-		details.rotation = 0
-		details.layout = "down"
+		details.layout = isStairs
 
 	elseif math.random(0, 5) == 0 then
 		-- We may use any of the type 4 rooms randomly
