@@ -36,7 +36,7 @@ function dungeon_rooms.load_roomdata_from_dir(dirpath)
 				table.insert(dungeon_rooms.rooms[dir], roomdata)
 			end
 		end
-		minetest.log("debug", "Pool '" .. dir .."' has " .. #dungeon_rooms.rooms[dir] .. " rooms loaded")
+		minetest.debug("Pool '" .. dir .."' has " .. #dungeon_rooms.rooms[dir] .. " rooms loaded")
 	end
 
 end

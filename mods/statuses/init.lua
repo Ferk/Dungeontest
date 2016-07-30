@@ -96,7 +96,7 @@ local function create_proxy(values)
     -- create metatable
     local mt = {
       __index = function (t,k)
-		minetest.log("debug","accessing stat " .. (values.name or "") .. "::" .. tostring(k))
+		minetest.debug("accessing stat " .. (values.name or "") .. "::" .. tostring(k))
         return values[k]
       end,
     

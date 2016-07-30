@@ -78,7 +78,7 @@ function dungeon_rooms.load_leveldata_from_dir(dirpath)
 			table.insert(dungeon_rooms.levels, confdata)
 		end
 	end
-	minetest.log("debug", #dungeon_rooms.levels .. " levels loaded")
+	minetest.debug(#dungeon_rooms.levels .. " levels loaded")
 
 end
 
