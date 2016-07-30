@@ -59,22 +59,11 @@ hb.settings.start_offset_left.y = hb.load_setting("hudbars_start_offset_left_y",
 hb.settings.start_offset_right.x = hb.load_setting("hudbars_start_offset_right_x", "number", 15)
 hb.settings.start_offset_right.y = hb.load_setting("hudbars_start_offset_right_y", "number", -86)
 
-hb.settings.vmargin  = hb.load_setting("hudbars_tick", "number", 24)
+hb.settings.vmargin  = hb.load_setting("hudbars_vmargin", "number", 24)
 hb.settings.tick = hb.load_setting("hudbars_tick", "number", 0.1)
 
 -- experimental setting: Changing this setting is not officially supported, do NOT rely on it!
 hb.settings.forceload_default_hudbars = hb.load_setting("hudbars_forceload_default_hudbars", "bool", true)
-
---[[
-- hudbars_alignment_pattern: This setting changes the way the HUD bars are ordered on the display. You can choose
-  between a zig-zag pattern or a vertically stacked pattern.
-  The following values are allowed:
-    zigzag: Starting from the left bottom, the next is right from the first,
-              the next is above the first, the next is right of the third, etc.
-              This is the default.
-    stack_up: The HUD bars are stacked vertically, going upwards.
-    stack_down: The HUD bars are stacked vertically, going downwards.
-]]
 
 -- Misc. settings
 hb.settings.alignment_pattern = hb.load_setting("hudbars_alignment_pattern", "string", "zigzag", {"zigzag", "stack_up", "stack_down"})
@@ -292,8 +281,8 @@ function hb.init_hudbar(player, identifier, start_value, start_max, start_hidden
 	hb.hudtables[identifier].add_all(player, hudtable, start_value, start_max, start_hidden)
 end
 
-function hb.change_hudbar(player, identifier, new_value, new_max_value)
-	if new_value == nil and new_max_value == nil then
+function hb.change_hudbar(player, identifier, new_value, new_max_value, new_icon, new_bgicon, new_bar, new_label, new_text_color)
+	if new_value == nil and new_max_value == nil and new_icon == nil and new_bgicon == nil and new_bar == nil and new_label == nil and new_text_color == nil then
 		return
 	end
 
@@ -316,6 +305,33 @@ function hb.change_hudbar(player, identifier, new_value, new_max_value)
 		end
 	else
 		new_max_value = hudtable.hudstate[name].max
+	end
+
+	if hb.settings.bar_type == "progress_bar" then
+		if new_icon ~= nil and hudtable.hudids[name].icon ~= nil then
+			player:hud_change(hudtable.hudids[name].icon, "text", new_icon)
+		end
+		if new_bgicon ~= nil and hudtable.hudids[name].bgicon ~= nil then
+			player:hud_change(hudtable.hudids[name].bgicon, "text", new_bgicon)
+		end
+		if new_bar ~= nil then
+			player:hud_change(hudtable.hudids[name].bar , "text", new_bar)
+		end
+		if new_label ~= nil then
+			hudtable.label = new_label
+			local new_text = string.format(hudtable.format_string, new_label, hudtable.hudstate[name].value, hudtable.hudstate[name].max)
+			player:hud_change(hudtable.hudids[name].text, "text", new_text)
+		end
+		if new_text_color ~= nil then
+			player:hud_change(hudtable.hudids[name].text, "number", new_text_color)
+		end
+	else
+		if new_icon ~= nil and hudtable.hudids[name].bar ~= nil then
+			player:hud_change(hudtable.hudids[name].bar, "text", new_icon)
+		end
+		if new_bgicon ~= nil and hudtable.hudids[name].bg ~= nil then
+			player:hud_change(hudtable.hudids[name].bg, "text", new_bgicon)
+		end
 	end
 
 	local main_error_text =
