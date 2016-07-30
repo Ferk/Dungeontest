@@ -74,10 +74,17 @@ minetest.register_chatcommand("rewrite_all", {
 		for i, pool in pairs(dungeon_rooms.rooms) do
 			for i = 1, #pool do
 				local roomdata = pool[i]
+				local roomname = (roomdata.name or roompath)
 				dungeon_rooms.clear_room_meta(pos)
-				dungeon_rooms.place_roomdata(pos, roomdata, 0)
-				dungeon_rooms.save_roomdata(pos, roomdata)
-				minetest.chat_send_player(name, "rewritten room: " .. roomname)
+				if dungeon_rooms.place_roomdata(pos, roomdata, 0) then
+					if dungeon_rooms.save_roomdata(pos, roomdata) then
+						minetest.chat_send_player(name, "room rewritten: " .. roomname)
+					else
+						minetest.chat_send_player(name, "room couldn't be written: " .. roomname)
+					end
+				else
+					minetest.chat_send_player(name, "room couldn't be loaded: " .. roomname)
+				end
 			end
 		end
 	end,
