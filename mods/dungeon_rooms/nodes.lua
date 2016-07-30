@@ -77,10 +77,10 @@ minetest.register_node("dungeon_rooms:room_spawner", {
 	sounds = default.node_sound_stone_defaults(),
 })
 
-minetest.register_abm( {
+minetest.register_lbm( {
+	name = "dungeon_rooms:spawn_room",
 	nodenames = {"dungeon_rooms:room_spawner"},
-	interval = 1,
-	chance = 1,
+	run_at_every_load = true,
 	action = function(pos, node, active_object_count, active_object_count_wider)
         minetest.set_node(pos, {name="air"})
 		dungeon_rooms.spawn_room(pos)
