@@ -10,7 +10,7 @@ minetest.register_entity("mechanisms:firemob", {
 	spritediv = {x=3, y=1},
 	initial_sprite_basepos = {x=0, y=0},
 	is_visible = true,
-	automatic_rotate = true,
+	automatic_rotate = 0,
 	speed = 3,
 	damage = 4,
 
@@ -21,10 +21,10 @@ minetest.register_entity("mechanisms:firemob", {
 		if self.timer < 0.5 then return end
 		self.timer = 0
 		self.frame = ((self.frame or 0) + 1) % 3
-		self.object:setsprite({x=self.frame,y=0}, 1, 0.2, false)
+		self.object:set_sprite({x=self.frame,y=0}, 1, 0.2, false)
 
-		local p = self.object:getpos()
-		local v = self.object:getvelocity()
+		local p = self.object:get_pos()
+		local v = self.object:get_velocity()
 		local changeDir = false
 		local waypoint = self.waypoint_index and self.waypoints[self.waypoint_index]
 
@@ -45,9 +45,9 @@ minetest.register_entity("mechanisms:firemob", {
 		end
 
 		if changeDir then
-			if self.waypoints then
+		   if self.waypoints then
 				self.waypoint_index = (self.waypoint_index or 0) + 1
-				if self.waypoint_index >= #self.waypoints then
+				if self.waypoint_index >= #self.waypoints or self.waypoint_index < 1 then
 					self.waypoint_index = 1
 				end
 				waypoint = self.waypoints[self.waypoint_index]
@@ -61,7 +61,7 @@ minetest.register_entity("mechanisms:firemob", {
 					 { x=0, y=0, z=-self.speed }
 				 })[rand]
 			end
-			self.object:setvelocity(v)
+			self.object:set_velocity(v)
 		end
 
 		for _,obj in ipairs(minetest.get_objects_inside_radius(p, 1.5)) do
@@ -69,7 +69,7 @@ minetest.register_entity("mechanisms:firemob", {
 				obj:punch(self.object, 1.0,  {
 					full_punch_interval=1.0,
 					damage_groups = {fleshy=self.damage}
-				}, vector.direction(obj:getpos(), p))
+				}, vector.direction(obj:get_pos(), p))
 			end
 		end
 
@@ -80,14 +80,14 @@ minetest.register_entity("mechanisms:firemob", {
 		if staticdata and staticdata ~= "" then
 			local data = minetest.deserialize(staticdata)
 			self.waypoints = data.waypoints
-			self.waypoint_index = (data.waypoint_index or 1) - 1
+			self.waypoint_index = data.waypoint_index or 0
 		end
 	end,
 	get_staticdata = function(self)
 		if self.waypoints then
 			return minetest.serialize({
 				waypoints = self.waypoints,
-				waypoint_index = self.waypoint_index
+				waypoint_index = self.waypoint_index,
 			})
 		end
 		return ""
@@ -183,7 +183,9 @@ minetest.register_node("mechanisms:firemob", {
 		end
 
 		minetest.set_node(pos, {name="air"});
-		local ent = minetest.add_entity(pos, "mechanisms:firemob"):get_luaentity()
-		ent.waypoints = waypoints
+		minetest.add_entity(pos, "mechanisms:firemob", minetest.serialize({
+			waypoints = waypoints,
+			waypoint_index = 1
+		}))
 	end
 });

@@ -62,7 +62,7 @@ dungeon_chests.register_chest("treasure_common", {
         -- chance for rarer items to start appearing
 		local rare_chance = 4
 
-        if minetest.setting_getbool("creative_mode") then
+        if minetest.settings:get_bool("creative_mode") then
            minetest.chat_send_player(player:get_player_name(), "Treasure chest: preciousness " .. basepr ..", rare chance " .. rare_chance)
            return false
         end
@@ -94,7 +94,7 @@ dungeon_chests.register_chest("treasure_rare", {
         -- chance for rarer items to start appearing
 		local rare_chance = 2
 
-        if minetest.setting_getbool("creative_mode") then
+        if minetest.settings:get_bool("creative_mode") then
            minetest.chat_send_player(player:get_player_name(), "Treasure chest: preciousness " .. basepr ..", rare chance " .. rare_chance)
            return false
         end

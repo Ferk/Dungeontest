@@ -11,7 +11,7 @@ local pool_selection_array = {"0","1","2","3","4","down","up"}
 -- Teleport the given player to the X entrance of the room, which is always
 -- open in unrotated schematics. This way he won't get inside a wall on load
 function dmaking.teleport_player_safe(player)
-	local room = dungeon_rooms.room_at(player:getpos())
+	local room = dungeon_rooms.room_at(player:get_pos())
 	local pos = {
 			x = room.maxp.x - 1,
 			y = room.maxp.y - dungeon_rooms.room_area.y/2,
@@ -23,7 +23,7 @@ end
 function dmaking.show_formspec(player, context)
 
 	local name = player:get_player_name() or "singleplayer"
-	local pos = player:getpos()
+	local pos = player:get_pos()
 
 	local room = dungeon_rooms.room_at(pos)
 	local details = dungeon_rooms.get_room_details(room)
@@ -113,7 +113,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		elseif fields.reset_for_sure then
 
-			local pos = player:getpos()
+			local pos = player:get_pos()
 
 			dungeon_rooms.clear_room_meta(pos)
 			local room = dungeon_rooms.room_at(pos)
@@ -143,7 +143,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 					if context.roomdata then
 						context.room = nil
 						dmaking.show_formspec(player, context)
-						local pos = player:getpos()
+						local pos = player:get_pos()
 						dungeon_rooms.clear_room_meta(pos)
 						if dungeon_rooms.place_roomdata(pos, context.roomdata) then
 							minetest.chat_send_player(name, "room loaded: " .. context.roomdata.name)
@@ -223,7 +223,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 				roomconf:remove("groups")
 			end
 
-			if roomconf:write() and dungeon_rooms.save_roomdata(player:getpos(), context.roomdata) then
+			if roomconf:write() and dungeon_rooms.save_roomdata(player:get_pos(), context.roomdata) then
 				minetest.chat_send_player(name, "room saved: " .. (context.save.name or filename))
 			else
 				minetest.chat_send_player(name, "room couldn't be saved")

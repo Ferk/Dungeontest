@@ -1,7 +1,7 @@
 
 
 
-
+spawner_on_rightclick = {}
 
 
 
@@ -37,7 +37,7 @@ function dungeon_mobs.spawn_mob(pos, def)
 end
 
 function onlyCreative(var)
-    if minetest.setting_getbool("creative_mode") then
+    if minetest.settings:get_bool("creative_mode") then
         return var
     else
         return nil
@@ -46,7 +46,7 @@ end
 
 
 -- in creative, spawners metadata can be edited
-if minetest.setting_getbool("creative_mode") then
+if minetest.settings:get_bool("creative_mode") then
 
     spawner_context = {}
     function spawner_on_rightclick(pos, node, player, itemstack, pointed_thing)
@@ -164,7 +164,7 @@ minetest.register_node("dungeon_mobs:spawner_inactive", {
         node.name = "dungeon_mobs:spawner_active"
         minetest.swap_node(pos, node)
     end,
-    on_dungeon_generation = minetest.setting_getbool("creative_mode") and function(pos)
+    on_dungeon_generation = minetest.settings:get_bool("creative_mode") and function(pos)
         local timeout = minetest.get_meta(pos):get_int("timeout")
         minetest.get_node_timer(pos):stop(timeout)
     end
@@ -197,7 +197,7 @@ minetest.register_node("dungeon_mobs:decorative_pentacle", {
 })
 
 -- spawners won'T change state on creative mode, to permit editting
-if not minetest.setting_getbool("creative_mode") then
+if not minetest.settings:get_bool("creative_mode") then
 
 
     minetest.register_abm( {

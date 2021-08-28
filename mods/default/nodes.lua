@@ -1039,7 +1039,7 @@ minetest.register_node("default:water_source", {
 			backface_culling = false,
 		},
 	},
-	alpha = 160,
+	use_texture_alpha = "blend",
 	paramtype = "light",
 	walkable = false,
 	pointable = false,
@@ -1083,7 +1083,7 @@ minetest.register_node("default:water_flowing", {
 			},
 		},
 	},
-	alpha = 160,
+	use_texture_alpha = "blend",
 	paramtype = "light",
 	paramtype2 = "flowingliquid",
 	walkable = false,
@@ -1129,7 +1129,7 @@ minetest.register_node("default:river_water_source", {
 			backface_culling = false,
 		},
 	},
-	alpha = 160,
+	use_texture_alpha = "blend",
 	paramtype = "light",
 	walkable = false,
 	pointable = false,
@@ -1175,7 +1175,7 @@ minetest.register_node("default:river_water_flowing", {
 			},
 		},
 	},
-	alpha = 160,
+	use_texture_alpha = "blend",
 	paramtype = "light",
 	paramtype2 = "flowingliquid",
 	walkable = false,
@@ -1443,6 +1443,7 @@ minetest.register_node("default:sign_wall", {
 	groups = {choppy=2,dig_immediate=2,attached_node=1,flammable=1},
 	legacy_wallmounted = true,
 	sounds = default.node_sound_defaults(),
+	use_texture_alpha = "clip",
 
 	on_construct = function(pos)
 		--local n = minetest.get_node(pos)

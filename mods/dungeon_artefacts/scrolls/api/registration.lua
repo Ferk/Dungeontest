@@ -71,7 +71,7 @@ function scrolls.register_spell(name, def)
             local done = scrolls.cast(def, user, pointed_thing)
             if done then
                 local pos = (pointed_thing.type == "node" and pointed_thing.under)
-                    or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
+                    or (pointed_thing.type == "object" and pointed_thing.ref.get_pos and pointed_thing.ref:get_pos())
                 if pos then
                     scrolls.particle_effect(def, pos)
                 end
@@ -120,7 +120,7 @@ function scrolls.cast(spell, caster, pointed_thing)
     if def and def.on_cast and def.on_cast(caster, pointed_thing) then
         return true
     else
-        minetest.sound_play("scrolls_fail", {pos=caster:getpos(), max_hear_distance=6})
+        minetest.sound_play("scrolls_fail", {pos=caster:get_pos(), max_hear_distance=6})
         return false
     end
 end
@@ -135,10 +135,10 @@ function scrolls.self_cast(spell, caster, pointed_thing)
     end
 
     if def and def.on_self_cast and def.on_self_cast(caster, pointed_thing) then
-        scrolls.particle_effect(def, caster:getpos())
+        scrolls.particle_effect(def, caster:get_pos())
         return true
     else
-        minetest.sound_play("scrolls_fail", {pos=caster:getpos(), max_hear_distance=6})
+        minetest.sound_play("scrolls_fail", {pos=caster:get_pos(), max_hear_distance=6})
         return false
     end
 end

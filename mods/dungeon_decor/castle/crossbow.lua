@@ -5,10 +5,10 @@ arrows = {
 local castle_shoot_arrow = function(itemstack, player)
 	for _,arrow in ipairs(arrows) do
 		if player:get_inventory():get_stack("main", player:get_wield_index()+1):get_name() == arrow[1] then
-			if not minetest.setting_getbool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				player:get_inventory():remove_item("main", arrow[1])
 			end
-			local playerpos = player:getpos()
+			local playerpos = player:get_pos()
 			local obj = minetest.add_entity({x=playerpos.x,y=playerpos.y+1.5,z=playerpos.z}, arrow[2])
 			local dir = player:get_look_dir()
 			obj:setvelocity({x=dir.x*19, y=dir.y*19, z=dir.z*19})
@@ -30,7 +30,7 @@ minetest.register_tool("castle:crossbow", {
     stack_max = 1,
 	on_use = function(itemstack, user, pointed_thing)
 		if castle_shoot_arrow(item, user, pointed_thing) then
-			if not minetest.setting_getbool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:add_wear(65535/200)
 			end
 		end

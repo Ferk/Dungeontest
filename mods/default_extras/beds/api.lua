@@ -20,6 +20,7 @@ function beds.register_bed(name, def)
 			fixed = def.selectionbox,
 				
 		},
+		use_texture_alpha = "clip",
 		after_place_node = function(pos, placer, itemstack)
 			local n = minetest.get_node_or_nil(pos)
 			if not n or not n.param2 then
@@ -99,6 +100,7 @@ function beds.register_bed(name, def)
 			type = "fixed",
 			fixed = {0, 0, 0, 0, 0, 0},
 		},
+		use_texture_alpha = "clip",
 	})
 
 	minetest.register_alias(name, name .. "_bottom")

@@ -325,7 +325,7 @@ armor.get_valid_player = function(self, player, msg)
 		minetest.log("error", "3d_armor: Player name is nil "..msg)
 		return
 	end
-	local pos = player:getpos()
+	local pos = player:get_pos()
 	local player_inv = player:get_inventory()
 	local armor_inv = minetest.get_inventory({type="detached", name=name.."_armor"})
 	if not pos then
@@ -593,7 +593,7 @@ elseif minetest.get_modpath("unified_inventory") then
 				.."label[5,1;Level: "..armor.def[name].level.."]"
 				.."label[5,1.5;Heal:  "..armor.def[name].heal.."]"
 				.."label[5,2;Fire:  "..armor.def[name].fire.."]"
-			if minetest.setting_getbool("unified_inventory_lite") then
+			if minetest.settings:get_bool("unified_inventory_lite") then
 				formspec = "background[0.06,0.49;7.92,7.52;3d_armor_ui_form.png]"
 					.."label[0,0;Armor]"
 					.."list[detached:"..name.."_armor;armor;0,0.5;2,3;]"

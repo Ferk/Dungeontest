@@ -58,7 +58,8 @@ ddecor.register("cabinet_half", {
 		"ddecor_cabinet_sides.png", "ddecor_cabinet_sides.png",
 		"ddecor_half_cabinet_sides.png", "ddecor_half_cabinet_sides.png",
 		"ddecor_half_cabinet_sides.png", "ddecor_half_cabinet_front.png"
-	}
+	},
+	use_texture_alpha = "clip",
 })
 
 ddecor.register("candle", {
@@ -95,7 +96,8 @@ ddecor.register("cardboard_box", {
 		"ddecor_cardbox_sides.png"},
 	node_box = {
 		type = "fixed", fixed = {{-0.3125, -0.5, -0.3125, 0.3125, 0, 0.3125}}
-	}
+	},
+	use_texture_alpha = "clip",
 })
 
 ddecor.register("cauldron", {
@@ -414,7 +416,8 @@ ddecor.register("skull", {
 	walkable = false,
 	wield_image = "ddecor_skull_front.png",
 	selection_box = {type="fixed", fixed = {-0.2375, -0.475, -0.25, 0.185, 0, 0.205}},
-	groups = {dig_immediate=3}
+	groups = {dig_immediate=3},
+	use_texture_alpha = "clip",
 })
 
 
@@ -561,7 +564,8 @@ ddecor.register("rat_hole", {
 		fixed = {
 			{-0.5, -0.5, 0.5, 0.5, 0.5, 0.49},
 		}
-	}
+	},
+	use_texture_alpha = "clip",
 })
 
 

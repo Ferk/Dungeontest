@@ -17,8 +17,8 @@ minetest.register_entity("scrolls:magic_projectile", {
 		self.timer = self.timer + dtime
 		if not self.direction or self.timer > 60 then self.object:remove() return end
 
-		local pos = self.object:getpos()
-		local node = minetest.get_node_or_nil(self.object:getpos())
+		local pos = self.object:get_pos()
+		local node = minetest.get_node_or_nil(self.object:get_pos())
 		if node then node = node.name else node = "air" end
 
 		if self.hit_node
@@ -60,7 +60,7 @@ minetest.register_entity("scrolls:magic_projectile", {
 		self.speed = params.speed or 6
 		self.direction = params.direction
 		if params.direction then
-			self.object:setvelocity(vector.multiply(params.direction, self.speed))
+			self.object:set_velocity(vector.multiply(params.direction, self.speed))
 		end
 		self.hit_node = params.hit_node
 		self.hit_entity = params.hit_entity

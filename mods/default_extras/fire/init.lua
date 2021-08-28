@@ -169,7 +169,7 @@ end
 
 -- Enable ABMs according to 'disable fire' setting
 
-if minetest.setting_getbool("disable_fire") then
+if minetest.settings:get_bool("disable_fire") then
 
 	-- Extinguish flames quickly with dedicated ABM
 
@@ -219,7 +219,7 @@ else
 
 	-- Remove flames and flammable nodes (customizable interval)
 
-	local fire_update_interval = tonumber(minetest.setting_get("fire_update_interval"))
+	local fire_update_interval = tonumber(minetest.settings:get("fire_update_interval"))
 	if fire_update_interval == 0 then
 		fire_update_interval = 2
 	end

@@ -29,7 +29,7 @@ unified_inventory.register_button("craft", {
 
 
 
-if not unified_inventory.lite_mode and minetest.setting_getbool("creative_mode") then
+if not unified_inventory.lite_mode and minetest.settings:get_bool("creative_mode") then
 
 	unified_inventory.register_button("misc_set_day", {
 		type = "image",
@@ -163,7 +163,7 @@ local other_dir = {
 }
 
 
-if minetest.setting_getbool("show_craftguide") then
+if minetest.settings:get_bool("show_craftguide") then
 
 	unified_inventory.register_button("craftguide", {
 		type = "image",

@@ -123,7 +123,6 @@ function dungeon_rooms.spawn_entrance(pos)
 		pos.y = pos.y - 1
 	end
 	minetest.set_node(pos, {name="default:ladder", param2=minetest.dir_to_wallmounted({x=1,y=0,z=0})})
-	print("ladderend: " .. minetest.pos_to_string(pos))
 end
 
 -- Places a ladder going down to the next dungeon level

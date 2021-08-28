@@ -1,7 +1,7 @@
 
 -- Default to enabled in singleplayer and disabled in multiplayer
 local singleplayer = minetest.is_singleplayer()
-local setting = minetest.setting_getbool("enable_tnt")
+local setting = minetest.settings:get_bool("enable_tnt")
 if (not singleplayer and setting ~= true) or
 		(singleplayer and setting == false) then
 	return
@@ -13,7 +13,7 @@ local loss_prob = {}
 loss_prob["default:cobble"] = 3
 loss_prob["default:dirt"] = 4
 
-local radius = tonumber(minetest.setting_get("tnt_radius") or 3)
+local radius = tonumber(minetest.settings:get("tnt_radius") or 3)
 
 -- Fill a list with data for content IDs, after all nodes are registered
 local cid_data = {}
@@ -50,7 +50,7 @@ local function eject_drops(drops, pos, radius)
 			if obj then
 				obj:get_luaentity().collect = true
 				obj:setacceleration({x=0, y=-10, z=0})
-				obj:setvelocity({x=math.random(-3, 3), y=10,
+				obj:set_velocity({x=math.random(-3, 3), y=10,
 						z=math.random(-3, 3)})
 			end
 			count = count - max
@@ -118,12 +118,12 @@ local function entity_physics(pos, radius)
 	radius = radius * 2
 	local objs = minetest.get_objects_inside_radius(pos, radius)
 	for _, obj in pairs(objs) do
-		local obj_pos = obj:getpos()
-		local obj_vel = obj:getvelocity()
+		local obj_pos = obj:get_pos()
+		local obj_vel = obj:get_velocity()
 		local dist = math.max(1, vector.distance(pos, obj_pos))
 
 		if obj_vel ~= nil then
-			obj:setvelocity(calc_velocity(pos, obj_pos,
+			obj:set_velocity(calc_velocity(pos, obj_pos,
 					obj_vel, radius * 10))
 		end
 
@@ -384,7 +384,7 @@ minetest.register_craft({
 	}
 })
 
-if minetest.setting_get("log_mods") then
+if minetest.settings:get("log_mods") then
 	minetest.debug("[TNT] Loaded!")
 end
 

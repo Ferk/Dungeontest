@@ -1,4 +1,4 @@
-if minetest.setting_getbool("enable_damage") then
+if minetest.settings:get_bool("enable_damage") then
 
 hbhunger = {}
 
@@ -21,7 +21,7 @@ HUNGER_EXHAUST_MOVE = 0.3 -- exhaustion increased this value if player movement 
 HUNGER_EXHAUST_LVL = 160 -- at what exhaustion player satiation gets lowerd
 
 -- In creative mode, greatly reduce hunger
-if minetest.setting_getbool("creative_mode") then
+if minetest.settings:get_bool("creative_mode") then
    HUNGER_HUNGER_TICK = HUNGER_HUNGER_TICK * 50
 end
 

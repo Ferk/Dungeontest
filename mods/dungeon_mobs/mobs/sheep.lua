@@ -113,7 +113,7 @@ for _, col in ipairs(all_colours) do
 							ent.owner = name
 							ent.tamed = true
 							-- take item
-							if not minetest.setting_getbool("creative_mode") then
+							if not minetest.settings:get_bool("creative_mode") then
 								item:take_item()
 								clicker:set_wielded_item(item)
 							end

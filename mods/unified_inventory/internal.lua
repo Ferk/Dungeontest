@@ -30,7 +30,7 @@ function unified_inventory.get_formspec(player, page)
 	local fsdata = pagedef.get_formspec(player)
 
 
-	if minetest.setting_getbool("creative_mode") and fsdata.draw_item_list ~= false then
+	if minetest.settings:get_bool("creative_mode") and fsdata.draw_item_list ~= false then
 		fsdata.draw_item_list = true
 	end
 

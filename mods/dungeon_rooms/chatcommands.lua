@@ -31,7 +31,7 @@ minetest.register_chatcommand("save", {
 
         roomdata.path = modpath .. "/roomdata/" .. roompath
 
-		if dungeon_rooms.save_roomdata(player:getpos(), roomdata) then
+		if dungeon_rooms.save_roomdata(player:get_pos(), roomdata) then
 			minetest.chat_send_player(name, "room saved: " .. (roomdata.name or roompath))
 		else
 			minetest.chat_send_player(name, "room couldn't be saved")
@@ -45,7 +45,7 @@ minetest.register_chatcommand("load", {
 	func = function(name, param)
 		local roompath = param or "draft"
 		local player = minetest.get_player_by_name(name)
-		local pos = player:getpos()
+		local pos = player:get_pos()
 		-- clear metadata before loading the schematic, otherwise the previous meta will be stored!
 		dungeon_rooms.clear_room_meta(pos)
 
@@ -70,7 +70,7 @@ minetest.register_chatcommand("rewrite_all", {
 	description = "Loads and saves all rooms",
 	func = function(name, param)
 		local player = minetest.get_player_by_name(name)
-		local pos = player:getpos()
+		local pos = player:get_pos()
 		for i, pool in pairs(dungeon_rooms.rooms) do
 			for i = 1, #pool do
 				local roomdata = pool[i]
@@ -95,7 +95,7 @@ minetest.register_chatcommand("clear", {
 	description = "Clears the room",
 	func = function(name, param)
 		local player = minetest.get_player_by_name(name)
-		dungeon_rooms.clear_room(player:getpos())
+		dungeon_rooms.clear_room(player:get_pos())
 		minetest.chat_send_player(name, "room cleared")
 	end,
 })
@@ -106,7 +106,7 @@ minetest.register_chatcommand("reset", {
 	description = "Re-generates the room",
 	func = function(name, param)
 		local player = minetest.get_player_by_name(name)
-        local pos = player:getpos()
+        local pos = player:get_pos()
 
         dungeon_rooms.clear_room_meta(pos)
 		local room = dungeon_rooms.room_at(pos)
@@ -135,7 +135,7 @@ minetest.register_chatcommand("rotate", {
 			angle = angle + 360
 		end
 		local player = minetest.get_player_by_name(name)
-		local minp, maxp = dungeon_rooms.get_room_limits(player:getpos())
+		local minp, maxp = dungeon_rooms.get_room_limits(player:get_pos())
 		if dungeon_rooms.rotate(minp, maxp, angle) then
 		   minetest.chat_send_player(name, "room successfully rotated " .. angle .. " degrees")
 		else

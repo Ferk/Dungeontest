@@ -41,7 +41,7 @@ local castle_ARROW_ENTITY={
 
 castle_ARROW_ENTITY.on_step = function(self, dtime)
 	self.timer=self.timer+dtime
-	local pos = self.object:getpos()
+	local pos = self.object:get_pos()
 	local node = minetest.get_node(pos)
 
 	if self.timer>0.2 then

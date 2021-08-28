@@ -42,7 +42,7 @@ minetest.register_node("dungeon_chests:chest", {
 		local meta = minetest.get_meta(pos)
 		meta:set_string("infotext", "Chest")
 	end,
-	can_dig = function(pos,player) return minetest.setting_getbool("creative_mode")	end,
+	can_dig = function(pos,player) return minetest.settings:get_bool("creative_mode")	end,
 	after_place_node = function(pos, player, itemstack, pointed_thing)
         request_chest_type(pos, player)
 	end,
@@ -51,7 +51,7 @@ minetest.register_node("dungeon_chests:chest", {
 		local type = meta:get_string("chesttype")
 
         if type == "" then
-            if minetest.setting_getbool("creative_mode") then
+            if minetest.settings:get_bool("creative_mode") then
                 return request_chest_type(pos, player)
             else
                 type = "random"

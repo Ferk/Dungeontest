@@ -28,13 +28,13 @@ unified_inventory = {
 	home_filename =	worldpath.."/unified_inventory_home.home",
 
 	-- Default inventory page
-	default = minetest.setting_get("unified_inventory_default_page") or "craft",
+	default = minetest.settings:get("unified_inventory_default_page") or "craft",
 
 	-- intllib
 	gettext = rawget(_G, "intllib") and intllib.Getter() or function(s) return s end,
 
 	-- "Lite" mode
-	lite_mode = minetest.setting_getbool("unified_inventory_lite"),
+	lite_mode = minetest.settings:get_bool("unified_inventory_lite"),
 
 	pagecols = 8,
 	pagerows = 10,

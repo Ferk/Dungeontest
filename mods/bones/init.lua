@@ -24,9 +24,9 @@ bones.bones_formspec =
 	"list[current_player;main;0,6.08;8,3;8]"..
 	default.get_hotbar_bg(0,4.85)
 
-local share_bones_time = tonumber(minetest.setting_get("share_bones_time") or 1200)
-local share_bones_time_early = tonumber(minetest.setting_get("share_bones_time_early") or (share_bones_time/4))
-local decaying_bones_time = tonumber(minetest.setting_get("decaying_bones_time") or nil)
+local share_bones_time = tonumber(minetest.settings:get("share_bones_time") or 1200)
+local share_bones_time_early = tonumber(minetest.settings:get("share_bones_time_early") or (share_bones_time/4))
+local decaying_bones_time = tonumber(minetest.settings:get("decaying_bones_time") or nil)
 
 minetest.register_node("bones:bones", {
 	description = "Bones",
@@ -76,7 +76,7 @@ minetest.register_node("bones:bones", {
 		dug = {name="default_gravel_footstep", gain=1.0},
 	}),
 
-	on_rightclick = minetest.setting_getbool("creative_mode") and function(pos)
+	on_rightclick = minetest.settings:get_bool("creative_mode") and function(pos)
 		local meta = minetest.get_meta(pos)
 		meta:set_string("formspec", bones.bones_formspec)
 		meta:set_string("infotext", "Old bones")
@@ -97,7 +97,7 @@ minetest.register_node("bones:bones", {
 	end,
 
 	allow_metadata_inventory_put = function(pos, listname, index, stack, player)
-		if minetest.setting_getbool("creative_mode") then
+		if minetest.settings:get_bool("creative_mode") then
 			return stack:get_count()
 		else
 			return 0
@@ -192,7 +192,7 @@ local function may_replace(pos, player)
 end
 
 minetest.register_on_dieplayer(function(player)
-	if minetest.setting_getbool("creative_mode") then
+	if minetest.settings:get_bool("creative_mode") then
 		return
 	end
 
@@ -202,7 +202,7 @@ minetest.register_on_dieplayer(function(player)
 		return
 	end
 
-	local pos = player:getpos()
+	local pos = player:get_pos()
 	pos.x = math.floor(pos.x+0.5)
 	pos.y = math.floor(pos.y+0.5)
 	pos.z = math.floor(pos.z+0.5)

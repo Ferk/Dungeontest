@@ -80,6 +80,7 @@ beds.register_bed("beds:bed", {
 		{"wool:red", "wool:red", "wool:white"},
 		{"group:wood", "group:wood", "group:wood"}
 	},
+	use_texture_alpha = "clip",
 
 })
 

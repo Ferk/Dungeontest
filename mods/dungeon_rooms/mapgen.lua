@@ -11,7 +11,7 @@ dungeon_rooms.total_size = {x=5, y=20, z=5}
 
 minetest.register_on_mapgen_init(function(mgparams)
     minetest.log("action", "mgparams: "..mgparams.flags)
-    minetest.set_mapgen_params({flags="nodungeons"})
+    minetest.set_mapgen_setting("flags", "nodungeons")
     dungeon_rooms.seed = mgparams.seed
 end)
 
@@ -36,19 +36,20 @@ minetest.register_on_generated(function(minp, maxp, seed)
         if (minp.x < next_entrance.x) and (minp.z < next_entrance.z) then
             -- Put the entrance spawner on ground level
             local hm = minetest.get_mapgen_object("heightmap")
-            local hz = (next_entrance.z - minp.z) * (maxp.x - minp.x)
-            local hx = (next_entrance.x - minp.x) % (maxp.z - minp.z)
-            next_entrance.y = hm[1 + hx + hz]
+            if hm then
+                local hz = (next_entrance.z - minp.z) * (maxp.x - minp.x)
+                local hx = (next_entrance.x - minp.x) % (maxp.z - minp.z)
+                next_entrance.y = hm[1 + hx + hz]
 
-            if (next_entrance.y < maxp.y) and (next_entrance.y > minp.y) then
-                minetest.log("action","Placing Dungeon entrance at " .. next_entrance.x .. ",".. next_entrance.z)
-                dungeon_rooms.spawn_entrance(next_entrance)
-                local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
-                vm:calc_lighting()
+                if (next_entrance.y < maxp.y) and (next_entrance.y > minp.y) then
+                    minetest.log("action","Placing Dungeon entrance at " .. next_entrance.x .. ",".. next_entrance.z)
+                    dungeon_rooms.spawn_entrance(next_entrance)
+                    local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
+                    vm:calc_lighting()
+                end
             end
         end
-
-		return
+        return
     else
 
         local vm, emin, emax = minetest.get_mapgen_object("voxelmanip")
@@ -58,9 +59,7 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     	local c_air = minetest.get_content_id("air")
     	local c_wall = minetest.get_content_id("dungeon_rooms:wall")
-        local c_door = minetest.get_content_id("dungeon_rooms:door")
         local c_ladder = minetest.get_content_id("default:ladder")
-        local c_deco = minetest.get_content_id("dungeon_rooms:wall_decoration")
 
     	for x = minp.x, maxp.x do
     		for y = minp.y, math.min(maxp.y,dungeon_rooms.origin.y) do
@@ -70,8 +69,8 @@ minetest.register_on_generated(function(minp, maxp, seed)
 
     				local level = math.floor((dungeon_rooms.origin.y - y -1) / dungeon_rooms.room_area.y)
 
-    				if (data[pos] == c_door) or (data[pos] == c_ladder) then
-    					-- don't replace doors or ladders
+    				if (data[pos] == c_ladder) then
+    					-- don't replace ladders
     				elseif(level%2 == 1) then
                         -- even levels are pure wall as separators
     					data[pos] = c_wall

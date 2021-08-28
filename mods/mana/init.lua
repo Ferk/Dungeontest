@@ -18,17 +18,17 @@ mana.settings.default_regen = 1
 mana.settings.regen_timer = 0.5
 
 do
-	local default_max = tonumber(minetest.setting_get("mana_default_max"))
+	local default_max = tonumber(minetest.settings:get("mana_default_max"))
 	if default_max ~= nil then
 		mana.settings.default_max = default_max
 	end
 
-	local default_regen = tonumber(minetest.setting_get("mana_default_regen"))
+	local default_regen = tonumber(minetest.settings:get("mana_default_regen"))
 	if default_regen ~= nil then
 		mana.settings.default_regen = default_regen
 	end
 
-	local regen_timer = tonumber(minetest.setting_get("mana_regen_timer"))
+	local regen_timer = tonumber(minetest.settings:get("mana_regen_timer"))
 	if regen_timer ~= nil then
 		mana.settings.regen_timer = regen_timer
 	end

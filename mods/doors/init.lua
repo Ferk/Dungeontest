@@ -95,7 +95,7 @@ function doors.register_door(name, def)
 				meta:set_string("infotext", "Owned by "..pn)
 			end
 
-			if not minetest.setting_getbool("creative_mode") then
+			if not minetest.settings:get_bool("creative_mode") then
 				itemstack:take_item()
 			end
 			return itemstack
@@ -210,6 +210,7 @@ function doors.register_door(name, def)
 			fixed = def.selection_box_bottom
 		},
 		groups = def.groups,
+		use_texture_alpha = "clip",
 
 		after_dig_node = function(pos, oldnode, oldmetadata, digger)
 			pos.y = pos.y+1
@@ -248,6 +249,7 @@ function doors.register_door(name, def)
 			fixed = def.selection_box_top
 		},
 		groups = def.groups,
+		use_texture_alpha = "clip",
 
 		after_dig_node = function(pos, oldnode, oldmetadata, digger)
 			pos.y = pos.y-1
@@ -286,6 +288,7 @@ function doors.register_door(name, def)
 			fixed = def.selection_box_bottom
 		},
 		groups = def.groups,
+		use_texture_alpha = "clip",
 
 		after_dig_node = function(pos, oldnode, oldmetadata, digger)
 			pos.y = pos.y+1
@@ -324,6 +327,7 @@ function doors.register_door(name, def)
 			fixed = def.selection_box_top
 		},
 		groups = def.groups,
+		use_texture_alpha = "clip",
 
 		after_dig_node = function(pos, oldnode, oldmetadata, digger)
 			pos.y = pos.y-1
@@ -457,6 +461,7 @@ function doors.register_trapdoor(name, def)
 	def.paramtype = "light"
 	def.paramtype2 = "facedir"
 	def.is_ground_content = false
+	def.use_texture_alpha = "clip"
 
 	local def_opened = table.copy(def)
 	local def_closed = table.copy(def)

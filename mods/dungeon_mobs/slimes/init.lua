@@ -12,6 +12,6 @@ if not minetest.get_modpath("mesecons_materials") then
 	})
 end
 
-if minetest.setting_get("log_mods") then minetest.log("action", "Slimes loaded") end
-damage_enabled = minetest.setting_getbool("enable_damage")
+if minetest.settings:get("log_mods") then minetest.log("action", "Slimes loaded") end
+damage_enabled = minetest.settings:get_bool("enable_damage")
 

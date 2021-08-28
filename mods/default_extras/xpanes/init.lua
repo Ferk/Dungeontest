@@ -129,7 +129,8 @@ function xpanes.register_pane(name, def)
 			selection_box = {
 				type = "fixed",
 				fixed = take2
-			}
+			},
+			use_texture_alpha = "clip"
 		})
 	end
 

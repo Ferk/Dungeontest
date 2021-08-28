@@ -13,11 +13,11 @@ scrolls.register_spell("scrolls:speed", {
     	description = "High Speed",
     	on_start = function(status, target)
     		scrolls.chat_if_player(target, "You suddently feel very hyperactive!")
-    		target:set_physics_override(3,nil,nil)
+    		target:set_physics_override({speed = 3})
     	end,
     	on_cancel = function(status, target)
     		scrolls.chat_if_player(target, "You regain normal speed")
-    		target:set_physics_override(1,nil,nil)
+    		target:set_physics_override({speed = 1})
     	end
     },
 
@@ -186,14 +186,14 @@ scrolls.register_spell("scrolls:immolation", {
 	groups = { fire = 1 },
 
 	on_self_cast = function(caster, pointed_thing)
-		local s = caster:getpos()
+		local s = caster:get_pos()
 		local p = caster:get_look_dir()
 		local vec = {x=s.x-p.x, y=s.y-p.y, z=s.z-p.z}
 		caster:punch(caster, 1.0,  {
 			full_punch_interval=1.0,
 			damage_groups = {fleshy=4},
 		}, vec)
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 		scrolls.replace_air_in_radius(pos, 1, {name="fire:basic_flame"})
 		return true
 	end,
@@ -203,9 +203,9 @@ scrolls.register_spell("scrolls:immolation", {
 		if pointed_thing.type == "node" then
 			pos = pointed_thing.under
 
-		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
+		elseif pointed_thing.type == "object" and pointed_thing.ref.get_pos then
 			local target = pointed_thing.ref
-			pos = target:getpos()
+			pos = target:get_pos()
 
 			if target.punch and caster.get_look_dir then
 				local dir = caster:get_look_dir()
@@ -235,14 +235,14 @@ scrolls.register_spell("scrolls:frostbite", {
 	groups = { ice = 1 },
 
 	on_self_cast = function(caster, pointed_thing)
-		local s = caster:getpos()
+		local s = caster:get_pos()
 		local p = caster:get_look_dir()
 		local vec = {x=s.x-p.x, y=s.y-p.y, z=s.z-p.z}
 		caster:punch(caster, 1.0,  {
 			full_punch_interval=1.0,
 			damage_groups = {fleshy=4},
 		}, vec)
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=10})
 		return true
 	end,
@@ -252,9 +252,9 @@ scrolls.register_spell("scrolls:frostbite", {
 		if pointed_thing.type == "node" then
 			pos = pointed_thing.under
 
-		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
+		elseif pointed_thing.type == "object" and pointed_thing.ref.get_pos then
 			local target = pointed_thing.ref
-			pos = target:getpos()
+			pos = target:get_pos()
 
 			if target.punch and caster.get_look_dir then
 				local dir = caster:get_look_dir()
@@ -284,7 +284,7 @@ scrolls.register_spell("scrolls:irrigation", {
 	liquids_pointable = true,
 
 	on_self_cast = function(caster, pointed_thing)
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 		pos.y = pos.y + 1
 		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_water", param2 = 10})
 		return true
@@ -292,7 +292,7 @@ scrolls.register_spell("scrolls:irrigation", {
 
 	on_cast = function(caster, pointed_thing)
 		local pos = (pointed_thing.type == "node" and pointed_thing.under)
-			or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
+			or (pointed_thing.type == "object" and pointed_thing.ref.get_pos and pointed_thing.ref:get_pos())
 		if pos then
 			scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_water", param2 = 10})
 			return true
@@ -315,7 +315,7 @@ scrolls.register_spell("scrolls:miasma", {
 	liquids_pointable = true,
 
 	on_self_cast = function(caster, pointed_thing)
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 		pos.y = pos.y + 1
 		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:biotoxin", param2 = 4})
 		return true
@@ -323,7 +323,7 @@ scrolls.register_spell("scrolls:miasma", {
 
 	on_cast = function(caster, pointed_thing)
 		local pos = (pointed_thing.type == "node" and pointed_thing.under)
-			or (pointed_thing.type == "object" and pointed_thing.ref.getpos and pointed_thing.ref:getpos())
+			or (pointed_thing.type == "object" and pointed_thing.ref.get_pos and pointed_thing.ref:get_pos())
 		if pos then
 			scrolls.replace_air_in_radius(pos, 1, {name="scrolls:biotoxin", param2 = 4})
 			return true
@@ -346,7 +346,7 @@ scrolls.register_spell("scrolls:teleportation", {
 
 	-- Teleport to a random location on self cast
 	on_self_cast = function(caster, pointed_thing)
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 
 		-- Use the center of the room, as it's more likely there'll be space there
 		if dungeon_rooms then
@@ -379,15 +379,15 @@ scrolls.register_spell("scrolls:teleportation", {
 	-- teleport to the pointed thing, or swap positions with it if it's an entity
 	on_cast = function(caster, pointed_thing)
 		local pos
-		if pointed_thing.type == "object" and pointed_thing.ref.getpos then
-			pos = pointed_thing.ref:getpos()
+		if pointed_thing.type == "object" and pointed_thing.ref.get_pos then
+			pos = pointed_thing.ref:get_pos()
 		else
 			pos = pointed_thing.above
 		end
 		if not pos then
 			return false
 		end
-		local src = caster:getpos()
+		local src = caster:get_pos()
 		local dest = {x=pos.x, y=math.ceil(pos.y)-0.5, z=pos.z}
 		local over = {x=dest.x, y=dest.y+1, z=dest.z}
 		local destnode = minetest.get_node({x=dest.x, y=math.ceil(dest.y), z=dest.z})
@@ -470,15 +470,15 @@ scrolls.register_spell("scrolls:fireball", {
 			else
 				return false
 			end
-		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
-			pointed_pos = pointed_thing.ref:getpos()
+		elseif pointed_thing.type == "object" and pointed_thing.ref.get_pos then
+			pointed_pos = pointed_thing.ref:get_pos()
 		else
 			pointed_pos = pointed_thing.above
 		end
 		if not pointed_pos then
 			return false
 		end
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 		pos.y  = pos.y + 1
 		local direction = vector.direction(pos, pointed_pos)
 
@@ -490,8 +490,8 @@ scrolls.register_spell("scrolls:fireball", {
 				player:punch(self.object, 1.0,  {
 					full_punch_interval = 1.0,
 					damage_groups = {fleshy = 8},
-				}, 0)
-				local pos = player:getpos()
+				})
+				local pos = player:get_pos()
 				scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=1}, 2)
 			end,
 
@@ -503,7 +503,7 @@ scrolls.register_spell("scrolls:fireball", {
 	end,
 
 	on_self_cast = function(caster, pointed_thing)
-		local pos = vector.round(caster:getpos())
+		local pos = vector.round(caster:get_pos())
 		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_flame", param2=2}, 2)
 		return true
 	end,
@@ -530,15 +530,15 @@ scrolls.register_spell("scrolls:icebolt", {
 			else
 				return false
 			end
-		elseif pointed_thing.type == "object" and pointed_thing.ref.getpos then
-			pointed_pos = pointed_thing.ref:getpos()
+		elseif pointed_thing.type == "object" and pointed_thing.ref.get_pos then
+			pointed_pos = pointed_thing.ref:get_pos()
 		else
 			pointed_pos = pointed_thing.above
 		end
 		if not pointed_pos then
 			return false
 		end
-		local pos = caster:getpos()
+		local pos = caster:get_pos()
 		pos.y  = pos.y + 1
 		local direction = vector.direction(pos, pointed_pos)
 
@@ -553,8 +553,8 @@ scrolls.register_spell("scrolls:icebolt", {
 				player:punch(self.object, 1.0,  {
 					full_punch_interval = 1.0,
 					damage_groups = {fleshy = 4},
-				}, 0)
-				local pos = vector.round(player:getpos())
+				})
+				local pos = vector.round(player:get_pos())
 				if minetest.get_node(pos).name == "air" then
 					minetest.set_node(pos,{name="scrolls:temporary_ice", param2=10})
 				end
@@ -569,7 +569,7 @@ scrolls.register_spell("scrolls:icebolt", {
 	end,
 
 	on_self_cast = function(caster, pointed_thing)
-		local pos = vector.round(caster:getpos())
+		local pos = vector.round(caster:get_pos())
 		scrolls.replace_air_in_radius(pos, 1, {name="scrolls:temporary_ice", param2=5})
 		return true
 	end,

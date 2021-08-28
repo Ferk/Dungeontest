@@ -91,6 +91,7 @@ minetest.register_node("chains:chandelier", {
 	drawtype = "mesh",
 	mesh = "chains_chandelier.obj",
 	groups = {cracky=3},
+	use_texture_alpha = "clip",
 	sounds =  default.node_sound_stone_defaults(),
 })
 
@@ -118,6 +119,7 @@ minetest.register_node("chains:chandelier_brass", {
 	drawtype = "mesh",
 	mesh = "chains_chandelier.obj",
 	groups = {cracky=3},
+	use_texture_alpha = "clip",
 	sounds =  default.node_sound_stone_defaults(),
 })
 

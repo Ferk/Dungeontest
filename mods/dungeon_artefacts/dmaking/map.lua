@@ -3,7 +3,7 @@
 function dmaking.show_map(player)
 
 	local name = player:get_player_name() or "singleplayer"
-	local pos = player:getpos()
+	local pos = player:get_pos()
 
 	local current_room = dungeon_rooms.get_room_details(dungeon_rooms.room_at(pos))
 	local first_room = {

@@ -382,7 +382,7 @@ minetest.register_node("mechanisms:toggler_on", {
 	sounds = default.node_sound_stone_defaults(),
 })
 
-if minetest.setting_getbool("creative_mode") then
+if minetest.settings:get_bool("creative_mode") then
 	minetest.register_node("mechanisms:toggled_node", {
 		description = "Hidden node",
 		drawtype = "nodebox",

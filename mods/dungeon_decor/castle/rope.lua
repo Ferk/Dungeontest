@@ -4,6 +4,7 @@ minetest.register_node("castle:ropes",{
 	sunlight_propagates = true,
 	tiles = {"castle_ropes.png"},
 	groups = {choppy=3,snappy=3,oddly_breakable_by_hand=3,flammable=1},
+	use_texture_alpha = "clip",
 	paramtype = "light",
 	climbable = true,
 	walkable = false,
@@ -37,6 +38,7 @@ minetest.register_node("castle:box_rope", {
     sunlight_propagates = true,
     tiles = {"castle_ropes.png"},
     groups = {not_in_creative_inventory=1},
+    use_texture_alpha = "clip",
     climbable = true,
     walkable = false,
     diggable = false,
@@ -72,6 +74,7 @@ minetest.register_node("castle:ropebox", {
              "castle_ropebox_side_2.png"},
     paramtype = "light",
     paramtype2 = "facedir",
+    use_texture_alpha = "clip",
     groups = {choppy=3},
 	node_box = {
 		type = "fixed",
